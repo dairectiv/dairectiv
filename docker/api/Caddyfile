@@ -1,0 +1,28 @@
+{
+    frankenphp
+    order php_server before file_server
+}
+
+:80, :443, localhost {
+    root * /app/public
+    encode gzip
+
+    # Security headers
+    header {
+        -Server
+        -X-Powered-By
+        X-Content-Type-Options "nosniff"
+        X-Frame-Options "SAMEORIGIN"
+        Referrer-Policy "no-referrer-when-downgrade"
+    }
+
+    # Symfony front controller pattern
+    php_server
+
+    # Logging
+    log {
+        output stdout
+        format console
+        level INFO
+    }
+}

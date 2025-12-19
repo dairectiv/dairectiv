@@ -1,0 +1,47 @@
+services:
+  postgres:
+    container_name: dairectiv-postgres
+    image: postgres:16
+    environment:
+      POSTGRES_USER: dairectiv
+      POSTGRES_PASSWORD: "0123456789"
+      POSTGRES_DB: dairectiv
+    ports:
+      - "40010:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    restart: unless-stopped
+    networks:
+      - dairectiv
+
+  api:
+    container_name: dairectiv-api
+    image: dunglas/frankenphp:php8.5-alpine
+    ports:
+      - "80:80" # HTTP
+      - "443:443" # HTTPS
+      - "443:443/udp" # HTTP/3
+    volumes:
+      - ./api:/app
+      - ./docker/api/Caddyfile:/app/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    environment:
+      SERVER_NAME: :80, :443, localhost
+      DATABASE_URL: postgresql://dairectiv:0123456789@postgres:5432/dairectiv?serverVersion=16&charset=utf8
+    command: ["frankenphp", "run", "--config", "/app/Caddyfile"]
+    working_dir: /app
+    restart: unless-stopped
+    depends_on:
+      - postgres
+    networks:
+      - dairectiv
+
+networks:
+  dairectiv:
+    driver: bridge
+
+volumes:
+  postgres-data:
+  caddy-data:
+  caddy-config:
