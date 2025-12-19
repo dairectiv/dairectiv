@@ -1,0 +1,34 @@
+includes:
+    # Doctrine
+    - vendor/phpstan/phpstan-doctrine/extension.neon
+    - vendor/phpstan/phpstan-doctrine/rules.neon
+    # PHPUnit
+    - vendor/phpstan/phpstan-phpunit/extension.neon
+    - vendor/phpstan/phpstan-phpunit/rules.neon
+    # Symfony
+    - vendor/phpstan/phpstan-symfony/extension.neon
+    - vendor/phpstan/phpstan-symfony/rules.neon
+    # Webmozart Assert
+    - vendor/phpstan/phpstan-webmozart-assert/extension.neon
+    # Strict rules
+    - vendor/phpstan/phpstan-strict-rules/rules.neon
+    # Deprecation rules
+    - vendor/phpstan/phpstan-deprecation-rules/rules.neon
+parameters:
+    level: max
+    paths:
+        - src/
+        - tests/
+    tmpDir: var/cache/.phpstan.cache
+    doctrine:
+        objectManagerLoader: tools/phpstan/doctrine.php
+        reportDynamicQueryBuilders: true
+        reportUnknownTypes: false
+        literalString: true
+    symfony:
+        containerXmlPath: var/cache/dev/Dairectiv_KernelDevDebugContainer.xml
+        consoleApplicationLoader: tools/phpstan/console.php
+        constantHassers: false
+    scanFiles:
+        - config/reference.php
+        - vendor/symfony/dependency-injection/Loader/Configurator/ContainerConfigurator.php
