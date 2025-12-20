@@ -28,8 +28,6 @@ function reset(
         );
     }
 
-    docker_compose(['restart', 'postgres']);
-
     drop($test);
 
     io()->newLine(2);
