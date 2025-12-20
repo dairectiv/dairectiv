@@ -11,6 +11,9 @@ use Rector\ValueObject\PhpVersion;
 
 return static function (RectorConfig $rectorConfig): void {
     $rectorConfig->parallel(maxNumberOfProcess: 8);
+    $rectorConfig->skip([
+        __DIR__.'/config/reference.php',
+    ]);
     $rectorConfig->paths([
         __DIR__.'/config',
         __DIR__.'/migrations',

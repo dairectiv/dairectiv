@@ -94,6 +94,7 @@ return function (ECSConfig $ecsConfig): void {
     // ----------------------------------
     $ecsConfig->skip([
         __DIR__.'/config/bundles.php',
+        __DIR__.'/config/reference.php',
     ]);
 
     // ----------------------------------
