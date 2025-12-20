@@ -42,17 +42,28 @@ function all(
 }
 
 #[AsTask(description: 'Runs PHPStan', aliases: ['phpstan'])]
-function phpstan(): int
+function phpstan(
+    #[AsOption(description: 'CI mode (GitHub Actions format)')]
+    bool $ci = false,
+): int
 {
     io()->section('Running PHPStan...');
 
-    return exit_code('vendor/bin/phpstan analyze --configuration=phpstan.dist.neon', context: context()->withWorkingDirectory('api'));
+    $command = 'vendor/bin/phpstan analyze --configuration=phpstan.dist.neon';
+
+    if ($ci) {
+        $command = \sprintf('%s --error-format=github', $command);
+    }
+
+    return exit_code($command, context: context()->withWorkingDirectory('api'));
 }
 
 #[AsTask(description: 'Runs Rector', aliases: ['rector'])]
 function rector(
     #[AsOption(shortcut: 'f', description: 'Apply changes to files')]
     bool $fix = false,
+    #[AsOption(description: 'CI mode (GitHub Actions format)')]
+    bool $ci = false,
 ): int
 {
     io()->section('Running Rector...');
@@ -63,6 +74,10 @@ function rector(
         $command = \sprintf('%s --dry-run', $command);
     }
 
+    if ($ci) {
+        $command = \sprintf('%s --output-format=github', $command);
+    }
+
     return exit_code($command, context: context()->withWorkingDirectory('api'));
 }
 
@@ -70,6 +85,8 @@ function rector(
 function ecs(
     #[AsOption(shortcut: 'f', description: 'Apply changes to files')]
     bool $fix = false,
+    #[AsOption(description: 'CI mode (GitHub Actions format)')]
+    bool $ci = false,
 ): int
 {
     io()->section('Running ECS...');
@@ -78,6 +95,10 @@ function ecs(
 
     if ($fix) {
         $command = \sprintf('%s --fix', $command);
+    }
+
+    if ($ci) {
+        $command = \sprintf('%s --output-format=checkstyle', $command);
     }
 
     return exit_code($command, context: context()->withWorkingDirectory('api'));
@@ -112,7 +133,7 @@ function phpunit(
     }
 
     if ($coverage) {
-        $command = \sprintf('%s --coverage-xml var/cache/coverage', $command);
+        $command = \sprintf('%s --coverage-clover var/coverage/clover.xml', $command);
     }
 
     return exit_code($command, context: context()->withWorkingDirectory('api'));
@@ -179,13 +200,17 @@ function dependencies(): int
 }
 
 #[AsTask(description: 'Runs Linters', aliases: ['lint', 'linter'])]
-function linter(): int
+function linter(
+    #[AsOption(description: 'CI mode (GitHub Actions format)')]
+    bool $ci = false,
+): int
 {
     io()->section('Running Linters...');
 
+    $format = $ci ? ' --format=github' : '';
     $commands = [
-        'bin/console lint:container',
-        'bin/console lint:yaml config',
+        \sprintf('bin/console lint:container%s', $format),
+        \sprintf('bin/console lint:yaml config%s', $format),
     ];
 
     return max(array_map(

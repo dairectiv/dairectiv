@@ -29,6 +29,8 @@ parameters:
         containerXmlPath: var/cache/dev/Dairectiv_KernelDevDebugContainer.xml
         consoleApplicationLoader: tools/phpstan/console.php
         constantHassers: false
+    excludePaths:
+        - config/reference.php
     scanFiles:
         - config/reference.php
         - vendor/symfony/dependency-injection/Loader/Configurator/ContainerConfigurator.php

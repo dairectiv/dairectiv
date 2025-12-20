@@ -17,7 +17,7 @@ return static function (RectorConfig $rectorConfig): void {
         __DIR__.'/src',
         __DIR__.'/tests',
     ]);
-    $rectorConfig->phpVersion(PhpVersion::PHP_84);
+    $rectorConfig->phpVersion(PhpVersion::PHP_85);
     $rectorConfig->symfonyContainerXml(__DIR__.'/var/cache/dev/Dairectiv_KernelDevDebugContainer.xml');
     $rectorConfig->cacheClass(FileCacheStorage::class);
     $rectorConfig->cacheDirectory(__DIR__.'/var/cache/.rector.cache');
