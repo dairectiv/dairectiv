@@ -15,17 +15,6 @@ on:
       - 'api/composer.lock'
       - 'api/symfony.lock'
       - '.github/workflows/docker.yml'
-  pull_request:
-    branches:
-      - '**'
-    paths:
-      - 'compose.yaml'
-      - 'docker/**'
-      - '.dockerignore'
-      - 'api/composer.json'
-      - 'api/composer.lock'
-      - 'api/symfony.lock'
-      - '.github/workflows/docker.yml'
 
 jobs:
   build:

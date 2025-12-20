@@ -17,22 +17,6 @@ on:
       - '.castor/**'
       - 'castor.php'
       - '.github/workflows/quality.yml'
-  pull_request:
-    branches:
-      - '**'
-    paths:
-      - 'api/**/*.php'
-      - 'api/config/**'
-      - 'api/phpstan.dist.neon'
-      - 'api/rector.php'
-      - 'api/ecs.php'
-      - 'api/phpunit.xml.dist'
-      - 'api/composer.json'
-      - 'api/composer.lock'
-      - 'api/symfony.lock'
-      - '.castor/**'
-      - 'castor.php'
-      - '.github/workflows/quality.yml'
 
 jobs:
   static-analysis:
