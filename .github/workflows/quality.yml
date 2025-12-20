@@ -93,7 +93,7 @@ jobs:
         run: castor ecs --ci
 
       - name: Run Linters
-        run: castor lint --ci
+        run: castor lint
 
       - name: Run Doctrine Schema Validation
         run: castor schema
