@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Dairectiv\Kernel;
+use Dairectiv\SharedKernel\Infrastructure\Symfony\Kernel;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Component\Dotenv\Dotenv;
 

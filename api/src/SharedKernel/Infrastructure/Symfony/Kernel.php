@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Dairectiv;
+namespace Dairectiv\SharedKernel\Infrastructure\Symfony;
 
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
 use Symfony\Component\HttpKernel\Kernel as BaseKernel;

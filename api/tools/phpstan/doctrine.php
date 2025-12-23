@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Dairectiv\Kernel;
+use Dairectiv\SharedKernel\Infrastructure\Symfony\Kernel;
 use Symfony\Component\Dotenv\Dotenv;
 
 $rootDir = dirname(__DIR__, 2);
