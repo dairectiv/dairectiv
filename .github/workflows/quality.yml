@@ -1,225 +1,225 @@
 name: Quality
 
 on:
-  push:
-    branches:
-      - '**'
-    paths:
-      - 'api/**/*.php'
-      - 'api/config/**'
-      - 'api/phpstan.dist.neon'
-      - 'api/rector.php'
-      - 'api/ecs.php'
-      - 'api/phpunit.xml.dist'
-      - 'api/composer.json'
-      - 'api/composer.lock'
-      - 'api/symfony.lock'
-      - '.castor/**'
-      - 'castor.php'
-      - '.github/workflows/quality.yml'
+    push:
+        branches:
+            - '**'
+        paths:
+            - 'api/**/*.php'
+            - 'api/config/**'
+            - 'api/phpstan.dist.neon'
+            - 'api/rector.php'
+            - 'api/ecs.php'
+            - 'api/phpunit.xml.dist'
+            - 'api/composer.json'
+            - 'api/composer.lock'
+            - 'api/symfony.lock'
+            - '.castor/**'
+            - 'castor.php'
+            - '.github/workflows/quality.yml'
 
 jobs:
-  static-analysis:
-    name: Static Analysis
-    runs-on: ubuntu-latest
+    static-analysis:
+        name: Static Analysis
+        runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+        steps:
+            -   name: Checkout code
+                uses: actions/checkout@v4
 
-      - name: Setup PHP extensions cache environment
-        id: php-extensions-cache-env
-        uses: shivammathur/cache-extensions@v1
-        with:
-          php-version: '8.5'
-          extensions: mbstring, xml, ctype, iconv, intl, pdo_pgsql, pgsql
-          key: php-extensions-v1
+            -   name: Setup PHP extensions cache environment
+                id: php-extensions-cache-env
+                uses: shivammathur/cache-extensions@v1
+                with:
+                    php-version: '8.4'
+                    extensions: mbstring, xml, ctype, iconv, intl, pdo_pgsql, pgsql, amqp
+                    key: php-extensions-v1
 
-      - name: Cache PHP extensions
-        uses: actions/cache@v4
-        with:
-          path: ${{ steps.php-extensions-cache-env.outputs.dir }}
-          key: ${{ steps.php-extensions-cache-env.outputs.key }}
-          restore-keys: |
-            ${{ steps.php-extensions-cache-env.outputs.key }}
+            -   name: Cache PHP extensions
+                uses: actions/cache@v4
+                with:
+                    path: ${{ steps.php-extensions-cache-env.outputs.dir }}
+                    key: ${{ steps.php-extensions-cache-env.outputs.key }}
+                    restore-keys: |
+                        ${{ steps.php-extensions-cache-env.outputs.key }}
 
-      - name: Set up PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: '8.5'
-          extensions: mbstring, xml, ctype, iconv, intl, pdo_pgsql, pgsql
-          coverage: none
-          tools: castor
+            -   name: Set up PHP
+                uses: shivammathur/setup-php@v2
+                with:
+                    php-version: '8.4'
+                    extensions: mbstring, xml, ctype, iconv, intl, pdo_pgsql, pgsql, amqp
+                    coverage: none
+                    tools: castor
 
-      - name: Cache Composer packages
-        uses: actions/cache@v4
-        with:
-          path: api/vendor
-          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-composer-
+            -   name: Cache Composer packages
+                uses: actions/cache@v4
+                with:
+                    path: api/vendor
+                    key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+                    restore-keys: |
+                        ${{ runner.os }}-composer-
 
-      - name: Restore PHPStan cache
-        uses: actions/cache/restore@v4
-        with:
-          path: api/var/cache/.phpstan.cache
-          key: phpstan-result-cache-${{ github.run_id }}
-          restore-keys: |
-            phpstan-result-cache-
+            -   name: Restore PHPStan cache
+                uses: actions/cache/restore@v4
+                with:
+                    path: api/var/cache/.phpstan.cache
+                    key: phpstan-result-cache-${{ github.run_id }}
+                    restore-keys: |
+                        phpstan-result-cache-
 
-      - name: Restore Rector cache
-        uses: actions/cache/restore@v4
-        with:
-          path: api/var/cache/.rector.cache
-          key: rector-result-cache-${{ github.run_id }}
-          restore-keys: |
-            rector-result-cache-
+            -   name: Restore Rector cache
+                uses: actions/cache/restore@v4
+                with:
+                    path: api/var/cache/.rector.cache
+                    key: rector-result-cache-${{ github.run_id }}
+                    restore-keys: |
+                        rector-result-cache-
 
-      - name: Restore ECS cache
-        uses: actions/cache/restore@v4
-        with:
-          path: api/var/cache/.ecs.cache
-          key: ecs-result-cache-${{ github.run_id }}
-          restore-keys: |
-            ecs-result-cache-
+            -   name: Restore ECS cache
+                uses: actions/cache/restore@v4
+                with:
+                    path: api/var/cache/.ecs.cache
+                    key: ecs-result-cache-${{ github.run_id }}
+                    restore-keys: |
+                        ecs-result-cache-
 
-      - name: Install Composer dependencies
-        run: castor install
+            -   name: Install Composer dependencies
+                run: castor install
 
-      - name: Run Rector
-        run: castor rector --ci
+            -   name: Run Rector
+                run: castor rector --ci
 
-      - name: Run ECS
-        run: castor ecs --ci
+            -   name: Run ECS
+                run: castor ecs --ci
 
-      - name: Run Linters
-        run: castor lint
+            -   name: Run Linters
+                run: castor lint
 
-      - name: Run Doctrine Schema Validation
-        run: castor schema
+            -   name: Run Doctrine Schema Validation
+                run: castor schema
 
-      - name: Run PHPStan
-        run: castor phpstan --ci
+            -   name: Run PHPStan
+                run: castor phpstan --ci
 
-      - name: Save PHPStan cache
-        uses: actions/cache/save@v4
-        if: ${{ !cancelled() }}
-        with:
-          path: api/var/cache/.phpstan.cache
-          key: phpstan-result-cache-${{ github.run_id }}
+            -   name: Save PHPStan cache
+                uses: actions/cache/save@v4
+                if: ${{ !cancelled() }}
+                with:
+                    path: api/var/cache/.phpstan.cache
+                    key: phpstan-result-cache-${{ github.run_id }}
 
-      - name: Save Rector cache
-        uses: actions/cache/save@v4
-        if: ${{ !cancelled() }}
-        with:
-          path: api/var/cache/.rector.cache
-          key: rector-result-cache-${{ github.run_id }}
+            -   name: Save Rector cache
+                uses: actions/cache/save@v4
+                if: ${{ !cancelled() }}
+                with:
+                    path: api/var/cache/.rector.cache
+                    key: rector-result-cache-${{ github.run_id }}
 
-      - name: Save ECS cache
-        uses: actions/cache/save@v4
-        if: ${{ !cancelled() }}
-        with:
-          path: api/var/cache/.ecs.cache
-          key: ecs-result-cache-${{ github.run_id }}
+            -   name: Save ECS cache
+                uses: actions/cache/save@v4
+                if: ${{ !cancelled() }}
+                with:
+                    path: api/var/cache/.ecs.cache
+                    key: ecs-result-cache-${{ github.run_id }}
 
-  test:
-    name: Test
-    runs-on: ubuntu-latest
+    test:
+        name: Test
+        runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+        steps:
+            -   name: Checkout code
+                uses: actions/checkout@v4
 
-      - name: Setup PHP extensions cache environment
-        id: php-extensions-cache-env
-        uses: shivammathur/cache-extensions@v1
-        with:
-          php-version: '8.5'
-          extensions: mbstring, xml, ctype, iconv, intl, pdo_pgsql, pgsql
-          key: php-extensions-v1
+            -   name: Setup PHP extensions cache environment
+                id: php-extensions-cache-env
+                uses: shivammathur/cache-extensions@v1
+                with:
+                    php-version: '8.4'
+                    extensions: mbstring, xml, ctype, iconv, intl, pdo_pgsql, pgsql, amqp
+                    key: php-extensions-v1
 
-      - name: Cache PHP extensions
-        uses: actions/cache@v4
-        with:
-          path: ${{ steps.php-extensions-cache-env.outputs.dir }}
-          key: ${{ steps.php-extensions-cache-env.outputs.key }}
-          restore-keys: |
-            ${{ steps.php-extensions-cache-env.outputs.key }}
+            -   name: Cache PHP extensions
+                uses: actions/cache@v4
+                with:
+                    path: ${{ steps.php-extensions-cache-env.outputs.dir }}
+                    key: ${{ steps.php-extensions-cache-env.outputs.key }}
+                    restore-keys: |
+                        ${{ steps.php-extensions-cache-env.outputs.key }}
 
-      - name: Set up PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: '8.5'
-          extensions: mbstring, xml, ctype, iconv, intl, pdo_pgsql, pgsql
-          coverage: xdebug
-          tools: castor
+            -   name: Set up PHP
+                uses: shivammathur/setup-php@v2
+                with:
+                    php-version: '8.4'
+                    extensions: mbstring, xml, ctype, iconv, intl, pdo_pgsql, pgsql, amqp
+                    coverage: xdebug
+                    tools: castor
 
-      - name: Cache Composer packages
-        uses: actions/cache@v4
-        with:
-          path: api/vendor
-          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-composer-
+            -   name: Cache Composer packages
+                uses: actions/cache@v4
+                with:
+                    path: api/vendor
+                    key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+                    restore-keys: |
+                        ${{ runner.os }}-composer-
 
-      - name: Start PostgreSQL service
-        run: castor up --service postgres
+            -   name: Start PostgreSQL service
+                run: castor up --service postgres
 
-      - name: Install Composer dependencies
-        run: castor install
+            -   name: Install Composer dependencies
+                run: castor install
 
-      - name: Reset test database
-        run: castor database:reset -t
+            -   name: Reset test database
+                run: castor database:reset -t
 
-      - name: Run PHPUnit with coverage
-        run: castor test -o
+            -   name: Run PHPUnit with coverage
+                run: castor test -o
 
-      - name: Stop PostgreSQL service
-        if: always()
-        run: castor destroy --force
+            -   name: Stop PostgreSQL service
+                if: always()
+                run: castor destroy --force
 
-  security:
-    name: Security Audit
-    runs-on: ubuntu-latest
+    security:
+        name: Security Audit
+        runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+        steps:
+            -   name: Checkout code
+                uses: actions/checkout@v4
 
-      - name: Setup PHP extensions cache environment
-        id: php-extensions-cache-env
-        uses: shivammathur/cache-extensions@v1
-        with:
-          php-version: '8.5'
-          extensions: mbstring, xml, ctype, iconv, intl
-          key: php-extensions-v1
+            -   name: Setup PHP extensions cache environment
+                id: php-extensions-cache-env
+                uses: shivammathur/cache-extensions@v1
+                with:
+                    php-version: '8.4'
+                    extensions: mbstring, xml, ctype, iconv, intl, pdo_pgsql, pgsql, amqp
+                    key: php-extensions-v1
 
-      - name: Cache PHP extensions
-        uses: actions/cache@v4
-        with:
-          path: ${{ steps.php-extensions-cache-env.outputs.dir }}
-          key: ${{ steps.php-extensions-cache-env.outputs.key }}
-          restore-keys: |
-            ${{ steps.php-extensions-cache-env.outputs.key }}
+            -   name: Cache PHP extensions
+                uses: actions/cache@v4
+                with:
+                    path: ${{ steps.php-extensions-cache-env.outputs.dir }}
+                    key: ${{ steps.php-extensions-cache-env.outputs.key }}
+                    restore-keys: |
+                        ${{ steps.php-extensions-cache-env.outputs.key }}
 
-      - name: Set up PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: '8.5'
-          extensions: mbstring, xml, ctype, iconv, intl
-          coverage: none
-          tools: castor
+            -   name: Set up PHP
+                uses: shivammathur/setup-php@v2
+                with:
+                    php-version: '8.4'
+                    extensions: mbstring, xml, ctype, iconv, intl, pdo_pgsql, pgsql, amqp
+                    coverage: none
+                    tools: castor
 
-      - name: Cache Composer packages
-        uses: actions/cache@v4
-        with:
-          path: api/vendor
-          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-composer-
+            -   name: Cache Composer packages
+                uses: actions/cache@v4
+                with:
+                    path: api/vendor
+                    key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+                    restore-keys: |
+                        ${{ runner.os }}-composer-
 
-      - name: Install Composer dependencies
-        run: castor install
+            -   name: Install Composer dependencies
+                run: castor install
 
-      - name: Run Composer security audit (production)
-        run: castor dependencies
+            -   name: Run Composer security audit (production)
+                run: castor dependencies
