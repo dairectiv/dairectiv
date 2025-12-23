@@ -220,31 +220,105 @@ castor cc -t                   # test environment
 
 ## Architecture
 
+The application follows **Domain-Driven Design (DDD)** principles with clear **Bounded Contexts** and **CQRS** patterns.
+
+### Core Principles
+
+- **Bounded Contexts**: Business domains are separated into independent contexts
+- **CQRS**: Commands (write) and Queries (read) are separated for clarity
+- **Domain Events**: Aggregates emit events for cross-context communication
+- **Hexagonal Architecture**: Domain layer is independent from infrastructure
+
 ### Directory Structure
 
 ```
 api/
-├── bin/              # CLI executables (console)
-├── config/           # Configuration files
-│   ├── packages/     # Bundle configurations
-│   │   ├── doctrine.yaml
-│   │   ├── doctrine_migrations.yaml
-│   │   ├── framework.yaml
-│   │   └── ...
-│   ├── routes/       # Routing configuration
-│   ├── bundles.php   # Registered bundles
-│   └── services.yaml # Service container config
-├── migrations/       # Doctrine database migrations
-├── public/           # Web server document root
-│   └── index.php     # Application entry point
-├── src/              # Application source code
-│   ├── Controller/   # HTTP controllers
-│   ├── Entity/       # Doctrine entities
-│   ├── Repository/   # Doctrine repositories
-│   └── Kernel.php    # Application kernel
-├── var/              # Generated files (cache, logs)
-└── vendor/           # Composer dependencies
+├── bin/                     # CLI executables (console)
+├── config/                  # Configuration files
+│   ├── packages/            # Bundle configurations (doctrine, messenger, framework)
+│   ├── routes/              # Routing configuration
+│   ├── bundles.php          # Registered bundles
+│   ├── services.yaml        # Service container config
+│   └── services_test.yaml   # Test environment services
+├── migrations/              # Doctrine database migrations
+├── public/                  # Web server document root
+│   └── index.php            # Application entry point
+├── src/
+│   ├── Authoring/           # Bounded Context: Directive authoring
+│   │   ├── Domain/          # Business logic, entities, value objects
+│   │   ├── Application/     # Use cases, commands, queries
+│   │   ├── Infrastructure/  # Doctrine repositories, adapters
+│   │   └── UserInterface/   # HTTP controllers, CLI commands
+│   │
+│   └── SharedKernel/        # Shared concepts across contexts
+│       ├── Domain/          # Domain events, aggregate root
+│       ├── Application/     # CQRS interfaces (Command, Query, Bus)
+│       └── Infrastructure/
+│           ├── Symfony/     # Symfony integration (Kernel, Messenger)
+│           └── Zenstruck/   # Test fixtures (Foundry)
+├── tests/
+│   ├── Fixtures/            # Test data (commands, queries, aggregates)
+│   ├── Framework/           # Base test classes
+│   └── Integration/         # Integration tests by bounded context
+├── var/                     # Generated files (cache, logs)
+└── vendor/                  # Composer dependencies
 ```
+
+### Bounded Contexts
+
+Each bounded context follows the same layered structure:
+
+**Domain Layer** (`Domain/`)
+- Contains business logic, entities, value objects, domain events
+- Independent from infrastructure and frameworks
+- Example: `Directive` aggregate, `DirectiveId` value object
+
+**Application Layer** (`Application/`)
+- Orchestrates use cases via Commands and Queries
+- Example: `CreateDirectiveCommand`, `GetDirectiveQuery`
+
+**Infrastructure Layer** (`Infrastructure/`)
+- Technical implementations: repositories (Doctrine), adapters
+- Example: `DoctrineDirectiveRepository`
+
+**UserInterface Layer** (`UserInterface/`)
+- Entry points: HTTP controllers, CLI commands
+- Example: `CreateDirectiveController`
+
+### CQRS Pattern
+
+The application uses **Command Query Responsibility Segregation**:
+
+**Commands** (write operations)
+- Implement `SharedKernel\Application\Command\Command`
+- Handled by `CommandHandler`
+- Dispatched via `CommandBus` (Symfony Messenger)
+- Example: `CreateDirectiveCommand` → `CreateDirectiveHandler`
+
+**Queries** (read operations)
+- Implement `SharedKernel\Application\Query\Query`
+- Handled by `QueryHandler`
+- Dispatched via `QueryBus` (Symfony Messenger)
+- Example: `GetDirectiveQuery` → `GetDirectiveHandler`
+
+### Domain Events
+
+Aggregates can emit domain events for cross-context communication:
+
+```php
+// Aggregate emits event
+$directive = new Directive($id, $content);
+$directive->recordEvent(new DirectiveCreated($id));
+
+// Messenger middleware publishes events after transaction
+// Other bounded contexts can listen via event handlers
+```
+
+### Messenger Configuration
+
+- **Transports**: RabbitMQ (AMQP) for async processing, Test transport for integration tests
+- **Middleware**: `DomainEventMiddleware` publishes aggregate events after command/query handling
+- **Routing**: Commands and Queries routed to sync transport by default
 
 ### Database Configuration
 
@@ -257,10 +331,11 @@ The application connects to PostgreSQL via Docker:
 ### Symfony Configuration
 
 - **Autowiring**: Enabled by default for all services in `Dairectiv\` namespace
+- **Public services**: All services are public by default for testing
+- **Domain exclusion**: Domain layers are excluded from autowiring (pure business logic)
 - **Routing**: Uses PHP attributes (`#[Route]`) for controller methods
 - **Entity Mapping**: Uses Doctrine attributes for entity definitions
 - **Naming Strategy**: `underscore_number_aware` for database table/column names
-- **Sessions**: Enabled via framework configuration
 
 ## Development Workflow
 
@@ -413,26 +488,41 @@ For the `main` branch, configure these required status checks:
 
 This ensures all quality gates pass before merging to main.
 
-### Creating New Entities
+### DDD Development Workflow
 
-1. Create entity class in `src/Entity/` with Doctrine attributes
-2. Create repository in `src/Repository/` (optional, auto-generated)
-3. Generate migration: `php bin/console doctrine:migrations:generate` or `php bin/console make:migration` if maker bundle is installed
-4. Review the migration file in `migrations/`
-5. Apply migration: `php bin/console doctrine:migrations:migrate`
+When implementing new features, follow the DDD approach:
 
-### Creating New Controllers
+**1. Identify the Bounded Context**
+- Determine which context owns the feature (Authoring, etc.)
+- If unsure, discuss with the team
 
-1. Create controller class in `src/Controller/`
-2. Add `#[Route]` attributes to controller methods
-3. Verify routes: `php bin/console debug:router`
+**2. Start with the Domain**
+- Define entities, value objects, and aggregates
+- Write domain events if needed
+- Keep domain logic pure (no framework dependencies)
 
-### Working with Migrations
+**3. Add Application Layer**
+- Create Commands for write operations
+- Create Queries for read operations
+- Implement handlers that orchestrate domain logic
 
-- All migrations are stored in `migrations/` directory
-- Migration classes use the namespace `DoctrineMigrations`
-- Always review auto-generated migrations before applying
-- Migrations are executed in chronological order based on version timestamp
+**4. Infrastructure Implementation**
+- Implement repositories with Doctrine
+- Configure Messenger routing if needed
+
+**5. UserInterface Layer**
+- Create HTTP controllers or CLI commands
+- Use CommandBus/QueryBus to dispatch use cases
+
+**6. Database Migrations**
+- Generate migration: `castor database:diff`
+- Review the migration file in `migrations/`
+- Apply: `castor database:migrate` or `castor database:reset`
+
+**7. Testing**
+- Write integration tests in `tests/Integration/{BoundedContext}/`
+- Use test fixtures from `tests/Fixtures/`
+- Run: `castor test`
 
 ## Issue Tracking Workflow
 
@@ -457,14 +547,37 @@ Key environment variables:
 - `DATABASE_URL`: PostgreSQL connection string
 - `DEFAULT_URI`: Default application URI
 
-## Notes for AI Development
+## DDD Development Guidelines
 
-- This is a fresh Symfony 8 installation with minimal customization
-- No controllers, entities, or custom services exist yet (only Kernel)
-- The project uses PHP 8.5 features and Symfony 8.0 conventions
-- Follow Symfony best practices for service definition (use autowiring, avoid manual service configuration)
-- Entity properties should use Doctrine ORM 3.x attribute syntax (not annotations)
-- Use constructor property promotion and readonly properties where appropriate (PHP 8+)
+**Architecture Patterns**
+- Follow DDD principles: Bounded Contexts, Aggregates, Value Objects, Domain Events
+- Use CQRS: separate Commands (write) and Queries (read)
+- Keep Domain layer pure: no framework dependencies, only business logic
+- Use Hexagonal Architecture: Domain → Application → Infrastructure → UserInterface
+
+**Code Organization**
+- Place new features in the appropriate Bounded Context (`Authoring/`, etc.)
+- Follow the 4-layer structure: Domain, Application, Infrastructure, UserInterface
+- Domain objects go in `{Context}/Domain/`, use cases in `{Context}/Application/`
+- Keep SharedKernel minimal: only truly shared concepts
+
+**CQRS Implementation**
+- Commands change state, return void: `CreateDirectiveCommand`
+- Queries return data, never modify state: `GetDirectiveQuery`
+- Use CommandBus/QueryBus to dispatch, never call handlers directly
+- Handlers are auto-registered via Symfony Messenger
+
+**Domain Events**
+- Aggregates extend `SharedKernel\Domain\AggregateRoot`
+- Use `recordEvent()` to emit domain events
+- Events are published automatically by `DomainEventMiddleware` after transaction
+- Other contexts can listen via Messenger event handlers
+
+**Technical Standards**
+- PHP 8.4+ features: constructor property promotion, readonly properties
+- Doctrine ORM 3.x with attributes (not annotations)
+- Symfony autowiring enabled (except Domain layer)
+- Always use `\sprintf()` for string formatting (no interpolation)
 
 ## PHP Coding Standards
 
@@ -487,7 +600,7 @@ This project includes custom Skills that extend Claude's capabilities:
 
 ### Available Skills
 
-**linear-issue** (`.claude/skills/linear-issue/`)
+**[linear-issue](`.claude/skills/linear-issue/`)** 
 - Automatically creates structured Linear issues following team conventions
 - Supports all issue types: Feature, Bugfix, Improvement, Chore, Spike, Documentation
 - Provides templates and guides the workflow
@@ -495,7 +608,7 @@ This project includes custom Skills that extend Claude's capabilities:
 
 To use: Simply ask Claude to "create a Linear issue for [description]" and the Skill will guide you through the process.
 
-**git-commit** (`.claude/skills/git-commit/`)
+**[git-commit](`.claude/skills/git-commit/`)** 
 - Generates well-structured Git commit messages following Conventional Commits format
 - Synchronized with Linear issue labels for consistency
 - Supports all commit types: feat, fix, refactor, perf, docs, test, chore, style, build, ci, revert, spike
