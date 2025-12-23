@@ -1,0 +1,13 @@
+parameters:
+
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+        public: true
+
+    Dairectiv\Tests\Fixtures\:
+        resource: '../tests/Fixtures/'
+        exclude:
+            - '../tests/Fixtures/**/{Input,Output}.php'
+            - '../tests/Fixtures/Domain/'
