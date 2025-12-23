@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Dairectiv\Story;
+namespace Dairectiv\SharedKernel\Infrastructure\Zenstruck\Foundry\Story;
 
 use Zenstruck\Foundry\Attribute\AsFixture;
 use Zenstruck\Foundry\Story;

@@ -26,7 +26,7 @@ parameters:
         reportUnknownTypes: false
         literalString: true
     symfony:
-        containerXmlPath: var/cache/dev/Dairectiv_KernelDevDebugContainer.xml
+        containerXmlPath: var/cache/dev/Dairectiv_SharedKernel_Infrastructure_Symfony_KernelDevDebugContainer.xml
         consoleApplicationLoader: tools/phpstan/console.php
         constantHassers: false
     excludePaths:
