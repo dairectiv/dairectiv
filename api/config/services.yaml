@@ -4,6 +4,9 @@ services:
     _defaults:
         autowire: true
         autoconfigure: true
+        public: true
 
     Dairectiv\:
         resource: '../src/'
+        exclude:
+            - '../src/*/Domain'
