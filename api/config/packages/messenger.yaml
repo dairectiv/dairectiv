@@ -1,0 +1,53 @@
+framework:
+    messenger:
+        default_bus: command.bus
+
+        buses:
+            command.bus:
+                middleware:
+                    - Dairectiv\SharedKernel\Infrastructure\Symfony\Messenger\Middleware\DomainEventMiddleware
+                    - doctrine_ping_connection
+                    - doctrine_close_connection
+                    - doctrine_transaction
+            query.bus:
+            event.bus:
+                default_middleware:
+                    enabled: true
+                    allow_no_handlers: true
+
+        transports:
+            async:
+                dsn: "%env(MESSENGER_TRANSPORT_DSN)%"
+                retry_strategy:
+                    max_retries: 3
+                    delay: 30_000
+                    multiplier: 10
+                    max_delay: 300_000
+                options:
+                    exchange:
+                        name: async
+                        type: direct
+                    queues:
+                        async:
+            events:
+                dsn: "%env(MESSENGER_TRANSPORT_DSN)%"
+                retry_strategy:
+                    max_retries: 3
+                    delay: 30_000
+                    multiplier: 10
+                    max_delay: 300_000
+                options:
+                    exchange:
+                        name: events
+                        type: direct
+                    queues:
+                        events:
+            sync: 'sync://'
+        routing:
+
+when@test:
+    framework:
+        messenger:
+            transports:
+                async: 'test://'
+                events: 'test://'
