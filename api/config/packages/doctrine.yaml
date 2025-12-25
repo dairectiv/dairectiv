@@ -1,24 +1,30 @@
 doctrine:
     dbal:
         url: '%env(resolve:DATABASE_URL)%'
-
-        # IMPORTANT: You MUST configure your server version,
-        # either here or in the DATABASE_URL env var (see .env file)
-        #server_version: '16'
-
         profiling_collect_backtrace: '%kernel.debug%'
+        types:
+            chronos: Dairectiv\SharedKernel\Infrastructure\Doctrine\DBAL\Types\ChronosType
+            object_value: Dairectiv\SharedKernel\Infrastructure\Doctrine\DBAL\Types\ObjectValueType
+            authoring_version_id: Dairectiv\Authoring\Infrastructure\Doctrine\DBAL\Types\VersionIdType
+            authoring_version_number: Dairectiv\Authoring\Infrastructure\Doctrine\DBAL\Types\VersionNumberType
+            authoring_rule_content: Dairectiv\Authoring\Infrastructure\Doctrine\DBAL\Types\RuleContentType
+            authoring_directive_id: Dairectiv\Authoring\Infrastructure\Doctrine\DBAL\Types\DirectiveIdType
+            authoring_directive_name: Dairectiv\Authoring\Infrastructure\Doctrine\DBAL\Types\DirectiveNameType
+            authoring_directive_description: Dairectiv\Authoring\Infrastructure\Doctrine\DBAL\Types\DirectiveDescriptionType
+
     orm:
+        auto_mapping: true
         validate_xml_mapping: true
         naming_strategy: doctrine.orm.naming_strategy.underscore_number_aware
         identity_generation_preferences:
             Doctrine\DBAL\Platforms\PostgreSQLPlatform: identity
         mappings:
-#            App:
-#                type: attribute
-#                is_bundle: false
-#                dir: '%kernel.project_dir%/src/Entity'
-#                prefix: 'App\Entity'
-#                alias: App
+            Authoring:
+                type: attribute
+                is_bundle: false
+                dir: '%kernel.project_dir%/src/Authoring/Domain'
+                prefix: 'Dairectiv\Authoring\Domain'
+                alias: Authoring
         controller_resolver:
             auto_mapping: false
 

@@ -4,10 +4,15 @@ declare(strict_types=1);
 
 namespace Dairectiv\Authoring\Domain\Directive\Metadata;
 
+use Doctrine\ORM\Mapping as ORM;
+
+#[ORM\Embeddable]
 final class DirectiveMetadata
 {
+    #[ORM\Column(type: 'authoring_directive_name')]
     public private(set) DirectiveName $name;
 
+    #[ORM\Column(type: 'authoring_directive_description')]
     public private(set) DirectiveDescription $description;
 
     public static function create(DirectiveName $name, DirectiveDescription $description): self

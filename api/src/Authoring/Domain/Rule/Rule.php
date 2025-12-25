@@ -7,11 +7,15 @@ namespace Dairectiv\Authoring\Domain\Rule;
 use Dairectiv\Authoring\Domain\Directive\Directive;
 use Dairectiv\Authoring\Domain\Directive\DirectiveId;
 use Dairectiv\Authoring\Domain\Directive\Metadata\DirectiveMetadata;
+use Doctrine\ORM\Mapping as ORM;
 
-final class Rule extends Directive
+#[ORM\Entity]
+class Rule extends Directive
 {
+    #[ORM\Column(type: 'authoring_rule_content')]
     public private(set) RuleContent $content;
 
+    #[ORM\Column(type: 'object_value')]
     public private(set) RuleExamples $examples;
 
     public static function draft(
