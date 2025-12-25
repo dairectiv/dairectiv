@@ -9,7 +9,14 @@ use Dairectiv\Authoring\Domain\Directive\Event\DirectiveArchived;
 use Dairectiv\Authoring\Domain\Directive\Event\DirectiveDrafted;
 use Dairectiv\Authoring\Domain\Directive\Event\DirectivePublished;
 use Dairectiv\Authoring\Domain\Directive\Event\DirectiveUpdated;
+use Dairectiv\Authoring\Domain\Directive\Metadata\DirectiveDescription;
+use Dairectiv\Authoring\Domain\Directive\Metadata\DirectiveMetadata;
+use Dairectiv\Authoring\Domain\Directive\Metadata\DirectiveName;
+use Dairectiv\Authoring\Domain\Directive\Version\Version;
+use Dairectiv\Authoring\Domain\Directive\Version\VersionSnapshot;
 use Dairectiv\SharedKernel\Domain\AggregateRoot;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 
 abstract class Directive extends AggregateRoot
 {
@@ -17,58 +24,51 @@ abstract class Directive extends AggregateRoot
 
     public private(set) DirectiveState $state;
 
-    public private(set) DirectiveVersion $version;
-
-    public protected(set) DirectiveName $name;
-
-    public protected(set) DirectiveDescription $description;
+    public private(set) DirectiveMetadata $metadata;
 
     public private(set) Chronos $createdAt;
 
     public private(set) Chronos $updatedAt;
 
+    public private(set) Version $currentVersion;
+
+    /**
+     * @var Collection<int, Version>
+     */
+    public private(set) Collection $history;
+
     final public function __construct()
     {
         $this->createdAt = Chronos::now();
         $this->updatedAt = Chronos::now();
+        $this->history = new ArrayCollection();
     }
 
-    final public static function create(DirectiveId $id, DirectiveName $name, DirectiveDescription $description): static
+    abstract public function getCurrentSnapshot(): VersionSnapshot;
+
+    final protected function initialize(DirectiveId $id, DirectiveMetadata $metadata): void
     {
-        $directive = new static();
+        $this->id = $id;
+        $this->metadata = $metadata;
+        $this->state = DirectiveState::Draft;
+        $this->currentVersion = Version::initialize($this);
+        $this->history->add($this->currentVersion);
 
-        $directive->id = $id;
-        $directive->name = $name;
-        $directive->description = $description;
-        $directive->version = DirectiveVersion::initial();
-        $directive->state = DirectiveState::Draft;
-
-        $directive->recordEvent(new DirectiveDrafted($directive->id));
-
-        return $directive;
+        $this->recordEvent(new DirectiveDrafted($this->id));
     }
 
-    final public function updateMetadata(
-        ?DirectiveName $name = null,
-        ?DirectiveDescription $description = null,
-    ): void {
-        if (null !== $name) {
-            $this->name = $name;
-        }
-
-        if (null !== $description) {
-            $this->description = $description;
-        }
-
+    final public function updateMetadata(?DirectiveName $name = null, ?DirectiveDescription $description = null): void
+    {
+        $this->metadata = $this->metadata->with($name, $description);
         $this->updatedAt = Chronos::now();
     }
 
     final protected function markContentAsUpdated(): void
     {
+        $this->currentVersion = $this->currentVersion->increment();
         $this->updatedAt = Chronos::now();
-        $this->version = $this->version->increment();
 
-        $this->recordEvent(new DirectiveUpdated($this->id, $this->version));
+        $this->recordEvent(new DirectiveUpdated($this->id, $this->currentVersion->number));
     }
 
     final public function publish(): void

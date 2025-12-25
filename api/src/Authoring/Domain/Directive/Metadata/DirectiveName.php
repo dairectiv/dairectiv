@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Dairectiv\Authoring\Domain\Directive;
+namespace Dairectiv\Authoring\Domain\Directive\Metadata;
 
 use Dairectiv\SharedKernel\Domain\Assert;
 
