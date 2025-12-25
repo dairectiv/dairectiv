@@ -620,6 +620,15 @@ To use: Simply ask Claude to "create a Linear issue for [description]" and the S
 
 To use: Simply ask Claude to "commit these changes" or "create a commit message" and the Skill will analyze the changes, fetch the Linear issue context, and suggest appropriate message(s).
 
+**[aggregate-root](`.claude/skills/aggregate-root/`)**
+- Provides patterns for implementing DDD Aggregate Roots in the dairectiv codebase
+- Includes templates for: aggregate classes, value objects (Id, Version, State, Change), domain events, exceptions
+- Documents the `AggregateRootAssertions` trait for testing (enforces asserting all domain events)
+- Covers optimistic locking via version comparison and conflict exceptions
+- Triggered when creating new aggregates or extending existing ones
+
+To use: Reference when implementing new aggregates. Follow the directory structure `src/{BoundedContext}/Domain/{Aggregate}/` and use the provided class signatures.
+
 ### Creating New Skills
 
 When adding a new Skill:
