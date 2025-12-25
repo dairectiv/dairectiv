@@ -30,15 +30,10 @@ final class Rule extends Directive
         return $rule;
     }
 
-    public function update(
-        ?DirectiveDescription $description = null,
+    public function updateContent(
         ?RuleContent $content = null,
         ?RuleExamples $examples = null,
     ): void {
-        if (null !== $description) {
-            $this->description = $description;
-        }
-
         if (null !== $content) {
             $this->content = $content;
         }
@@ -47,6 +42,6 @@ final class Rule extends Directive
             $this->examples = $examples;
         }
 
-        $this->markAsUpdated();
+        $this->markContentAsUpdated();
     }
 }
