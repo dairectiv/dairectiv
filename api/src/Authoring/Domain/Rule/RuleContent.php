@@ -5,18 +5,19 @@ declare(strict_types=1);
 namespace Dairectiv\Authoring\Domain\Rule;
 
 use Dairectiv\SharedKernel\Domain\Assert;
+use Dairectiv\SharedKernel\Domain\ValueObject\TextValue;
 
-final readonly class RuleContent implements \Stringable
+final readonly class RuleContent implements \Stringable, TextValue
 {
     private function __construct(public string $content)
     {
     }
 
-    public static function fromString(string $content): self
+    public static function fromString(string $value): static
     {
-        Assert::notEmpty($content, 'Rule content cannot be empty.');
+        Assert::notEmpty($value, 'Rule content cannot be empty.');
 
-        return new self($content);
+        return new self($value);
     }
 
     public function __toString(): string

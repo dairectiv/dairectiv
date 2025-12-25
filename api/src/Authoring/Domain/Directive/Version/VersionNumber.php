@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Dairectiv\Authoring\Domain\Directive\Version;
 
-final readonly class VersionNumber implements \Stringable
+use Dairectiv\SharedKernel\Domain\ValueObject\IntValue;
+
+final readonly class VersionNumber implements \Stringable, IntValue
 {
     private function __construct(public int $number)
     {
@@ -38,5 +40,15 @@ final readonly class VersionNumber implements \Stringable
     public function __toString(): string
     {
         return \sprintf('v%d', $this->number);
+    }
+
+    public static function fromInt(int $value): static
+    {
+        return new self($value);
+    }
+
+    public function toInt(): int
+    {
+        return $this->number;
     }
 }
