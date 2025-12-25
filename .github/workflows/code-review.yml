@@ -10,8 +10,8 @@ on:
 
 jobs:
     claude-review:
-        # Skip review when PR is being merged (base branch merged into head)
-        if: github.event.pull_request.state == 'open'
+        # Temporarily disabled
+        if: false
 
         runs-on: ubuntu-latest
         permissions:
