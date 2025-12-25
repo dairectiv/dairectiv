@@ -10,7 +10,6 @@ use Dairectiv\SharedKernel\Domain\Exception\DomainException;
 
 final class DirectiveConflictException extends DomainException
 {
-    /** @phpstan-ignore missingType.generics */
     public function __construct(DirectiveVersion $expected, Directive $directive)
     {
         $message = \sprintf(

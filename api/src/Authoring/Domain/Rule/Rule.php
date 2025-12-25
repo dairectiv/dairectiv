@@ -4,14 +4,11 @@ declare(strict_types=1);
 
 namespace Dairectiv\Authoring\Domain\Rule;
 
-use Dairectiv\Authoring\Domain\ChangeSet\Change;
 use Dairectiv\Authoring\Domain\Directive\Directive;
 use Dairectiv\Authoring\Domain\Directive\DirectiveId;
 use Dairectiv\Authoring\Domain\Directive\DirectiveName;
+use Dairectiv\Authoring\Domain\Directive\DirectiveVersion;
 
-/**
- * @extends Directive<RuleChange>
- */
 final class Rule extends Directive
 {
     public private(set) RuleDescription $description;
@@ -36,18 +33,26 @@ final class Rule extends Directive
         return $rule;
     }
 
-    protected function doApplyChanges(Change $change): void
-    {
-        if (null !== $change->description) {
-            $this->description = $change->description;
+    public function update(
+        DirectiveVersion $expectedVersion,
+        ?RuleDescription $description = null,
+        ?RuleContent $content = null,
+        ?RuleExamples $examples = null,
+    ): void {
+        $this->checkVersion($expectedVersion);
+
+        if (null !== $description) {
+            $this->description = $description;
         }
 
-        if (null !== $change->content) {
-            $this->content = $change->content;
+        if (null !== $content) {
+            $this->content = $content;
         }
 
-        if (null !== $change->examples) {
-            $this->examples = $change->examples;
+        if (null !== $examples) {
+            $this->examples = $examples;
         }
+
+        $this->markAsUpdated();
     }
 }
