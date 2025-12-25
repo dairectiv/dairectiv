@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Dairectiv\Authoring\Domain\Directive\Version;
 
-abstract readonly class VersionSnapshot
+use Dairectiv\SharedKernel\Domain\ValueObject\ObjectValue;
+
+abstract readonly class VersionSnapshot implements ObjectValue
 {
 }

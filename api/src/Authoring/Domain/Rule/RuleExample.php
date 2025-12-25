@@ -5,8 +5,9 @@ declare(strict_types=1);
 namespace Dairectiv\Authoring\Domain\Rule;
 
 use Dairectiv\SharedKernel\Domain\Assert;
+use Dairectiv\SharedKernel\Domain\ValueObject\ObjectValue;
 
-final readonly class RuleExample
+final readonly class RuleExample implements ObjectValue
 {
     private function __construct(
         public ?string $good,
@@ -53,5 +54,26 @@ final readonly class RuleExample
     public function isTransformation(): bool
     {
         return $this->hasGood() && $this->hasBad();
+    }
+
+    public static function fromArray(array $state): static
+    {
+        Assert::keyExists($state, 'good');
+        Assert::nullOrString($state['good']);
+        Assert::keyExists($state, 'bad');
+        Assert::nullOrString($state['bad']);
+        Assert::keyExists($state, 'explanation');
+        Assert::nullOrString($state['explanation']);
+
+        return new self($state['good'], $state['bad'], $state['explanation']);
+    }
+
+    public function toArray(): array
+    {
+        return [
+            'good'        => $this->good,
+            'bad'         => $this->bad,
+            'explanation' => $this->explanation,
+        ];
     }
 }
