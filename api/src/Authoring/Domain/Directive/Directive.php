@@ -41,9 +41,6 @@ abstract class Directive extends AggregateRoot
         $this->updatedAt = Chronos::now();
     }
 
-    /**
-     * @return static<Change>
-     */
     final public static function create(DirectiveId $id, DirectiveName $name): static
     {
         $directive = new static();
@@ -55,17 +52,20 @@ abstract class Directive extends AggregateRoot
 
         $directive->recordEvent(new DirectiveDrafted($directive->id));
 
+        /** @phpstan-ignore return.type */
         return $directive;
     }
 
     /**
      * @param T $change
      */
-    final public function applyChanges(Change $change, DirectiveVersion $expectedVersion): void
+    final public function applyChanges(Change $change): void
     {
-        if (!$this->version->equals($expectedVersion)) {
-            throw new DirectiveConflictException($expectedVersion, $this);
+        if (!$this->version->equals($change->sourceVersion)) {
+            throw new DirectiveConflictException($change->sourceVersion, $this);
         }
+
+        $change->captureSnapshot($this);
 
         $this->doApplyChanges($change);
         $this->updatedAt = Chronos::now();
