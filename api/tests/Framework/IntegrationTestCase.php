@@ -8,13 +8,14 @@ use Dairectiv\SharedKernel\Application\Command\Command;
 use Dairectiv\SharedKernel\Application\Command\CommandBus;
 use Dairectiv\SharedKernel\Application\Query\Query;
 use Dairectiv\SharedKernel\Application\Query\QueryBus;
-use Dairectiv\SharedKernel\Domain\Event\DomainEvent;
 use Dairectiv\SharedKernel\Infrastructure\Symfony\Messenger\Transport\TestTransport;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 abstract class IntegrationTestCase extends WebTestCase
 {
+    use ReflectionAssertions;
+
     protected KernelBrowser $client;
 
     protected function setUp(): void
@@ -87,21 +88,5 @@ abstract class IntegrationTestCase extends WebTestCase
             ),
         );
         TestTransport::ackDomainEvent($domainEvent);
-    }
-
-    /**
-     * @param class-string|object $actual
-     * @phpstan-assert DomainEvent|class-string<DomainEvent> $actual
-     */
-    final public static function assertIsDomainEvent(string | object $actual): void
-    {
-        if (\is_object($actual)) {
-            $actual = $actual::class;
-        }
-
-        self::assertTrue(
-            is_subclass_of($actual, DomainEvent::class),
-            \sprintf('Expected instance of "%s" but got "%s"', DomainEvent::class, $actual),
-        );
     }
 }
