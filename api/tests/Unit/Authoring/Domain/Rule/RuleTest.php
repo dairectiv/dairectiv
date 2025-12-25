@@ -16,6 +16,10 @@ use Dairectiv\Authoring\Domain\Directive\Event\DirectiveUpdated;
 use Dairectiv\Authoring\Domain\Directive\Exception\DirectiveConflictException;
 use Dairectiv\Authoring\Domain\Rule\Rule;
 use Dairectiv\Authoring\Domain\Rule\RuleChange;
+use Dairectiv\Authoring\Domain\Rule\RuleContent;
+use Dairectiv\Authoring\Domain\Rule\RuleDescription;
+use Dairectiv\Authoring\Domain\Rule\RuleExample;
+use Dairectiv\Authoring\Domain\Rule\RuleExamples;
 use Dairectiv\Tests\Framework\AggregateRootAssertions;
 use PHPUnit\Framework\TestCase;
 
@@ -28,7 +32,7 @@ final class RuleTest extends TestCase
         $id = DirectiveId::fromString('my-rule');
         $name = DirectiveName::fromString('my-rule-name');
 
-        $rule = Rule::draft($id, $name);
+        $rule = $this->createRule($id, $name);
 
         self::assertSame($id, $rule->id);
         self::assertSame($name, $rule->name);
@@ -42,9 +46,8 @@ final class RuleTest extends TestCase
     public function testItShouldRecordDirectiveDraftedEventWhenCreating(): void
     {
         $id = DirectiveId::fromString('my-rule');
-        $name = DirectiveName::fromString('my-rule-name');
 
-        Rule::draft($id, $name);
+        $this->createRule($id);
 
         $event = $this->assertDomainEventRecorded(DirectiveDrafted::class);
 
@@ -56,7 +59,7 @@ final class RuleTest extends TestCase
         $id = DirectiveId::fromString('my-rule');
         $name = DirectiveName::fromString('my-rule-name');
 
-        $rule = Rule::draft($id, $name);
+        $rule = $this->createRule($id, $name);
 
         self::assertTrue($rule->createdAt->equals($rule->updatedAt));
 
@@ -67,7 +70,7 @@ final class RuleTest extends TestCase
     {
         $id = DirectiveId::fromString('my-rule');
         $name = DirectiveName::fromString('my-rule-name');
-        $rule = Rule::draft($id, $name);
+        $rule = $this->createRule($id, $name);
 
         $this->resetDomainEvents();
 
@@ -83,7 +86,7 @@ final class RuleTest extends TestCase
     {
         $id = DirectiveId::fromString('my-rule');
         $name = DirectiveName::fromString('my-rule-name');
-        $rule = Rule::draft($id, $name);
+        $rule = $this->createRule($id, $name);
 
         $initialUpdatedAt = $rule->updatedAt;
 
@@ -103,7 +106,7 @@ final class RuleTest extends TestCase
     {
         $id = DirectiveId::fromString('my-rule');
         $name = DirectiveName::fromString('my-rule-name');
-        $rule = Rule::draft($id, $name);
+        $rule = $this->createRule($id, $name);
 
         $this->resetDomainEvents();
 
@@ -120,7 +123,7 @@ final class RuleTest extends TestCase
     {
         $id = DirectiveId::fromString('my-rule');
         $name = DirectiveName::fromString('my-rule-name');
-        $rule = Rule::draft($id, $name);
+        $rule = $this->createRule($id, $name);
 
         $this->assertDomainEventRecorded(DirectiveDrafted::class);
 
@@ -136,7 +139,7 @@ final class RuleTest extends TestCase
     {
         $id = DirectiveId::fromString('my-rule');
         $name = DirectiveName::fromString('my-rule-name');
-        $rule = Rule::draft($id, $name);
+        $rule = $this->createRule($id, $name);
 
         $this->resetDomainEvents();
 
@@ -155,7 +158,7 @@ final class RuleTest extends TestCase
     {
         $id = DirectiveId::fromString('my-rule');
         $name = DirectiveName::fromString('my-rule-name');
-        $rule = Rule::draft($id, $name);
+        $rule = $this->createRule($id, $name);
 
         $this->resetDomainEvents();
 
@@ -170,7 +173,7 @@ final class RuleTest extends TestCase
     {
         $id = DirectiveId::fromString('my-rule');
         $name = DirectiveName::fromString('my-rule-name');
-        $rule = Rule::draft($id, $name);
+        $rule = $this->createRule($id, $name);
 
         $initialUpdatedAt = $rule->updatedAt;
 
@@ -189,7 +192,7 @@ final class RuleTest extends TestCase
     {
         $id = DirectiveId::fromString('my-rule');
         $name = DirectiveName::fromString('my-rule-name');
-        $rule = Rule::draft($id, $name);
+        $rule = $this->createRule($id, $name);
 
         $this->resetDomainEvents();
 
@@ -204,7 +207,7 @@ final class RuleTest extends TestCase
     {
         $id = DirectiveId::fromString('my-rule');
         $name = DirectiveName::fromString('my-rule-name');
-        $rule = Rule::draft($id, $name);
+        $rule = $this->createRule($id, $name);
 
         $initialVersion = $rule->version;
 
@@ -221,7 +224,7 @@ final class RuleTest extends TestCase
     {
         $id = DirectiveId::fromString('my-rule');
         $name = DirectiveName::fromString('my-rule-name');
-        $rule = Rule::draft($id, $name);
+        $rule = $this->createRule($id, $name);
 
         $this->resetDomainEvents();
 
@@ -236,7 +239,7 @@ final class RuleTest extends TestCase
     {
         $id = DirectiveId::fromString('my-rule');
         $name = DirectiveName::fromString('my-rule-name');
-        $rule = Rule::draft($id, $name);
+        $rule = $this->createRule($id, $name);
 
         $initialUpdatedAt = $rule->updatedAt;
 
@@ -255,7 +258,7 @@ final class RuleTest extends TestCase
     {
         $id = DirectiveId::fromString('my-rule');
         $name = DirectiveName::fromString('my-rule-name');
-        $rule = Rule::draft($id, $name);
+        $rule = $this->createRule($id, $name);
 
         $this->resetDomainEvents();
 
@@ -270,7 +273,7 @@ final class RuleTest extends TestCase
     {
         $id = DirectiveId::fromString('my-rule');
         $name = DirectiveName::fromString('my-rule-name');
-        $rule = Rule::draft($id, $name);
+        $rule = $this->createRule($id, $name);
 
         $initialVersion = $rule->version;
 
@@ -287,7 +290,7 @@ final class RuleTest extends TestCase
     {
         $id = DirectiveId::fromString('my-rule');
         $name = DirectiveName::fromString('my-rule-name');
-        $rule = Rule::draft($id, $name);
+        $rule = $this->createRule($id, $name);
 
         $this->resetDomainEvents();
 
@@ -302,7 +305,7 @@ final class RuleTest extends TestCase
     {
         $id = DirectiveId::fromString('my-rule');
         $name = DirectiveName::fromString('my-rule-name');
-        $rule = Rule::draft($id, $name);
+        $rule = $this->createRule($id, $name);
 
         $rule->publish();
 
@@ -319,7 +322,7 @@ final class RuleTest extends TestCase
     {
         $id = DirectiveId::fromString('my-rule');
         $name = DirectiveName::fromString('my-rule-name');
-        $rule = Rule::draft($id, $name);
+        $rule = $this->createRule($id, $name);
 
         $this->resetDomainEvents();
 
@@ -334,7 +337,7 @@ final class RuleTest extends TestCase
     {
         $id = DirectiveId::fromString('my-rule');
         $name = DirectiveName::fromString('my-rule-name');
-        $rule = Rule::draft($id, $name);
+        $rule = $this->createRule($id, $name);
 
         $createdAt = $rule->createdAt;
 
@@ -351,5 +354,139 @@ final class RuleTest extends TestCase
         $this->assertDomainEventRecorded(DirectiveUpdated::class);
         $this->assertDomainEventRecorded(DirectivePublished::class);
         $this->assertDomainEventRecorded(DirectiveArchived::class);
+    }
+
+    public function testItShouldCreateRuleWithDescriptionAndContent(): void
+    {
+        $id = DirectiveId::fromString('my-rule');
+        $name = DirectiveName::fromString('my-rule-name');
+        $description = RuleDescription::fromString('A rule description');
+        $content = RuleContent::fromString('## MUST\n- Use sprintf');
+
+        $rule = Rule::draft($id, $name, $description, $content);
+
+        self::assertSame($description, $rule->description);
+        self::assertSame($content, $rule->content);
+        self::assertTrue($rule->examples->isEmpty());
+
+        $this->assertDomainEventRecorded(DirectiveDrafted::class);
+    }
+
+    public function testItShouldCreateRuleWithExamples(): void
+    {
+        $id = DirectiveId::fromString('my-rule');
+        $name = DirectiveName::fromString('my-rule-name');
+        $description = RuleDescription::fromString('A rule description');
+        $content = RuleContent::fromString('## MUST\n- Use sprintf');
+        $examples = RuleExamples::fromArray([
+            RuleExample::good('sprintf code'),
+            RuleExample::bad('interpolation code'),
+        ]);
+
+        $rule = Rule::draft($id, $name, $description, $content, $examples);
+
+        self::assertCount(2, $rule->examples);
+
+        $this->assertDomainEventRecorded(DirectiveDrafted::class);
+    }
+
+    public function testItShouldApplyDescriptionChange(): void
+    {
+        $rule = $this->createRule();
+
+        $this->resetDomainEvents();
+
+        $newDescription = RuleDescription::fromString('Updated description');
+        $rule->applyChanges(new RuleChange(description: $newDescription), DirectiveVersion::initial());
+
+        self::assertSame($newDescription, $rule->description);
+
+        $this->assertDomainEventRecorded(DirectiveUpdated::class);
+    }
+
+    public function testItShouldApplyContentChange(): void
+    {
+        $rule = $this->createRule();
+
+        $this->resetDomainEvents();
+
+        $newContent = RuleContent::fromString('Updated content');
+        $rule->applyChanges(new RuleChange(content: $newContent), DirectiveVersion::initial());
+
+        self::assertSame($newContent, $rule->content);
+
+        $this->assertDomainEventRecorded(DirectiveUpdated::class);
+    }
+
+    public function testItShouldApplyExamplesChange(): void
+    {
+        $rule = $this->createRule();
+
+        $this->resetDomainEvents();
+
+        $newExamples = RuleExamples::fromArray([RuleExample::good('new code')]);
+        $rule->applyChanges(new RuleChange(examples: $newExamples), DirectiveVersion::initial());
+
+        self::assertCount(1, $rule->examples);
+
+        $this->assertDomainEventRecorded(DirectiveUpdated::class);
+    }
+
+    public function testItShouldApplyMultipleChangesAtOnce(): void
+    {
+        $rule = $this->createRule();
+
+        $this->resetDomainEvents();
+
+        $newDescription = RuleDescription::fromString('New description');
+        $newContent = RuleContent::fromString('New content');
+        $newExamples = RuleExamples::fromArray([RuleExample::transformation('bad', 'good')]);
+
+        $rule->applyChanges(
+            new RuleChange(
+                description: $newDescription,
+                content: $newContent,
+                examples: $newExamples,
+            ),
+            DirectiveVersion::initial(),
+        );
+
+        self::assertSame($newDescription, $rule->description);
+        self::assertSame($newContent, $rule->content);
+        self::assertCount(1, $rule->examples);
+
+        $this->assertDomainEventRecorded(DirectiveUpdated::class);
+    }
+
+    public function testItShouldNotChangePropertiesWhenChangeIsEmpty(): void
+    {
+        $rule = $this->createRule();
+        $originalDescription = $rule->description;
+        $originalContent = $rule->content;
+
+        $this->resetDomainEvents();
+
+        $rule->applyChanges(new RuleChange(), DirectiveVersion::initial());
+
+        self::assertSame($originalDescription, $rule->description);
+        self::assertSame($originalContent, $rule->content);
+
+        $this->assertDomainEventRecorded(DirectiveUpdated::class);
+    }
+
+    private function createRule(
+        ?DirectiveId $id = null,
+        ?DirectiveName $name = null,
+        ?RuleDescription $description = null,
+        ?RuleContent $content = null,
+        ?RuleExamples $examples = null,
+    ): Rule {
+        return Rule::draft(
+            $id ?? DirectiveId::fromString('my-rule'),
+            $name ?? DirectiveName::fromString('my-rule-name'),
+            $description ?? RuleDescription::fromString('Default description'),
+            $content ?? RuleContent::fromString('Default content'),
+            $examples,
+        );
     }
 }
