@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Dairectiv\Tests\Unit\Authoring\Domain\Directive;
+namespace Dairectiv\Tests\Unit\Authoring\Domain\Directive\Metadata;
 
-use Dairectiv\Authoring\Domain\Directive\DirectiveDescription;
+use Dairectiv\Authoring\Domain\Directive\Metadata\DirectiveDescription;
 use Dairectiv\SharedKernel\Domain\Exception\InvalidArgumentException;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
