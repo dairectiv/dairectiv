@@ -14,7 +14,7 @@ final readonly class DirectiveId implements \Stringable
 
     public static function fromString(string $id): DirectiveId
     {
-        Assert::kebabCase($id, \sprintf('Directive name "%s" is not in kebab-case.', $id));
+        Assert::kebabCase($id, \sprintf('Directive ID "%s" is not in kebab-case.', $id));
 
         return new self($id);
     }
