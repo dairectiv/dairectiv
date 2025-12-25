@@ -11,8 +11,6 @@ services:
     volumes:
       - postgres-data:/var/lib/postgresql/data
     restart: unless-stopped
-    networks:
-      - dairectiv
 
   rabbitmq:
     container_name: dairectiv-rabbitmq
@@ -22,8 +20,6 @@ services:
       - "40002:15672"
     volumes:
       - rabbitmq-data:/var/lib/rabbitmq
-    networks:
-      - dairectiv
 
   api:
     container_name: dairectiv-api
@@ -47,13 +43,15 @@ services:
     depends_on:
       - postgres
       - rabbitmq
-    networks:
-      - dairectiv
 
-
-networks:
-  dairectiv:
-    driver: bridge
+  adminer:
+    container_name: dairectiv-adminer
+    image: adminer
+    restart: always
+    depends_on:
+      - postgres
+    ports:
+      - "40003:8080"
 
 volumes:
   postgres-data:
