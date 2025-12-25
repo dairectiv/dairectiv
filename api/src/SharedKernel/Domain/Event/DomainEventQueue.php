@@ -43,4 +43,14 @@ final class DomainEventQueue
             yield $event;
         }
     }
+
+    /**
+     * @return DomainEvent[]
+     */
+    public static function all(): array
+    {
+        $instance = self::getInstance();
+
+        return $instance->domainEvents;
+    }
 }
