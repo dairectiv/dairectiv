@@ -9,7 +9,7 @@
         "php": ">=8.4",
         "ext-ctype": "*",
         "ext-iconv": "*",
-        "cakephp/chronos": "^3.3",
+        "cakephp/chronos": "^3.3.1",
         "doctrine/doctrine-bundle": "^3.2.1",
         "doctrine/doctrine-migrations-bundle": "^4.0",
         "doctrine/orm": "^3.6",
@@ -90,6 +90,7 @@
         "rector/rector": "^2.2.14",
         "symfony/browser-kit": "8.0.*",
         "symfony/css-selector": "8.0.*",
+        "symfony/maker-bundle": "^1.65.1",
         "zenstruck/foundry": "^2.8.4"
     }
 }
