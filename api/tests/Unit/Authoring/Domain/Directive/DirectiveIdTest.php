@@ -20,7 +20,7 @@ final class DirectiveIdTest extends TestCase
     public function testItShouldThrowExceptionWhenStringIsNotKebabCase(): void
     {
         $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('Directive name "MyDirective" is not in kebab-case.');
+        $this->expectExceptionMessage('Directive ID "MyDirective" is not in kebab-case.');
 
         DirectiveId::fromString('MyDirective');
     }
@@ -28,7 +28,7 @@ final class DirectiveIdTest extends TestCase
     public function testItShouldThrowExceptionForCamelCaseString(): void
     {
         $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('Directive name "myDirective" is not in kebab-case.');
+        $this->expectExceptionMessage('Directive ID "myDirective" is not in kebab-case.');
 
         DirectiveId::fromString('myDirective');
     }
@@ -36,7 +36,7 @@ final class DirectiveIdTest extends TestCase
     public function testItShouldThrowExceptionForSnakeCaseString(): void
     {
         $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('Directive name "my_directive" is not in kebab-case.');
+        $this->expectExceptionMessage('Directive ID "my_directive" is not in kebab-case.');
 
         DirectiveId::fromString('my_directive');
     }
@@ -44,7 +44,7 @@ final class DirectiveIdTest extends TestCase
     public function testItShouldThrowExceptionForStringWithSpaces(): void
     {
         $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('Directive name "my directive" is not in kebab-case.');
+        $this->expectExceptionMessage('Directive ID "my directive" is not in kebab-case.');
 
         DirectiveId::fromString('my directive');
     }
