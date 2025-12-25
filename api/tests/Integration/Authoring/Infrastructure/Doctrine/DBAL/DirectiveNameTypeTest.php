@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Dairectiv\Tests\Integration\Authoring\Infrastructure\Doctrine\DBAL;
 
-use Dairectiv\Authoring\Domain\Directive\Metadata\DirectiveName;
+use Dairectiv\Authoring\Domain\Object\Directive\Metadata\DirectiveName;
 use Dairectiv\Tests\Framework\IntegrationTestCase;
 use PHPUnit\Framework\Attributes\DataProvider;
 

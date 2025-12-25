@@ -43,7 +43,6 @@ declare(strict_types=1);
 namespace Dairectiv\{Context}\Domain\{Aggregate};
 
 use Cake\Chronos\Chronos;
-use Dairectiv\SharedKernel\Domain\AggregateRoot;
 
 /**
  * @template T of Change
@@ -131,7 +130,7 @@ declare(strict_types=1);
 
 namespace Dairectiv\{Context}\Domain\{Aggregate};
 
-use Dairectiv\SharedKernel\Domain\Assert;
+use Dairectiv\SharedKernel\Domain\Object\Assert;
 
 final readonly class {Aggregate}Id implements \Stringable
 {
@@ -232,8 +231,6 @@ final readonly class {Aggregate}Change extends Change
 declare(strict_types=1);
 
 namespace Dairectiv\{Context}\Domain\{Aggregate}\Event;
-
-use Dairectiv\SharedKernel\Domain\Event\DomainEvent;
 
 final readonly class {Aggregate}Created implements DomainEvent
 {

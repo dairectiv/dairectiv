@@ -1,0 +1,16 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Dairectiv\Authoring\Domain\Object\Directive\Event;
+
+use Dairectiv\Authoring\Domain\Object\Directive\DirectiveId;
+use Dairectiv\Authoring\Domain\Object\Directive\Version\VersionNumber;
+use Dairectiv\SharedKernel\Domain\Object\Event\DomainEvent;
+
+final readonly class DirectiveUpdated implements DomainEvent
+{
+    public function __construct(public DirectiveId $directiveId, public VersionNumber $versionNumber)
+    {
+    }
+}

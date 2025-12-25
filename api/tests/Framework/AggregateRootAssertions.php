@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Dairectiv\Tests\Framework;
 
 use Cake\Chronos\Chronos;
-use Dairectiv\SharedKernel\Domain\Event\DomainEvent;
-use Dairectiv\SharedKernel\Domain\Event\DomainEventQueue;
+use Dairectiv\SharedKernel\Domain\Object\Event\DomainEvent;
+use Dairectiv\SharedKernel\Domain\Object\Event\DomainEventQueue;
 
 trait AggregateRootAssertions
 {
