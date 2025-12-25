@@ -5,9 +5,8 @@ declare(strict_types=1);
 namespace Dairectiv\Authoring\Domain\Rule;
 
 use Dairectiv\Authoring\Domain\Directive\Directive;
-use Dairectiv\Authoring\Domain\Directive\DirectiveDescription;
 use Dairectiv\Authoring\Domain\Directive\DirectiveId;
-use Dairectiv\Authoring\Domain\Directive\DirectiveName;
+use Dairectiv\Authoring\Domain\Directive\Metadata\DirectiveMetadata;
 
 final class Rule extends Directive
 {
@@ -17,23 +16,22 @@ final class Rule extends Directive
 
     public static function draft(
         DirectiveId $id,
-        DirectiveName $name,
-        DirectiveDescription $description,
+        DirectiveMetadata $metadata,
         RuleContent $content,
         ?RuleExamples $examples = null,
     ): self {
-        $rule = parent::create($id, $name, $description);
+        $rule = new self();
 
         $rule->content = $content;
         $rule->examples = $examples ?? RuleExamples::empty();
 
+        $rule->initialize($id, $metadata);
+
         return $rule;
     }
 
-    public function updateContent(
-        ?RuleContent $content = null,
-        ?RuleExamples $examples = null,
-    ): void {
+    public function updateContent(?RuleContent $content = null, ?RuleExamples $examples = null): void
+    {
         if (null !== $content) {
             $this->content = $content;
         }
@@ -43,5 +41,10 @@ final class Rule extends Directive
         }
 
         $this->markContentAsUpdated();
+    }
+
+    public function getCurrentSnapshot(): RuleSnapshot
+    {
+        return RuleSnapshot::fromRule($this);
     }
 }
