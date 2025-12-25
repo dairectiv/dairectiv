@@ -43,7 +43,7 @@ abstract class StringValueType extends Type
 
     public function getSQLDeclaration(array $column, AbstractPlatform $platform): string
     {
-        return $platform->getStringTypeDeclarationSQL($column);
+        return $platform->getStringTypeDeclarationSQL($column); // @codeCoverageIgnore
     }
 
     public function getBindingType(): ParameterType

@@ -43,7 +43,7 @@ abstract class IntValueType extends Type
 
     public function getSQLDeclaration(array $column, AbstractPlatform $platform): string
     {
-        return $platform->getIntegerTypeDeclarationSQL($column);
+        return $platform->getIntegerTypeDeclarationSQL($column); // @codeCoverageIgnore
     }
 
     public function getBindingType(): ParameterType

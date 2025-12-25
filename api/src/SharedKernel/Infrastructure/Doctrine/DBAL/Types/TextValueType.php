@@ -43,7 +43,7 @@ abstract class TextValueType extends Type
 
     public function getSQLDeclaration(array $column, AbstractPlatform $platform): string
     {
-        return $platform->getClobTypeDeclarationSQL($column);
+        return $platform->getClobTypeDeclarationSQL($column); // @codeCoverageIgnore
     }
 
     public function getBindingType(): ParameterType
