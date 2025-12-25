@@ -44,7 +44,7 @@ abstract class Directive extends AggregateRoot
     /**
      * @return static<Change>
      */
-    public static function draft(DirectiveId $id, DirectiveName $name): static
+    final public static function create(DirectiveId $id, DirectiveName $name): static
     {
         $directive = new static();
 
