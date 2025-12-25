@@ -19,7 +19,7 @@ abstract class Directive extends AggregateRoot
 
     public private(set) DirectiveVersion $version;
 
-    public private(set) DirectiveName $name;
+    public protected(set) DirectiveName $name;
 
     public protected(set) DirectiveDescription $description;
 
@@ -48,7 +48,22 @@ abstract class Directive extends AggregateRoot
         return $directive;
     }
 
-    final protected function markAsUpdated(): void
+    final public function updateMetadata(
+        ?DirectiveName $name = null,
+        ?DirectiveDescription $description = null,
+    ): void {
+        if (null !== $name) {
+            $this->name = $name;
+        }
+
+        if (null !== $description) {
+            $this->description = $description;
+        }
+
+        $this->updatedAt = Chronos::now();
+    }
+
+    final protected function markContentAsUpdated(): void
     {
         $this->updatedAt = Chronos::now();
         $this->version = $this->version->increment();

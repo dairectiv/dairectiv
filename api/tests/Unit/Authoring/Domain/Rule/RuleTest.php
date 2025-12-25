@@ -63,7 +63,7 @@ final class RuleTest extends TestCase
         $this->assertDomainEventRecorded(DirectiveDrafted::class);
     }
 
-    public function testItShouldIncrementVersionWhenUpdating(): void
+    public function testItShouldIncrementVersionWhenUpdatingContent(): void
     {
         $id = DirectiveId::fromString('my-rule');
         $name = DirectiveName::fromString('my-rule-name');
@@ -71,14 +71,14 @@ final class RuleTest extends TestCase
 
         $this->resetDomainEvents();
 
-        $rule->update();
+        $rule->updateContent();
 
         self::assertSame(2, $rule->version->version);
 
         $this->assertDomainEventRecorded(DirectiveUpdated::class);
     }
 
-    public function testItShouldUpdateUpdatedAtWhenUpdating(): void
+    public function testItShouldUpdateUpdatedAtWhenUpdatingContent(): void
     {
         $id = DirectiveId::fromString('my-rule');
         $name = DirectiveName::fromString('my-rule-name');
@@ -89,7 +89,7 @@ final class RuleTest extends TestCase
         Chronos::setTestNow(Chronos::now()->addMinutes(5));
         $this->resetDomainEvents();
 
-        $rule->update();
+        $rule->updateContent();
 
         self::assertFalse($rule->updatedAt->equals($initialUpdatedAt));
         self::assertTrue($rule->updatedAt->greaterThan($initialUpdatedAt));
@@ -97,7 +97,7 @@ final class RuleTest extends TestCase
         $this->assertDomainEventRecorded(DirectiveUpdated::class);
     }
 
-    public function testItShouldRecordDirectiveUpdatedEventWhenUpdating(): void
+    public function testItShouldRecordDirectiveUpdatedEventWhenUpdatingContent(): void
     {
         $id = DirectiveId::fromString('my-rule');
         $name = DirectiveName::fromString('my-rule-name');
@@ -105,7 +105,7 @@ final class RuleTest extends TestCase
 
         $this->resetDomainEvents();
 
-        $rule->update();
+        $rule->updateContent();
 
         $event = $this->assertDomainEventRecorded(DirectiveUpdated::class);
 
@@ -113,7 +113,7 @@ final class RuleTest extends TestCase
         self::assertSame(2, $event->directiveVersion->version);
     }
 
-    public function testItShouldAllowMultipleUpdates(): void
+    public function testItShouldAllowMultipleContentUpdates(): void
     {
         $id = DirectiveId::fromString('my-rule');
         $name = DirectiveName::fromString('my-rule-name');
@@ -121,15 +121,49 @@ final class RuleTest extends TestCase
 
         $this->resetDomainEvents();
 
-        $rule->update();
-        $rule->update();
-        $rule->update();
+        $rule->updateContent();
+        $rule->updateContent();
+        $rule->updateContent();
 
         self::assertSame(4, $rule->version->version);
 
         $this->assertDomainEventRecorded(DirectiveUpdated::class);
         $this->assertDomainEventRecorded(DirectiveUpdated::class);
         $this->assertDomainEventRecorded(DirectiveUpdated::class);
+    }
+
+    public function testItShouldNotIncrementVersionWhenUpdatingMetadata(): void
+    {
+        $rule = $this->createRule();
+        $initialVersion = $rule->version;
+
+        $this->resetDomainEvents();
+
+        $rule->updateMetadata(
+            name: DirectiveName::fromString('new-name'),
+            description: DirectiveDescription::fromString('New description'),
+        );
+
+        self::assertSame($initialVersion->version, $rule->version->version);
+        self::assertSame('new-name', (string) $rule->name);
+        self::assertSame('New description', (string) $rule->description);
+    }
+
+    public function testItShouldUpdateUpdatedAtWhenUpdatingMetadata(): void
+    {
+        $rule = $this->createRule();
+        $initialUpdatedAt = $rule->updatedAt;
+
+        $this->resetDomainEvents();
+
+        Chronos::setTestNow(Chronos::now()->addMinutes(5));
+
+        $rule->updateMetadata(name: DirectiveName::fromString('new-name'));
+
+        self::assertFalse($rule->updatedAt->equals($initialUpdatedAt));
+        self::assertTrue($rule->updatedAt->greaterThan($initialUpdatedAt));
+
+        $this->assertNoDomainEvents();
     }
 
     public function testItShouldChangeStateToPublishedWhenPublishing(): void
@@ -323,7 +357,7 @@ final class RuleTest extends TestCase
 
         $this->resetDomainEvents();
 
-        $rule->update();
+        $rule->updateContent();
         $rule->publish();
         $rule->archive();
 
@@ -368,18 +402,18 @@ final class RuleTest extends TestCase
         $this->assertDomainEventRecorded(DirectiveDrafted::class);
     }
 
-    public function testItShouldUpdateDescription(): void
+    public function testItShouldUpdateDescriptionViaMetadata(): void
     {
         $rule = $this->createRule();
 
         $this->resetDomainEvents();
 
         $newDescription = DirectiveDescription::fromString('Updated description');
-        $rule->update(description: $newDescription);
+        $rule->updateMetadata(description: $newDescription);
 
         self::assertSame($newDescription, $rule->description);
 
-        $this->assertDomainEventRecorded(DirectiveUpdated::class);
+        $this->assertNoDomainEvents();
     }
 
     public function testItShouldUpdateContent(): void
@@ -389,7 +423,7 @@ final class RuleTest extends TestCase
         $this->resetDomainEvents();
 
         $newContent = RuleContent::fromString('Updated content');
-        $rule->update(content: $newContent);
+        $rule->updateContent(content: $newContent);
 
         self::assertSame($newContent, $rule->content);
 
@@ -403,47 +437,42 @@ final class RuleTest extends TestCase
         $this->resetDomainEvents();
 
         $newExamples = RuleExamples::fromArray([RuleExample::good('new code')]);
-        $rule->update(examples: $newExamples);
+        $rule->updateContent(examples: $newExamples);
 
         self::assertCount(1, $rule->examples);
 
         $this->assertDomainEventRecorded(DirectiveUpdated::class);
     }
 
-    public function testItShouldUpdateMultiplePropertiesAtOnce(): void
+    public function testItShouldUpdateContentAndExamplesAtOnce(): void
     {
         $rule = $this->createRule();
 
         $this->resetDomainEvents();
 
-        $newDescription = DirectiveDescription::fromString('New description');
         $newContent = RuleContent::fromString('New content');
         $newExamples = RuleExamples::fromArray([RuleExample::transformation('bad', 'good')]);
 
-        $rule->update(
-            description: $newDescription,
+        $rule->updateContent(
             content: $newContent,
             examples: $newExamples,
         );
 
-        self::assertSame($newDescription, $rule->description);
         self::assertSame($newContent, $rule->content);
         self::assertCount(1, $rule->examples);
 
         $this->assertDomainEventRecorded(DirectiveUpdated::class);
     }
 
-    public function testItShouldNotChangePropertiesWhenUpdateIsEmpty(): void
+    public function testItShouldNotChangePropertiesWhenContentUpdateIsEmpty(): void
     {
         $rule = $this->createRule();
-        $originalDescription = $rule->description;
         $originalContent = $rule->content;
 
         $this->resetDomainEvents();
 
-        $rule->update();
+        $rule->updateContent();
 
-        self::assertSame($originalDescription, $rule->description);
         self::assertSame($originalContent, $rule->content);
 
         $this->assertDomainEventRecorded(DirectiveUpdated::class);
