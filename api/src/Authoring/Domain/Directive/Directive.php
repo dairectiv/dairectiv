@@ -9,7 +9,6 @@ use Dairectiv\Authoring\Domain\Directive\Event\DirectiveArchived;
 use Dairectiv\Authoring\Domain\Directive\Event\DirectiveDrafted;
 use Dairectiv\Authoring\Domain\Directive\Event\DirectivePublished;
 use Dairectiv\Authoring\Domain\Directive\Event\DirectiveUpdated;
-use Dairectiv\Authoring\Domain\Directive\Exception\DirectiveConflictException;
 use Dairectiv\SharedKernel\Domain\AggregateRoot;
 
 abstract class Directive extends AggregateRoot
@@ -22,6 +21,8 @@ abstract class Directive extends AggregateRoot
 
     public private(set) DirectiveName $name;
 
+    public protected(set) DirectiveDescription $description;
+
     public private(set) Chronos $createdAt;
 
     public private(set) Chronos $updatedAt;
@@ -32,25 +33,19 @@ abstract class Directive extends AggregateRoot
         $this->updatedAt = Chronos::now();
     }
 
-    final public static function create(DirectiveId $id, DirectiveName $name): static
+    final public static function create(DirectiveId $id, DirectiveName $name, DirectiveDescription $description): static
     {
         $directive = new static();
 
         $directive->id = $id;
         $directive->name = $name;
+        $directive->description = $description;
         $directive->version = DirectiveVersion::initial();
         $directive->state = DirectiveState::Draft;
 
         $directive->recordEvent(new DirectiveDrafted($directive->id));
 
         return $directive;
-    }
-
-    final protected function checkVersion(DirectiveVersion $expectedVersion): void
-    {
-        if (!$this->version->equals($expectedVersion)) {
-            throw new DirectiveConflictException($expectedVersion, $this);
-        }
     }
 
     final protected function markAsUpdated(): void
