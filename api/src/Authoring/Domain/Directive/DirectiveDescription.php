@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Dairectiv\Authoring\Domain\Rule;
+namespace Dairectiv\Authoring\Domain\Directive;
 
 use Dairectiv\SharedKernel\Domain\Assert;
 
-final readonly class RuleDescription implements \Stringable
+final readonly class DirectiveDescription implements \Stringable
 {
     private function __construct(public string $description)
     {
@@ -14,8 +14,8 @@ final readonly class RuleDescription implements \Stringable
 
     public static function fromString(string $description): self
     {
-        Assert::notEmpty($description, 'Rule description cannot be empty.');
-        Assert::maxLength($description, 255, 'Rule description is too long.');
+        Assert::notEmpty($description, 'Directive description cannot be empty.');
+        Assert::maxLength($description, 255, 'Directive description is too long.');
 
         return new self($description);
     }

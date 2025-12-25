@@ -2,33 +2,33 @@
 
 declare(strict_types=1);
 
-namespace Dairectiv\Tests\Unit\Authoring\Domain\Rule;
+namespace Dairectiv\Tests\Unit\Authoring\Domain\Directive;
 
-use Dairectiv\Authoring\Domain\Rule\RuleDescription;
+use Dairectiv\Authoring\Domain\Directive\DirectiveDescription;
 use Dairectiv\SharedKernel\Domain\Exception\InvalidArgumentException;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
-final class RuleDescriptionTest extends TestCase
+final class DirectiveDescriptionTest extends TestCase
 {
-    public function testItShouldCreateRuleDescriptionFromValidString(): void
+    public function testItShouldCreateDirectiveDescriptionFromValidString(): void
     {
-        $description = RuleDescription::fromString('A short description of the rule.');
+        $description = DirectiveDescription::fromString('A short description of the directive.');
 
-        self::assertSame('A short description of the rule.', $description->description);
+        self::assertSame('A short description of the directive.', $description->description);
     }
 
     public function testItShouldReturnDescriptionAsStringWhenCastToString(): void
     {
-        $description = RuleDescription::fromString('My rule description');
+        $description = DirectiveDescription::fromString('My directive description');
 
-        self::assertSame('My rule description', (string) $description);
+        self::assertSame('My directive description', (string) $description);
     }
 
     #[DataProvider('validDescriptionsProvider')]
     public function testItShouldAcceptValidDescriptions(string $value): void
     {
-        $description = RuleDescription::fromString($value);
+        $description = DirectiveDescription::fromString($value);
 
         self::assertSame($value, $description->description);
     }
@@ -38,19 +38,19 @@ final class RuleDescriptionTest extends TestCase
      */
     public static function validDescriptionsProvider(): iterable
     {
-        yield 'simple description' => ['A simple rule description'];
+        yield 'simple description' => ['A simple directive description'];
         yield 'single character' => ['A'];
-        yield 'with numbers' => ['Rule v2.0 description'];
-        yield 'with special chars' => ['Rule: use sprintf() for formatting!'];
+        yield 'with numbers' => ['Directive v2.0 description'];
+        yield 'with special chars' => ['Directive: use sprintf() for formatting!'];
         yield 'max length (255 chars)' => [str_repeat('a', 255)];
     }
 
     public function testItShouldThrowExceptionWhenDescriptionIsEmpty(): void
     {
         $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('Rule description cannot be empty.');
+        $this->expectExceptionMessage('Directive description cannot be empty.');
 
-        RuleDescription::fromString('');
+        DirectiveDescription::fromString('');
     }
 
     public function testItShouldThrowExceptionWhenDescriptionIsTooLong(): void
@@ -58,23 +58,23 @@ final class RuleDescriptionTest extends TestCase
         $longDescription = str_repeat('a', 256);
 
         $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('Rule description is too long.');
+        $this->expectExceptionMessage('Directive description is too long.');
 
-        RuleDescription::fromString($longDescription);
+        DirectiveDescription::fromString($longDescription);
     }
 
     public function testItShouldAcceptDescriptionWithExactlyMaxLength(): void
     {
         $maxLengthDescription = str_repeat('x', 255);
 
-        $description = RuleDescription::fromString($maxLengthDescription);
+        $description = DirectiveDescription::fromString($maxLengthDescription);
 
         self::assertSame(255, \strlen($description->description));
     }
 
     public function testItShouldBeImmutable(): void
     {
-        $description = RuleDescription::fromString('original description');
+        $description = DirectiveDescription::fromString('original description');
 
         self::assertSame('original description', $description->description);
     }
