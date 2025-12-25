@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Dairectiv\SharedKernel\Infrastructure\Doctrine\DBAL\Types;
 
-use Dairectiv\SharedKernel\Domain\Assert;
-use Dairectiv\SharedKernel\Domain\ValueObject\ObjectValue;
+use Dairectiv\SharedKernel\Domain\Object\Assert;
+use Dairectiv\SharedKernel\Domain\Object\ValueObject\ObjectValue;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\JsonType;
 

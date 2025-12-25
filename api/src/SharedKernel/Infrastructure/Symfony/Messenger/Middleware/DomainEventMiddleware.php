@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Dairectiv\SharedKernel\Infrastructure\Symfony\Messenger\Middleware;
 
-use Dairectiv\SharedKernel\Domain\Event\DomainEventQueue;
+use Dairectiv\SharedKernel\Domain\Object\Event\DomainEventQueue;
 use Dairectiv\SharedKernel\Infrastructure\Symfony\Messenger\Message\DomainEventWrapper;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\MessageBusInterface;

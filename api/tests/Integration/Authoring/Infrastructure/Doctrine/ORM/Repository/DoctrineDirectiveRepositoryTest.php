@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace Dairectiv\Tests\Integration\Authoring\Infrastructure\Doctrine\ORM\Repository;
 
-use Dairectiv\Authoring\Domain\Directive\DirectiveId;
-use Dairectiv\Authoring\Domain\Directive\Exception\DirectiveNotFoundException;
-use Dairectiv\Authoring\Domain\Directive\Metadata\DirectiveDescription;
-use Dairectiv\Authoring\Domain\Directive\Metadata\DirectiveMetadata;
-use Dairectiv\Authoring\Domain\Directive\Metadata\DirectiveName;
-use Dairectiv\Authoring\Domain\Rule\Rule;
-use Dairectiv\Authoring\Domain\Rule\RuleContent;
+use Dairectiv\Authoring\Domain\Object\Directive\DirectiveId;
+use Dairectiv\Authoring\Domain\Object\Directive\Exception\DirectiveNotFoundException;
+use Dairectiv\Authoring\Domain\Object\Directive\Metadata\DirectiveDescription;
+use Dairectiv\Authoring\Domain\Object\Directive\Metadata\DirectiveMetadata;
+use Dairectiv\Authoring\Domain\Object\Directive\Metadata\DirectiveName;
+use Dairectiv\Authoring\Domain\Object\Rule\Rule;
+use Dairectiv\Authoring\Domain\Object\Rule\RuleContent;
 use Dairectiv\Authoring\Infrastructure\Doctrine\ORM\Repository\DoctrineDirectiveRepository;
 use Dairectiv\Tests\Framework\IntegrationTestCase;
 

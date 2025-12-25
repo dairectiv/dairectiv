@@ -9,4 +9,5 @@ services:
     Dairectiv\:
         resource: '../src/'
         exclude:
-            - '../src/*/Domain'
+            - '../src/**/Domain/Object/**/*'
+            - '../src/**/Application/**/{Input,Output}.php'

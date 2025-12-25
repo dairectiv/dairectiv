@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Dairectiv\SharedKernel\Infrastructure\Symfony\Messenger\Transport;
 
-use Dairectiv\SharedKernel\Domain\Event\DomainEvent;
+use Dairectiv\SharedKernel\Domain\Object\Event\DomainEvent;
 use Dairectiv\SharedKernel\Infrastructure\Symfony\Messenger\Message\DomainEventWrapper;
 use Symfony\Component\DependencyInjection\Attribute\When;
 use Symfony\Component\Messenger\Envelope;

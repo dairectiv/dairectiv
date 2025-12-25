@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Dairectiv\Authoring\Infrastructure\Doctrine\ORM\Repository;
 
-use Dairectiv\Authoring\Domain\Directive\Directive;
-use Dairectiv\Authoring\Domain\Directive\DirectiveId;
-use Dairectiv\Authoring\Domain\Directive\DirectiveRepository;
-use Dairectiv\Authoring\Domain\Directive\Exception\DirectiveNotFoundException;
+use Dairectiv\Authoring\Domain\Object\Directive\Directive;
+use Dairectiv\Authoring\Domain\Object\Directive\DirectiveId;
+use Dairectiv\Authoring\Domain\Object\Directive\Exception\DirectiveNotFoundException;
+use Dairectiv\Authoring\Domain\Repository\DirectiveRepository;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 

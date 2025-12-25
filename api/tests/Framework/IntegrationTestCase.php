@@ -4,11 +4,12 @@ declare(strict_types=1);
 
 namespace Dairectiv\Tests\Framework;
 
+use Cake\Chronos\Chronos;
 use Dairectiv\SharedKernel\Application\Command\Command;
 use Dairectiv\SharedKernel\Application\Command\CommandBus;
 use Dairectiv\SharedKernel\Application\Query\Query;
 use Dairectiv\SharedKernel\Application\Query\QueryBus;
-use Dairectiv\SharedKernel\Domain\Event\DomainEventQueue;
+use Dairectiv\SharedKernel\Domain\Object\Event\DomainEventQueue;
 use Dairectiv\SharedKernel\Infrastructure\Symfony\Messenger\Transport\TestTransport;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
@@ -22,6 +23,7 @@ abstract class IntegrationTestCase extends WebTestCase
 
     protected function setUp(): void
     {
+        Chronos::setTestNow(Chronos::now());
         $this->client = static::createClient();
         parent::setUp();
     }
@@ -110,5 +112,47 @@ abstract class IntegrationTestCase extends WebTestCase
         $convertedValue = $this->getEntityManager()->getConnection()->convertToPHPValue($value, $type);
 
         self::assertEquals($expectedPhpValue, $convertedValue);
+    }
+
+    /**
+     * @template T of object
+     * @param class-string<T> $entityClass
+     * @param array<string, mixed> $criteria
+     * @return ($strict is true ? T : T|null)
+     */
+    final public function findEntity(string $entityClass, array $criteria = [], bool $strict = false): ?object
+    {
+        $entityManager = self::getService(EntityManagerInterface::class);
+
+        $entity = $entityManager->getRepository($entityClass)->findOneBy($criteria);
+
+        if ($strict) {
+            self::assertNotNull($entity);
+        }
+
+        if (null === $entity) {
+            return null;
+        }
+
+        self::assertInstanceOf($entityClass, $entity);
+
+        return $entity;
+    }
+
+    /**
+     * @template T of object
+     * @param class-string<T> $entityClass
+     * @param array<string, mixed> $criteria
+     * @return T[]
+     */
+    final public function findEntities(string $entityClass, array $criteria = []): array
+    {
+        $entityManager = self::getService(EntityManagerInterface::class);
+
+        $entities = $entityManager->getRepository($entityClass)->findBy($criteria);
+
+        self::assertContainsOnlyInstancesOf($entityClass, $entities);
+
+        return $entities;
     }
 }

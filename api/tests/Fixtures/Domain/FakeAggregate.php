@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Dairectiv\Tests\Fixtures\Domain;
 
-use Dairectiv\SharedKernel\Domain\AggregateRoot;
+use Dairectiv\SharedKernel\Domain\Object\AggregateRoot;
 
 final class FakeAggregate extends AggregateRoot
 {
