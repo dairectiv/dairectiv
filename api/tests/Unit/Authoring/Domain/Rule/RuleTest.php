@@ -5,14 +5,15 @@ declare(strict_types=1);
 namespace Dairectiv\Tests\Unit\Authoring\Domain\Rule;
 
 use Cake\Chronos\Chronos;
-use Dairectiv\Authoring\Domain\Directive\DirectiveDescription;
 use Dairectiv\Authoring\Domain\Directive\DirectiveId;
-use Dairectiv\Authoring\Domain\Directive\DirectiveName;
 use Dairectiv\Authoring\Domain\Directive\DirectiveState;
 use Dairectiv\Authoring\Domain\Directive\Event\DirectiveArchived;
 use Dairectiv\Authoring\Domain\Directive\Event\DirectiveDrafted;
 use Dairectiv\Authoring\Domain\Directive\Event\DirectivePublished;
 use Dairectiv\Authoring\Domain\Directive\Event\DirectiveUpdated;
+use Dairectiv\Authoring\Domain\Directive\Metadata\DirectiveDescription;
+use Dairectiv\Authoring\Domain\Directive\Metadata\DirectiveMetadata;
+use Dairectiv\Authoring\Domain\Directive\Metadata\DirectiveName;
 use Dairectiv\Authoring\Domain\Rule\Rule;
 use Dairectiv\Authoring\Domain\Rule\RuleContent;
 use Dairectiv\Authoring\Domain\Rule\RuleExample;
@@ -32,10 +33,10 @@ final class RuleTest extends TestCase
         $rule = $this->createRule($id, $name);
 
         self::assertSame($id, $rule->id);
-        self::assertSame($name, $rule->name);
-        self::assertSame('my-rule-name', (string) $rule->name);
+        self::assertSame($name, $rule->metadata->name);
+        self::assertSame('my-rule-name', (string) $rule->metadata->name);
         self::assertSame(DirectiveState::Draft, $rule->state);
-        self::assertSame(1, $rule->version->version);
+        self::assertSame(1, $rule->currentVersion->number->number);
 
         $this->assertDomainEventRecorded(DirectiveDrafted::class);
     }
@@ -73,7 +74,7 @@ final class RuleTest extends TestCase
 
         $rule->updateContent();
 
-        self::assertSame(2, $rule->version->version);
+        self::assertSame(2, $rule->currentVersion->number->number);
 
         $this->assertDomainEventRecorded(DirectiveUpdated::class);
     }
@@ -110,7 +111,7 @@ final class RuleTest extends TestCase
         $event = $this->assertDomainEventRecorded(DirectiveUpdated::class);
 
         self::assertSame($id, $event->directiveId);
-        self::assertSame(2, $event->directiveVersion->version);
+        self::assertSame(2, $event->versionNumber->number);
     }
 
     public function testItShouldAllowMultipleContentUpdates(): void
@@ -125,7 +126,7 @@ final class RuleTest extends TestCase
         $rule->updateContent();
         $rule->updateContent();
 
-        self::assertSame(4, $rule->version->version);
+        self::assertSame(4, $rule->currentVersion->number->number);
 
         $this->assertDomainEventRecorded(DirectiveUpdated::class);
         $this->assertDomainEventRecorded(DirectiveUpdated::class);
@@ -135,7 +136,7 @@ final class RuleTest extends TestCase
     public function testItShouldNotIncrementVersionWhenUpdatingMetadata(): void
     {
         $rule = $this->createRule();
-        $initialVersion = $rule->version;
+        $initialVersion = $rule->currentVersion;
 
         $this->resetDomainEvents();
 
@@ -144,9 +145,9 @@ final class RuleTest extends TestCase
             description: DirectiveDescription::fromString('New description'),
         );
 
-        self::assertSame($initialVersion->version, $rule->version->version);
-        self::assertSame('new-name', (string) $rule->name);
-        self::assertSame('New description', (string) $rule->description);
+        self::assertSame($initialVersion->number->number, $rule->currentVersion->number->number);
+        self::assertSame('new-name', (string) $rule->metadata->name);
+        self::assertSame('New description', (string) $rule->metadata->description);
     }
 
     public function testItShouldUpdateUpdatedAtWhenUpdatingMetadata(): void
@@ -221,13 +222,13 @@ final class RuleTest extends TestCase
         $name = DirectiveName::fromString('my-rule-name');
         $rule = $this->createRule($id, $name);
 
-        $initialVersion = $rule->version;
+        $initialVersion = $rule->currentVersion;
 
         $this->resetDomainEvents();
 
         $rule->publish();
 
-        self::assertSame($initialVersion, $rule->version);
+        self::assertSame($initialVersion, $rule->currentVersion);
 
         $this->assertDomainEventRecorded(DirectivePublished::class);
     }
@@ -287,13 +288,13 @@ final class RuleTest extends TestCase
         $name = DirectiveName::fromString('my-rule-name');
         $rule = $this->createRule($id, $name);
 
-        $initialVersion = $rule->version;
+        $initialVersion = $rule->currentVersion;
 
         $this->resetDomainEvents();
 
         $rule->archive();
 
-        self::assertSame($initialVersion, $rule->version);
+        self::assertSame($initialVersion, $rule->currentVersion);
 
         $this->assertDomainEventRecorded(DirectiveArchived::class);
     }
@@ -375,9 +376,9 @@ final class RuleTest extends TestCase
         $description = DirectiveDescription::fromString('A rule description');
         $content = RuleContent::fromString('## MUST\n- Use sprintf');
 
-        $rule = Rule::draft($id, $name, $description, $content);
+        $rule = Rule::draft($id, DirectiveMetadata::create($name, $description), $content);
 
-        self::assertSame($description, $rule->description);
+        self::assertSame($description, $rule->metadata->description);
         self::assertSame($content, $rule->content);
         self::assertTrue($rule->examples->isEmpty());
 
@@ -395,7 +396,7 @@ final class RuleTest extends TestCase
             RuleExample::bad('interpolation code'),
         ]);
 
-        $rule = Rule::draft($id, $name, $description, $content, $examples);
+        $rule = Rule::draft($id, DirectiveMetadata::create($name, $description), $content, $examples);
 
         self::assertCount(2, $rule->examples);
 
@@ -411,7 +412,7 @@ final class RuleTest extends TestCase
         $newDescription = DirectiveDescription::fromString('Updated description');
         $rule->updateMetadata(description: $newDescription);
 
-        self::assertSame($newDescription, $rule->description);
+        self::assertSame($newDescription, $rule->metadata->description);
 
         $this->assertNoDomainEvents();
     }
@@ -487,8 +488,10 @@ final class RuleTest extends TestCase
     ): Rule {
         return Rule::draft(
             $id ?? DirectiveId::fromString('my-rule'),
-            $name ?? DirectiveName::fromString('my-rule-name'),
-            $description ?? DirectiveDescription::fromString('Default description'),
+            DirectiveMetadata::create(
+                $name ?? DirectiveName::fromString('my-rule-name'),
+                $description ?? DirectiveDescription::fromString('Default description'),
+            ),
             $content ?? RuleContent::fromString('Default content'),
             $examples,
         );
