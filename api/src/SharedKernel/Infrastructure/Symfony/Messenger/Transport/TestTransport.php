@@ -9,16 +9,17 @@ use Dairectiv\SharedKernel\Infrastructure\Symfony\Messenger\Message\DomainEventW
 use Symfony\Component\DependencyInjection\Attribute\When;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\Transport\TransportInterface;
+use Symfony\Contracts\Service\ResetInterface;
 
 #[When('test')]
-final class TestTransport implements TransportInterface
+final class TestTransport implements TransportInterface, ResetInterface
 {
     /**
      * @var Envelope[]
      */
     private static array $stack = [];
 
-    public static function reset(): void
+    public function reset(): void
     {
         self::$stack = [];
     }

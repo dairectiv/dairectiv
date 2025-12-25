@@ -36,7 +36,7 @@ final class RuleTest extends TestCase
         self::assertSame($name, $rule->metadata->name);
         self::assertSame('my-rule-name', (string) $rule->metadata->name);
         self::assertSame(DirectiveState::Draft, $rule->state);
-        self::assertSame(1, $rule->currentVersion->number->number);
+        self::assertSame(1, $rule->getCurrentVersion()->number->number);
 
         $this->assertDomainEventRecorded(DirectiveDrafted::class);
     }
@@ -74,7 +74,7 @@ final class RuleTest extends TestCase
 
         $rule->updateContent();
 
-        self::assertSame(2, $rule->currentVersion->number->number);
+        self::assertSame(2, $rule->getCurrentVersion()->number->number);
 
         $this->assertDomainEventRecorded(DirectiveUpdated::class);
     }
@@ -126,7 +126,7 @@ final class RuleTest extends TestCase
         $rule->updateContent();
         $rule->updateContent();
 
-        self::assertSame(4, $rule->currentVersion->number->number);
+        self::assertSame(4, $rule->getCurrentVersion()->number->number);
 
         $this->assertDomainEventRecorded(DirectiveUpdated::class);
         $this->assertDomainEventRecorded(DirectiveUpdated::class);
@@ -136,7 +136,7 @@ final class RuleTest extends TestCase
     public function testItShouldNotIncrementVersionWhenUpdatingMetadata(): void
     {
         $rule = $this->createRule();
-        $initialVersion = $rule->currentVersion;
+        $initialVersion = $rule->getCurrentVersion();
 
         $this->resetDomainEvents();
 
@@ -145,7 +145,7 @@ final class RuleTest extends TestCase
             description: DirectiveDescription::fromString('New description'),
         );
 
-        self::assertSame($initialVersion->number->number, $rule->currentVersion->number->number);
+        self::assertSame($initialVersion->number->number, $rule->getCurrentVersion()->number->number);
         self::assertSame('new-name', (string) $rule->metadata->name);
         self::assertSame('New description', (string) $rule->metadata->description);
     }
@@ -222,13 +222,13 @@ final class RuleTest extends TestCase
         $name = DirectiveName::fromString('my-rule-name');
         $rule = $this->createRule($id, $name);
 
-        $initialVersion = $rule->currentVersion;
+        $initialVersion = $rule->getCurrentVersion();
 
         $this->resetDomainEvents();
 
         $rule->publish();
 
-        self::assertSame($initialVersion, $rule->currentVersion);
+        self::assertSame($initialVersion, $rule->getCurrentVersion());
 
         $this->assertDomainEventRecorded(DirectivePublished::class);
     }
@@ -288,13 +288,13 @@ final class RuleTest extends TestCase
         $name = DirectiveName::fromString('my-rule-name');
         $rule = $this->createRule($id, $name);
 
-        $initialVersion = $rule->currentVersion;
+        $initialVersion = $rule->getCurrentVersion();
 
         $this->resetDomainEvents();
 
         $rule->archive();
 
-        self::assertSame($initialVersion, $rule->currentVersion);
+        self::assertSame($initialVersion, $rule->getCurrentVersion());
 
         $this->assertDomainEventRecorded(DirectiveArchived::class);
     }
@@ -391,7 +391,7 @@ final class RuleTest extends TestCase
         $name = DirectiveName::fromString('my-rule-name');
         $description = DirectiveDescription::fromString('A rule description');
         $content = RuleContent::fromString('## MUST\n- Use sprintf');
-        $examples = RuleExamples::fromArray([
+        $examples = RuleExamples::fromList([
             RuleExample::good('sprintf code'),
             RuleExample::bad('interpolation code'),
         ]);
@@ -437,7 +437,7 @@ final class RuleTest extends TestCase
 
         $this->resetDomainEvents();
 
-        $newExamples = RuleExamples::fromArray([RuleExample::good('new code')]);
+        $newExamples = RuleExamples::fromList([RuleExample::good('new code')]);
         $rule->updateContent(examples: $newExamples);
 
         self::assertCount(1, $rule->examples);
@@ -452,7 +452,7 @@ final class RuleTest extends TestCase
         $this->resetDomainEvents();
 
         $newContent = RuleContent::fromString('New content');
-        $newExamples = RuleExamples::fromArray([RuleExample::transformation('bad', 'good')]);
+        $newExamples = RuleExamples::fromList([RuleExample::transformation('bad', 'good')]);
 
         $rule->updateContent(
             content: $newContent,

@@ -29,7 +29,7 @@ final class RuleSnapshotTest extends TestCase
 
     public function testItShouldCaptureExamplesFromRule(): void
     {
-        $examples = RuleExamples::fromArray([
+        $examples = RuleExamples::fromList([
             RuleExample::good('good code'),
             RuleExample::bad('bad code'),
         ]);
@@ -62,7 +62,7 @@ final class RuleSnapshotTest extends TestCase
 
     public function testItShouldCaptureMultipleExamples(): void
     {
-        $examples = RuleExamples::fromArray([
+        $examples = RuleExamples::fromList([
             RuleExample::good('good code 1'),
             RuleExample::bad('bad code 1'),
             RuleExample::transformation('before', 'after'),

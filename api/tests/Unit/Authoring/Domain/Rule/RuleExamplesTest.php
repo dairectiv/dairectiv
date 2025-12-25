@@ -24,7 +24,7 @@ final class RuleExamplesTest extends TestCase
         $example1 = RuleExample::good('code1');
         $example2 = RuleExample::bad('code2');
 
-        $examples = RuleExamples::fromArray([$example1, $example2]);
+        $examples = RuleExamples::fromList([$example1, $example2]);
 
         self::assertCount(2, $examples);
         self::assertFalse($examples->isEmpty());
@@ -36,7 +36,7 @@ final class RuleExamplesTest extends TestCase
         $this->expectExceptionMessage('All examples must be RuleExample instances.');
 
         /** @phpstan-ignore argument.type */
-        RuleExamples::fromArray(['not a RuleExample']);
+        RuleExamples::fromList(['not a RuleExample']);
     }
 
     public function testItShouldAddExampleToCollection(): void
@@ -67,7 +67,7 @@ final class RuleExamplesTest extends TestCase
         $example1 = RuleExample::good('code1');
         $example2 = RuleExample::bad('code2');
 
-        $examples = RuleExamples::fromArray([$example1, $example2]);
+        $examples = RuleExamples::fromList([$example1, $example2]);
 
         $items = [];
         foreach ($examples as $example) {
@@ -85,7 +85,7 @@ final class RuleExamplesTest extends TestCase
         $badOnly = RuleExample::bad('bad code');
         $transformation = RuleExample::transformation('bad', 'good');
 
-        $examples = RuleExamples::fromArray([$goodOnly, $badOnly, $transformation]);
+        $examples = RuleExamples::fromList([$goodOnly, $badOnly, $transformation]);
 
         $goods = $examples->goods();
 
@@ -99,7 +99,7 @@ final class RuleExamplesTest extends TestCase
         $badOnly = RuleExample::bad('bad code');
         $transformation = RuleExample::transformation('bad', 'good');
 
-        $examples = RuleExamples::fromArray([$goodOnly, $badOnly, $transformation]);
+        $examples = RuleExamples::fromList([$goodOnly, $badOnly, $transformation]);
 
         $bads = $examples->bads();
 
@@ -114,7 +114,7 @@ final class RuleExamplesTest extends TestCase
         $transformation1 = RuleExample::transformation('bad1', 'good1');
         $transformation2 = RuleExample::transformation('bad2', 'good2');
 
-        $examples = RuleExamples::fromArray([$goodOnly, $badOnly, $transformation1, $transformation2]);
+        $examples = RuleExamples::fromList([$goodOnly, $badOnly, $transformation1, $transformation2]);
 
         $transformations = $examples->transformations();
 
@@ -128,7 +128,7 @@ final class RuleExamplesTest extends TestCase
         $badOnly = RuleExample::bad('bad code');
         $transformation = RuleExample::transformation('bad', 'good');
 
-        $examples = RuleExamples::fromArray([$badOnly, $transformation]);
+        $examples = RuleExamples::fromList([$badOnly, $transformation]);
 
         self::assertCount(0, $examples->goods());
     }
@@ -138,7 +138,7 @@ final class RuleExamplesTest extends TestCase
         $goodOnly = RuleExample::good('good code');
         $transformation = RuleExample::transformation('bad', 'good');
 
-        $examples = RuleExamples::fromArray([$goodOnly, $transformation]);
+        $examples = RuleExamples::fromList([$goodOnly, $transformation]);
 
         self::assertCount(0, $examples->bads());
     }
@@ -148,7 +148,7 @@ final class RuleExamplesTest extends TestCase
         $goodOnly = RuleExample::good('good code');
         $badOnly = RuleExample::bad('bad code');
 
-        $examples = RuleExamples::fromArray([$goodOnly, $badOnly]);
+        $examples = RuleExamples::fromList([$goodOnly, $badOnly]);
 
         self::assertCount(0, $examples->transformations());
     }
@@ -158,7 +158,7 @@ final class RuleExamplesTest extends TestCase
         $example1 = RuleExample::good('code1');
         $example2 = RuleExample::bad('code2');
 
-        $examples = RuleExamples::fromArray([$example1, $example2]);
+        $examples = RuleExamples::fromList([$example1, $example2]);
 
         self::assertSame([$example1, $example2], $examples->examples);
     }
