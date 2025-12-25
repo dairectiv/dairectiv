@@ -55,10 +55,10 @@ final class DirectiveDescriptionTest extends TestCase
 
     public function testItShouldThrowExceptionWhenDescriptionIsTooLong(): void
     {
-        $longDescription = str_repeat('a', 256);
+        $longDescription = str_repeat('a', 501);
 
         $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('Directive description is too long.');
+        $this->expectExceptionMessage('Directive description is too long, max length: 500.');
 
         DirectiveDescription::fromString($longDescription);
     }

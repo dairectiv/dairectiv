@@ -8,7 +8,9 @@ use Dairectiv\SharedKernel\Application\Command\Command;
 use Dairectiv\SharedKernel\Application\Command\CommandBus;
 use Dairectiv\SharedKernel\Application\Query\Query;
 use Dairectiv\SharedKernel\Application\Query\QueryBus;
+use Dairectiv\SharedKernel\Domain\Event\DomainEventQueue;
 use Dairectiv\SharedKernel\Infrastructure\Symfony\Messenger\Transport\TestTransport;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
@@ -26,7 +28,8 @@ abstract class IntegrationTestCase extends WebTestCase
 
     protected function tearDown(): void
     {
-        TestTransport::reset();
+        DomainEventQueue::reset();
+        self::getService(TestTransport::class)->reset();
         parent::tearDown();
     }
 
@@ -70,6 +73,11 @@ abstract class IntegrationTestCase extends WebTestCase
         return $queryBus->fetch($query);
     }
 
+    final public function getEntityManager(): EntityManagerInterface
+    {
+        return self::getService(EntityManagerInterface::class);
+    }
+
     /**
      * @param class-string $domainEvent
      */
@@ -88,5 +96,19 @@ abstract class IntegrationTestCase extends WebTestCase
             ),
         );
         TestTransport::ackDomainEvent($domainEvent);
+    }
+
+    final public function assertConvertToDatabaseValue(mixed $expectedDatabaseValue, mixed $value, string $type): void
+    {
+        $convertedValue = $this->getEntityManager()->getConnection()->convertToDatabaseValue($value, $type);
+
+        self::assertEquals($expectedDatabaseValue, $convertedValue);
+    }
+
+    final public function assertConvertToPhpValue(mixed $expectedPhpValue, mixed $value, string $type): void
+    {
+        $convertedValue = $this->getEntityManager()->getConnection()->convertToPHPValue($value, $type);
+
+        self::assertEquals($expectedPhpValue, $convertedValue);
     }
 }
