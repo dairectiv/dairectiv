@@ -938,6 +938,11 @@ namespace Symfony\Component\DependencyInjection\Loader\Configurator;
  *         default_namespace?: scalar|null, // Default namespace where stories will be created by maker. // Default: "Story"
  *     },
  * }
+ * @psalm-type MakerConfig = array{
+ *     root_namespace?: scalar|null, // Default: "App"
+ *     generate_final_classes?: bool, // Default: true
+ *     generate_final_entities?: bool, // Default: false
+ * }
  * @psalm-type ConfigType = array{
  *     imports?: ImportsConfig,
  *     parameters?: ParametersConfig,
@@ -953,6 +958,7 @@ namespace Symfony\Component\DependencyInjection\Loader\Configurator;
  *         doctrine?: DoctrineConfig,
  *         doctrine_migrations?: DoctrineMigrationsConfig,
  *         zenstruck_foundry?: ZenstruckFoundryConfig,
+ *         maker?: MakerConfig,
  *     },
  *     "when@prod"?: array{
  *         imports?: ImportsConfig,
