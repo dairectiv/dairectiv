@@ -4,16 +4,13 @@ declare(strict_types=1);
 
 namespace Dairectiv\Authoring\Domain\Directive\Exception;
 
-use Dairectiv\Authoring\Domain\ChangeSet\Change;
 use Dairectiv\Authoring\Domain\Directive\Directive;
 use Dairectiv\Authoring\Domain\Directive\DirectiveVersion;
 use Dairectiv\SharedKernel\Domain\Exception\DomainException;
 
 final class DirectiveConflictException extends DomainException
 {
-    /**
-     * @param Directive<Change> $directive
-     */
+    /** @phpstan-ignore missingType.generics */
     public function __construct(DirectiveVersion $expected, Directive $directive)
     {
         $message = \sprintf(
