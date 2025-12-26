@@ -12,10 +12,10 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity]
 class Rule extends Directive
 {
-    #[ORM\Column(type: 'authoring_rule_content')]
+    #[ORM\Column(name: 'rule_content', type: 'authoring_rule_content')]
     public private(set) RuleContent $content;
 
-    #[ORM\Column(type: 'object_value')]
+    #[ORM\Column(name: 'rule_examples', type: 'object_value')]
     public private(set) RuleExamples $examples;
 
     public static function draft(
