@@ -15,6 +15,7 @@ use Dairectiv\Authoring\Domain\Object\Directive\Metadata\DirectiveName;
 use Dairectiv\Authoring\Domain\Object\Directive\Version\Version;
 use Dairectiv\Authoring\Domain\Object\Directive\Version\VersionSnapshot;
 use Dairectiv\Authoring\Domain\Object\Rule\Rule;
+use Dairectiv\Authoring\Domain\Object\Skill\Skill;
 use Dairectiv\SharedKernel\Domain\Object\AggregateRoot;
 use Dairectiv\SharedKernel\Domain\Object\Assert;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -25,7 +26,7 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Table(name: 'authoring_directive')]
 #[ORM\InheritanceType('SINGLE_TABLE')]
 #[ORM\DiscriminatorColumn(name: 'discr', type: 'string')]
-#[ORM\DiscriminatorMap(['rule' => Rule::class])]
+#[ORM\DiscriminatorMap(['rule' => Rule::class, 'skill' => Skill::class])]
 abstract class Directive extends AggregateRoot
 {
     #[ORM\Id]

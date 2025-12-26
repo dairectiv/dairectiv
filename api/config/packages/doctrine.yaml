@@ -8,6 +8,7 @@ doctrine:
             authoring_version_id: Dairectiv\Authoring\Infrastructure\Doctrine\DBAL\Types\VersionIdType
             authoring_version_number: Dairectiv\Authoring\Infrastructure\Doctrine\DBAL\Types\VersionNumberType
             authoring_rule_content: Dairectiv\Authoring\Infrastructure\Doctrine\DBAL\Types\RuleContentType
+            authoring_skill_content: Dairectiv\Authoring\Infrastructure\Doctrine\DBAL\Types\SkillContentType
             authoring_directive_id: Dairectiv\Authoring\Infrastructure\Doctrine\DBAL\Types\DirectiveIdType
             authoring_directive_name: Dairectiv\Authoring\Infrastructure\Doctrine\DBAL\Types\DirectiveNameType
             authoring_directive_description: Dairectiv\Authoring\Infrastructure\Doctrine\DBAL\Types\DirectiveDescriptionType
