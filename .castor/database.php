@@ -42,7 +42,7 @@ function reset(
         return 0;
     }
 
-    fixtures($test);
+//    fixtures($test);
 
     return 0;
 }
