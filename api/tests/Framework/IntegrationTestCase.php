@@ -10,10 +10,12 @@ use Dairectiv\SharedKernel\Application\Command\CommandBus;
 use Dairectiv\SharedKernel\Application\Query\Query;
 use Dairectiv\SharedKernel\Application\Query\QueryBus;
 use Dairectiv\SharedKernel\Domain\Object\Event\DomainEventQueue;
+use Dairectiv\SharedKernel\Infrastructure\Symfony\Messenger\Message\DomainEventWrapper;
 use Dairectiv\SharedKernel\Infrastructure\Symfony\Messenger\Transport\TestTransport;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\Messenger\Envelope;
 
 abstract class IntegrationTestCase extends WebTestCase
 {
@@ -40,7 +42,25 @@ abstract class IntegrationTestCase extends WebTestCase
         $remainingStack = TestTransport::getStack();
         self::assertEmpty(
             $remainingStack,
-            \sprintf('Expected no remaining message to assert, got %d messages.', \count($remainingStack)),
+            \sprintf(
+                "Expected no remaining message to assert, got %d messages:\n%s",
+                \count($remainingStack),
+                implode(
+                    "\n",
+                    array_map(
+                        static function (Envelope $envelope): string {
+                            $message = $envelope->getMessage();
+
+                            if ($message instanceof DomainEventWrapper) {
+                                return $message->domainEvent::class;
+                            }
+
+                            return $message::class;
+                        },
+                        $remainingStack,
+                    ),
+                ),
+            ),
         );
         parent::assertPostConditions();
     }
@@ -63,6 +83,7 @@ abstract class IntegrationTestCase extends WebTestCase
 
     final public function execute(Command $command): ?object
     {
+        DomainEventQueue::reset();
         $commandBus = self::getService(CommandBus::class);
 
         return $commandBus->execute($command);
@@ -70,6 +91,7 @@ abstract class IntegrationTestCase extends WebTestCase
 
     final public function fetch(Query $query): object
     {
+        DomainEventQueue::reset();
         $queryBus = self::getService(QueryBus::class);
 
         return $queryBus->fetch($query);
@@ -154,5 +176,28 @@ abstract class IntegrationTestCase extends WebTestCase
         self::assertContainsOnlyInstancesOf($entityClass, $entities);
 
         return $entities;
+    }
+
+    /**
+     * @template T of object
+     * @param class-string<T> $entityClass
+     * @param array<string, mixed> $values
+     * @return T
+     */
+    final public function persistEntity(string $entityClass, array $values = []): object
+    {
+        $entityManager = self::getService(EntityManagerInterface::class);
+
+        $entity = new \ReflectionClass($entityClass)->newInstance();
+
+        foreach ($values as $property => $value) {
+            $reflector = new \ReflectionProperty($entity, $property);
+            $reflector->setRawValue($entity, $value);
+        }
+
+        $entityManager->persist($entity);
+        $entityManager->flush();
+
+        return $entity;
     }
 }
