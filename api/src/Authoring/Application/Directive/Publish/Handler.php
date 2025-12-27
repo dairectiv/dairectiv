@@ -21,7 +21,5 @@ final readonly class Handler implements CommandHandler
         );
 
         $directive->publish();
-
-        $this->directiveRepository->save($directive);
     }
 }

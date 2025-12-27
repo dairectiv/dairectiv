@@ -40,8 +40,6 @@ final readonly class Handler implements CommandHandler
                 null !== $input->examples ? $this->buildExamples($input->examples) : null,
             );
         }
-
-        $this->directiveRepository->save($rule);
     }
 
     /**
