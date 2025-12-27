@@ -24,9 +24,6 @@ final readonly class SkillExamples implements \Countable, \IteratorAggregate, Ob
      */
     public static function fromList(array $examples): self
     {
-        /** @phpstan-ignore staticMethod.alreadyNarrowedType */
-        Assert::allIsInstanceOf($examples, SkillExample::class, 'All examples must be SkillExample instances.');
-
         return new self($examples);
     }
 
