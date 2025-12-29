@@ -81,6 +81,21 @@ abstract class IntegrationTestCase extends WebTestCase
         return $service;
     }
 
+    /**
+     * @param array<array-key, mixed> $json
+     */
+    final public function postJson(string $uri, array $json = []): void
+    {
+        $this->client->request(
+            'POST',
+            $uri,
+            server: [
+                'CONTENT_TYPE'        => 'application/json',
+            ],
+            content: \Safe\json_encode($json, \JSON_THROW_ON_ERROR),
+        );
+    }
+
     final public function execute(Command $command): ?object
     {
         DomainEventQueue::reset();
@@ -199,5 +214,16 @@ abstract class IntegrationTestCase extends WebTestCase
         $entityManager->flush();
 
         return $entity;
+    }
+
+    /**
+     * @param array<array-key, mixed> $expectedJson
+     */
+    public function assertResponseReturnsJson(array $expectedJson): void
+    {
+        $json = $this->client->getResponse()->getContent();
+        self::assertNotFalse($json);
+        self::assertJson($json);
+        self::assertEqualsCanonicalizing(\Safe\json_decode($json, true, 512, \JSON_THROW_ON_ERROR), $expectedJson);
     }
 }
