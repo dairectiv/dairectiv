@@ -40,7 +40,10 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "Dairectiv\\Tests\\": "tests/"
+            "Dairectiv\\Tests\\": "tests/",
+            "Dairectiv\\PHPStan\\": "tools/phpstan/src/",
+            "Dairectiv\\PHPStan\\Tests\\": "tools/phpstan/tests/",
+            "Dairectiv\\PHPStan\\Fixtures\\": "tools/phpstan/fixtures/"
         }
     },
     "replace": {
