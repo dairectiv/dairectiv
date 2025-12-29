@@ -12,8 +12,11 @@ use Dairectiv\Authoring\Domain\Object\Directive\Version\VersionId;
 use Dairectiv\Authoring\Domain\Object\Directive\Version\VersionNumber;
 use Dairectiv\Authoring\Domain\Object\Rule\Rule;
 use Dairectiv\Authoring\Domain\Object\Rule\RuleContent;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 
+#[Group('unit')]
+#[Group('authoring')]
 final class VersionIdTest extends TestCase
 {
     public function testItShouldCreateVersionIdFromDirectiveAndVersionNumber(): void

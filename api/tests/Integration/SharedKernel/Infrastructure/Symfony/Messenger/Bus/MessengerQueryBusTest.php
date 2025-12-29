@@ -7,7 +7,10 @@ namespace Dairectiv\Tests\Integration\SharedKernel\Infrastructure\Symfony\Messen
 use Dairectiv\Tests\Fixtures\ErrorQuery;
 use Dairectiv\Tests\Fixtures\Query;
 use Dairectiv\Tests\Framework\IntegrationTestCase;
+use PHPUnit\Framework\Attributes\Group;
 
+#[Group('integration')]
+#[Group('shared-kernel')]
 final class MessengerQueryBusTest extends IntegrationTestCase
 {
     public function testItShouldFetchQuery(): void

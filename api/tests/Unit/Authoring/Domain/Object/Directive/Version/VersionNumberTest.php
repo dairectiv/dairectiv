@@ -5,8 +5,11 @@ declare(strict_types=1);
 namespace Dairectiv\Tests\Unit\Authoring\Domain\Object\Directive\Version;
 
 use Dairectiv\Authoring\Domain\Object\Directive\Version\VersionNumber;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 
+#[Group('unit')]
+#[Group('authoring')]
 final class VersionNumberTest extends TestCase
 {
     public function testItShouldCreateInitialVersionWithValueOne(): void

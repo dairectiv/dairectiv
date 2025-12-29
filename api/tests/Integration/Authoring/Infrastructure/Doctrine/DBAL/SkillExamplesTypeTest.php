@@ -8,7 +8,11 @@ use Dairectiv\Authoring\Domain\Object\Skill\SkillExample;
 use Dairectiv\Authoring\Domain\Object\Skill\SkillExamples;
 use Dairectiv\Tests\Framework\IntegrationTestCase;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 
+#[Group('integration')]
+#[Group('authoring')]
+#[Group('doctrine-type')]
 final class SkillExamplesTypeTest extends IntegrationTestCase
 {
     private const string TYPE = 'object_value';

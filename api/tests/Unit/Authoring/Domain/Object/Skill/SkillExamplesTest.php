@@ -6,8 +6,11 @@ namespace Dairectiv\Tests\Unit\Authoring\Domain\Object\Skill;
 
 use Dairectiv\Authoring\Domain\Object\Skill\SkillExample;
 use Dairectiv\Authoring\Domain\Object\Skill\SkillExamples;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 
+#[Group('unit')]
+#[Group('authoring')]
 final class SkillExamplesTest extends TestCase
 {
     public function testItShouldCreateEmptyExamples(): void

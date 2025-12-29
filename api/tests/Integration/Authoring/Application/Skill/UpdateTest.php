@@ -12,8 +12,12 @@ use Dairectiv\Authoring\Domain\Object\Skill\Skill;
 use Dairectiv\Authoring\Domain\Object\Skill\Workflow\TemplateWorkflow;
 use Dairectiv\Authoring\Infrastructure\Zenstruck\Foundry\Factory\Skill\SkillFactory;
 use Dairectiv\Tests\Framework\IntegrationTestCase;
+use PHPUnit\Framework\Attributes\Group;
 use Zenstruck\Foundry\Test\Factories;
 
+#[Group('integration')]
+#[Group('authoring')]
+#[Group('use-case')]
 final class UpdateTest extends IntegrationTestCase
 {
     use Factories;

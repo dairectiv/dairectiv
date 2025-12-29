@@ -7,7 +7,11 @@ namespace Dairectiv\Tests\Integration\Authoring\Infrastructure\Doctrine\DBAL;
 use Dairectiv\Authoring\Domain\Object\Directive\Metadata\DirectiveDescription;
 use Dairectiv\Tests\Framework\IntegrationTestCase;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 
+#[Group('integration')]
+#[Group('authoring')]
+#[Group('doctrine-type')]
 final class DirectiveDescriptionTypeTest extends IntegrationTestCase
 {
     private const string TYPE = 'authoring_directive_description';

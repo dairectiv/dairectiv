@@ -19,8 +19,11 @@ use Dairectiv\Authoring\Domain\Object\Rule\RuleContent;
 use Dairectiv\Authoring\Domain\Object\Rule\RuleExample;
 use Dairectiv\Authoring\Domain\Object\Rule\RuleExamples;
 use Dairectiv\Tests\Framework\AggregateRootAssertions;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 
+#[Group('unit')]
+#[Group('authoring')]
 final class RuleTest extends TestCase
 {
     use AggregateRootAssertions;

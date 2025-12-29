@@ -7,7 +7,11 @@ namespace Dairectiv\Tests\Integration\SharedKernel\Infrastructure\Doctrine\DBAL;
 use Cake\Chronos\Chronos;
 use Dairectiv\Tests\Framework\IntegrationTestCase;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 
+#[Group('integration')]
+#[Group('doctrine-type')]
+#[Group('shared-kernel')]
 final class ChronosTypeTest extends IntegrationTestCase
 {
     private const string TYPE = 'chronos';

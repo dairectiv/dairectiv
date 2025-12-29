@@ -22,8 +22,11 @@ use Dairectiv\Authoring\Domain\Object\Skill\Workflow\SequentialWorkflow;
 use Dairectiv\Authoring\Domain\Object\Skill\Workflow\SkillStep;
 use Dairectiv\Authoring\Domain\Object\Skill\Workflow\SkillWorkflow;
 use Dairectiv\Tests\Framework\AggregateRootAssertions;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 
+#[Group('unit')]
+#[Group('authoring')]
 final class SkillTest extends TestCase
 {
     use AggregateRootAssertions;

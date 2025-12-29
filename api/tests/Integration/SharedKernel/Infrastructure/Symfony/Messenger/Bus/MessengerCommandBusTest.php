@@ -8,7 +8,10 @@ use Dairectiv\Tests\Fixtures\Command;
 use Dairectiv\Tests\Fixtures\Domain\FakeEvent;
 use Dairectiv\Tests\Fixtures\ErrorCommand;
 use Dairectiv\Tests\Framework\IntegrationTestCase;
+use PHPUnit\Framework\Attributes\Group;
 
+#[Group('integration')]
+#[Group('shared-kernel')]
 final class MessengerCommandBusTest extends IntegrationTestCase
 {
     public function testItShouldExecuteCommand(): void

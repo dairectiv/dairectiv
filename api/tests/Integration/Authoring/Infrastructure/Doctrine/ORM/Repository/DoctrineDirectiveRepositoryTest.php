@@ -13,7 +13,11 @@ use Dairectiv\Authoring\Domain\Object\Rule\Rule;
 use Dairectiv\Authoring\Domain\Object\Rule\RuleContent;
 use Dairectiv\Authoring\Infrastructure\Doctrine\ORM\Repository\DoctrineDirectiveRepository;
 use Dairectiv\Tests\Framework\IntegrationTestCase;
+use PHPUnit\Framework\Attributes\Group;
 
+#[Group('integration')]
+#[Group('authoring')]
+#[Group('doctrine-repository')]
 final class DoctrineDirectiveRepositoryTest extends IntegrationTestCase
 {
     private DoctrineDirectiveRepository $repository;
@@ -55,7 +59,7 @@ final class DoctrineDirectiveRepositoryTest extends IntegrationTestCase
         self::assertTrue($id->id === $found->id->id);
     }
 
-    public function testFindDirectiveByIdShouldReturnNullWhenNotFound(): void
+    public function testItShouldReturnNullWhenDirectiveNotFound(): void
     {
         $id = DirectiveId::fromString('non-existent-rule');
 
@@ -64,7 +68,7 @@ final class DoctrineDirectiveRepositoryTest extends IntegrationTestCase
         self::assertNull($found);
     }
 
-    public function testGetDirectiveByIdShouldThrowExceptionWhenNotFound(): void
+    public function testItShouldThrowExceptionWhenDirectiveNotFound(): void
     {
         $id = DirectiveId::fromString('non-existent-rule');
 

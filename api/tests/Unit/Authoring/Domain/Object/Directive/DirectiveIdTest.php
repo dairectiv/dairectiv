@@ -6,8 +6,11 @@ namespace Dairectiv\Tests\Unit\Authoring\Domain\Object\Directive;
 
 use Dairectiv\Authoring\Domain\Object\Directive\DirectiveId;
 use Dairectiv\SharedKernel\Domain\Object\Exception\InvalidArgumentException;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 
+#[Group('unit')]
+#[Group('authoring')]
 final class DirectiveIdTest extends TestCase
 {
     public function testItShouldCreateDirectiveIdFromValidKebabCaseString(): void

@@ -13,8 +13,11 @@ use Dairectiv\Authoring\Domain\Object\Skill\Workflow\SkillWorkflow;
 use Dairectiv\Authoring\Domain\Object\Skill\Workflow\TemplateWorkflow;
 use Dairectiv\Authoring\Domain\Object\Skill\Workflow\WorkflowType;
 use Dairectiv\SharedKernel\Domain\Object\Exception\InvalidArgumentException;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 
+#[Group('unit')]
+#[Group('authoring')]
 final class SkillWorkflowTest extends TestCase
 {
     public function testItShouldCreateSequentialWorkflow(): void

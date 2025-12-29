@@ -11,8 +11,12 @@ use Dairectiv\Authoring\Domain\Object\Directive\Exception\DirectiveNotFoundExcep
 use Dairectiv\Authoring\Domain\Object\Rule\Rule;
 use Dairectiv\Authoring\Infrastructure\Zenstruck\Foundry\Factory\Rule\RuleFactory;
 use Dairectiv\Tests\Framework\IntegrationTestCase;
+use PHPUnit\Framework\Attributes\Group;
 use Zenstruck\Foundry\Test\Factories;
 
+#[Group('integration')]
+#[Group('authoring')]
+#[Group('use-case')]
 final class UpdateTest extends IntegrationTestCase
 {
     use Factories;

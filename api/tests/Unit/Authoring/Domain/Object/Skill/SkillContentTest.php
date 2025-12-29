@@ -6,8 +6,11 @@ namespace Dairectiv\Tests\Unit\Authoring\Domain\Object\Skill;
 
 use Dairectiv\Authoring\Domain\Object\Skill\SkillContent;
 use Dairectiv\SharedKernel\Domain\Object\Exception\InvalidArgumentException;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 
+#[Group('unit')]
+#[Group('authoring')]
 final class SkillContentTest extends TestCase
 {
     public function testItShouldCreateSkillContent(): void
