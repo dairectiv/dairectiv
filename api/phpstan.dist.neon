@@ -17,6 +17,7 @@ includes:
 rules:
     - Dairectiv\PHPStan\Rules\TestNameRule
     - Dairectiv\PHPStan\Rules\UseCaseRule
+    - Dairectiv\PHPStan\Rules\RepositoryMethodRule
 parameters:
     level: max
     paths:
