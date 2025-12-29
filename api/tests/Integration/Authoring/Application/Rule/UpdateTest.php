@@ -66,6 +66,21 @@ final class UpdateTest extends IntegrationTestCase
         self::assertCount(2, $rule->examples);
     }
 
+    public function testItShouldClearExamples(): void
+    {
+        $rule = RuleFactory::new()->withId('rule-to-update')->create();
+
+        $this->execute(new Input(
+            id: $rule->id,
+            examples: [],
+        ));
+
+        self::assertDomainEventHasBeenDispatched(DirectiveUpdated::class);
+        $rule = $this->findEntity(Rule::class, ['id' => DirectiveId::fromString($rule->id)], true);
+
+        self::assertCount(0, $rule->examples);
+    }
+
     public function testItShouldUpdateBothMetadataAndContent(): void
     {
         $rule = RuleFactory::new()->withId('rule-to-update')->create();
