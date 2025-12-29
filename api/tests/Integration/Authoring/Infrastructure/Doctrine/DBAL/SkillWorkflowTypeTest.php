@@ -13,7 +13,11 @@ use Dairectiv\Authoring\Domain\Object\Skill\Workflow\SkillWorkflow;
 use Dairectiv\Authoring\Domain\Object\Skill\Workflow\TemplateWorkflow;
 use Dairectiv\Tests\Framework\IntegrationTestCase;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 
+#[Group('integration')]
+#[Group('authoring')]
+#[Group('doctrine-type')]
 final class SkillWorkflowTypeTest extends IntegrationTestCase
 {
     private const string TYPE = 'object_value';

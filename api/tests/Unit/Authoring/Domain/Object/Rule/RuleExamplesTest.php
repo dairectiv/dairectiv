@@ -7,8 +7,11 @@ namespace Dairectiv\Tests\Unit\Authoring\Domain\Object\Rule;
 use Dairectiv\Authoring\Domain\Object\Rule\RuleExample;
 use Dairectiv\Authoring\Domain\Object\Rule\RuleExamples;
 use Dairectiv\SharedKernel\Domain\Object\Exception\InvalidArgumentException;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 
+#[Group('unit')]
+#[Group('authoring')]
 final class RuleExamplesTest extends TestCase
 {
     public function testItShouldCreateEmptyCollection(): void

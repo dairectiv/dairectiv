@@ -6,8 +6,11 @@ namespace Dairectiv\Tests\Unit\Authoring\Domain\Object\Skill\Workflow;
 
 use Dairectiv\Authoring\Domain\Object\Skill\Workflow\SkillTemplate;
 use Dairectiv\SharedKernel\Domain\Object\Exception\InvalidArgumentException;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 
+#[Group('unit')]
+#[Group('authoring')]
 final class SkillTemplateTest extends TestCase
 {
     public function testItShouldCreateTemplate(): void

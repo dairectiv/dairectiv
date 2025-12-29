@@ -20,7 +20,11 @@ use Dairectiv\Authoring\Domain\Object\Skill\Workflow\SequentialWorkflow;
 use Dairectiv\Authoring\Domain\Object\Skill\Workflow\SkillWorkflow;
 use Dairectiv\Authoring\Domain\Object\Skill\Workflow\TemplateWorkflow;
 use Dairectiv\Tests\Framework\IntegrationTestCase;
+use PHPUnit\Framework\Attributes\Group;
 
+#[Group('integration')]
+#[Group('authoring')]
+#[Group('use-case')]
 final class DraftTest extends IntegrationTestCase
 {
     public function testItShouldDraftSkillWithSequentialWorkflow(): void

@@ -7,8 +7,11 @@ namespace Dairectiv\Tests\Unit\Authoring\Domain\Object\Rule;
 use Dairectiv\Authoring\Domain\Object\Rule\RuleContent;
 use Dairectiv\SharedKernel\Domain\Object\Exception\InvalidArgumentException;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 
+#[Group('unit')]
+#[Group('authoring')]
 final class RuleContentTest extends TestCase
 {
     public function testItShouldCreateRuleContentFromValidString(): void

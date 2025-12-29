@@ -6,8 +6,11 @@ namespace Dairectiv\Tests\Unit\Authoring\Domain\Object\Rule;
 
 use Dairectiv\Authoring\Domain\Object\Rule\RuleExample;
 use Dairectiv\SharedKernel\Domain\Object\Exception\InvalidArgumentException;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 
+#[Group('unit')]
+#[Group('authoring')]
 final class RuleExampleTest extends TestCase
 {
     public function testItShouldCreateExampleWithGoodAndBad(): void

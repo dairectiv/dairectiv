@@ -7,8 +7,11 @@ namespace Dairectiv\Tests\Unit\Authoring\Domain\Object\Directive\Metadata;
 use Dairectiv\Authoring\Domain\Object\Directive\Metadata\DirectiveDescription;
 use Dairectiv\Authoring\Domain\Object\Directive\Metadata\DirectiveMetadata;
 use Dairectiv\Authoring\Domain\Object\Directive\Metadata\DirectiveName;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 
+#[Group('unit')]
+#[Group('authoring')]
 final class DirectiveMetadataTest extends TestCase
 {
     public function testItShouldCreateMetadataFromNameAndDescription(): void

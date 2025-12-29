@@ -13,8 +13,11 @@ use Dairectiv\Authoring\Domain\Object\Rule\RuleContent;
 use Dairectiv\Authoring\Domain\Object\Rule\RuleExample;
 use Dairectiv\Authoring\Domain\Object\Rule\RuleExamples;
 use Dairectiv\Authoring\Domain\Object\Rule\RuleSnapshot;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 
+#[Group('unit')]
+#[Group('authoring')]
 final class RuleSnapshotTest extends TestCase
 {
     public function testItShouldCaptureContentFromRule(): void

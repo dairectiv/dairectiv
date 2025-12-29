@@ -7,8 +7,11 @@ namespace Dairectiv\Tests\Unit\Authoring\Domain\Object\Directive\Metadata;
 use Dairectiv\Authoring\Domain\Object\Directive\Metadata\DirectiveDescription;
 use Dairectiv\SharedKernel\Domain\Object\Exception\InvalidArgumentException;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 
+#[Group('unit')]
+#[Group('authoring')]
 final class DirectiveDescriptionTest extends TestCase
 {
     public function testItShouldCreateDirectiveDescriptionFromValidString(): void

@@ -7,8 +7,11 @@ namespace Dairectiv\Tests\Unit\Authoring\Domain\Object\Skill\Workflow;
 use Dairectiv\Authoring\Domain\Object\Skill\Workflow\SkillStep;
 use Dairectiv\Authoring\Domain\Object\Skill\Workflow\StepType;
 use Dairectiv\SharedKernel\Domain\Object\Exception\InvalidArgumentException;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 
+#[Group('unit')]
+#[Group('authoring')]
 final class SkillStepTest extends TestCase
 {
     public function testItShouldCreateActionStep(): void
