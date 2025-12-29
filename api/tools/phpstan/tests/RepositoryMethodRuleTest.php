@@ -26,7 +26,7 @@ final class RepositoryMethodRuleTest extends RuleTestCase
     public function testItShouldPassForValidRepository(): void
     {
         $this->analyse(
-            [__DIR__ . '/../fixtures/RepositoryMethodRule/ValidRepository/Domain/Repository/EntityRepository.php'],
+            [__DIR__.'/../fixtures/RepositoryMethodRule/ValidRepository/Domain/Repository/EntityRepository.php'],
             [],
         );
     }
@@ -34,7 +34,7 @@ final class RepositoryMethodRuleTest extends RuleTestCase
     public function testItShouldReportErrorWhenGetMethodReturnsNullable(): void
     {
         $this->analyse(
-            [__DIR__ . '/../fixtures/RepositoryMethodRule/InvalidGetNullable/Domain/Repository/EntityRepository.php'],
+            [__DIR__.'/../fixtures/RepositoryMethodRule/InvalidGetNullable/Domain/Repository/EntityRepository.php'],
             [
                 ['Repository method "getEntityById" must return a non-nullable type.', 12],
             ],
@@ -44,7 +44,7 @@ final class RepositoryMethodRuleTest extends RuleTestCase
     public function testItShouldReportErrorWhenGetMethodHasNoThrowsAnnotation(): void
     {
         $this->analyse(
-            [__DIR__ . '/../fixtures/RepositoryMethodRule/InvalidGetNoThrows/Domain/Repository/EntityRepository.php'],
+            [__DIR__.'/../fixtures/RepositoryMethodRule/InvalidGetNoThrows/Domain/Repository/EntityRepository.php'],
             [
                 ['Repository method "getEntityById" must have a @throws annotation with an exception extending EntityNotFoundException.', 9],
             ],
@@ -54,7 +54,7 @@ final class RepositoryMethodRuleTest extends RuleTestCase
     public function testItShouldReportErrorWhenGetMethodThrowsWrongException(): void
     {
         $this->analyse(
-            [__DIR__ . '/../fixtures/RepositoryMethodRule/InvalidGetWrongException/Domain/Repository/EntityRepository.php'],
+            [__DIR__.'/../fixtures/RepositoryMethodRule/InvalidGetWrongException/Domain/Repository/EntityRepository.php'],
             [
                 ['Repository method "getEntityById" @throws annotation must reference an exception extending EntityNotFoundException, got "Dairectiv\PHPStan\Fixtures\RepositoryMethodRule\InvalidGetWrongException\Domain\Repository\WrongException".', 12],
             ],
@@ -64,7 +64,7 @@ final class RepositoryMethodRuleTest extends RuleTestCase
     public function testItShouldReportErrorWhenFindMethodDoesNotReturnNullable(): void
     {
         $this->analyse(
-            [__DIR__ . '/../fixtures/RepositoryMethodRule/InvalidFindNotNullable/Domain/Repository/EntityRepository.php'],
+            [__DIR__.'/../fixtures/RepositoryMethodRule/InvalidFindNotNullable/Domain/Repository/EntityRepository.php'],
             [
                 ['Repository method "findEntityById" must return a nullable type.', 9],
             ],

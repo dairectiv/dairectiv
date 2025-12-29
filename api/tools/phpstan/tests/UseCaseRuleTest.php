@@ -26,7 +26,7 @@ final class UseCaseRuleTest extends RuleTestCase
     public function testItShouldPassForValidCommandHandler(): void
     {
         $this->analyse(
-            [__DIR__ . '/../fixtures/UseCaseRule/ValidCommandHandler/Handler.php'],
+            [__DIR__.'/../fixtures/UseCaseRule/ValidCommandHandler/Handler.php'],
             [],
         );
     }
@@ -34,7 +34,7 @@ final class UseCaseRuleTest extends RuleTestCase
     public function testItShouldPassForValidQueryHandler(): void
     {
         $this->analyse(
-            [__DIR__ . '/../fixtures/UseCaseRule/ValidQueryHandler/Handler.php'],
+            [__DIR__.'/../fixtures/UseCaseRule/ValidQueryHandler/Handler.php'],
             [],
         );
     }
@@ -42,7 +42,7 @@ final class UseCaseRuleTest extends RuleTestCase
     public function testItShouldReportErrorWhenHandlerDoesNotImplementInterface(): void
     {
         $this->analyse(
-            [__DIR__ . '/../fixtures/UseCaseRule/InvalidNoInterface/Handler.php'],
+            [__DIR__.'/../fixtures/UseCaseRule/InvalidNoInterface/Handler.php'],
             [
                 ['Handler must implement QueryHandler or CommandHandler.', 7],
             ],
@@ -52,7 +52,7 @@ final class UseCaseRuleTest extends RuleTestCase
     public function testItShouldReportErrorWhenInputHasWrongInterface(): void
     {
         $this->analyse(
-            [__DIR__ . '/../fixtures/UseCaseRule/InvalidWrongInputInterface/Handler.php'],
+            [__DIR__.'/../fixtures/UseCaseRule/InvalidWrongInputInterface/Handler.php'],
             [
                 ['Input must implement Command interface for CommandHandler.', 9],
             ],
@@ -62,7 +62,7 @@ final class UseCaseRuleTest extends RuleTestCase
     public function testItShouldReportErrorWhenQueryHandlerReturnsVoid(): void
     {
         $this->analyse(
-            [__DIR__ . '/../fixtures/UseCaseRule/InvalidQueryHandlerVoid/Handler.php'],
+            [__DIR__.'/../fixtures/UseCaseRule/InvalidQueryHandlerVoid/Handler.php'],
             [
                 ['QueryHandler must return an Output, not void.', 9],
             ],
@@ -72,7 +72,7 @@ final class UseCaseRuleTest extends RuleTestCase
     public function testItShouldReportErrorWhenParameterNameIsWrong(): void
     {
         $this->analyse(
-            [__DIR__ . '/../fixtures/UseCaseRule/InvalidWrongParameterName/Handler.php'],
+            [__DIR__.'/../fixtures/UseCaseRule/InvalidWrongParameterName/Handler.php'],
             [
                 ['Handler __invoke parameter must be named "input", got "command".', 9],
             ],

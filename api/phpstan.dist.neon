@@ -14,6 +14,8 @@ includes:
     - vendor/phpstan/phpstan-strict-rules/rules.neon
     # Deprecation rules
     - vendor/phpstan/phpstan-deprecation-rules/rules.neon
+    # Safe rules
+    - vendor/thecodingmachine/phpstan-safe-rule/phpstan-safe-rule.neon
 rules:
     - Dairectiv\PHPStan\Rules\TestNameRule
     - Dairectiv\PHPStan\Rules\UseCaseRule
@@ -23,6 +25,8 @@ parameters:
     paths:
         - src/
         - tests/
+        - tools/phpstan/src
+        - tools/phpstan/tests
     tmpDir: var/cache/.phpstan.cache
     doctrine:
         objectManagerLoader: tools/phpstan/doctrine.php

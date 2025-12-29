@@ -32,21 +32,17 @@ final readonly class UseCaseRule implements Rule
 
     public function processNode(Node $node, Scope $scope): array
     {
-        if (!$node instanceof Class_) {
-            return [];
-        }
-
-        if ($node->name === null) {
+        if (null === $node->name) {
             return [];
         }
 
         $className = $node->name->toString();
 
-        if ($className !== 'Handler') {
+        if ('Handler' !== $className) {
             return [];
         }
 
-        if ($node->namespacedName === null) {
+        if (null === $node->namespacedName) {
             return [];
         }
 
@@ -67,7 +63,7 @@ final readonly class UseCaseRule implements Rule
         if (!$isCommandHandler && !$isQueryHandler) {
             $errors[] = RuleErrorBuilder::message(
                 'Handler must implement QueryHandler or CommandHandler.',
-            )->build();
+            )->identifier('useCase')->build();
 
             return $errors;
         }
@@ -85,19 +81,19 @@ final readonly class UseCaseRule implements Rule
                 $parameters = $variant->getParameters();
 
                 // Rule 3: Must have exactly one parameter named "input"
-                if (\count($parameters) !== 1) {
+                if (1 !== \count($parameters)) {
                     $errors[] = RuleErrorBuilder::message(
                         'Handler __invoke method must have exactly one parameter.',
-                    )->build();
+                    )->identifier('useCase')->build();
                 } else {
                     $parameter = $parameters[0];
                     $parameterName = $parameter->getName();
                     $parameterType = $parameter->getType();
 
-                    if ($parameterName !== 'input') {
+                    if ('input' !== $parameterName) {
                         $errors[] = RuleErrorBuilder::message(
                             \sprintf('Handler __invoke parameter must be named "input", got "%s".', $parameterName),
-                        )->build();
+                        )->identifier('useCase')->build();
                     }
 
                     // Check parameter type
@@ -107,7 +103,7 @@ final readonly class UseCaseRule implements Rule
                         break;
                     }
 
-                    if ($inputClassName !== null) {
+                    if (null !== $inputClassName) {
                         // Rule 2: Input must be in the same namespace
                         $inputNamespace = $this->getNamespace($inputClassName);
                         if ($inputNamespace !== $handlerNamespace) {
@@ -117,23 +113,23 @@ final readonly class UseCaseRule implements Rule
                                     $handlerNamespace,
                                     $inputNamespace,
                                 ),
-                            )->build();
+                            )->identifier('useCase')->build();
                         }
 
                         // Rule 4: Input must implement correct interface
-                        if (class_exists($inputClassName) || interface_exists($inputClassName)) {
-                            $inputReflection = new \ReflectionClass($inputClassName);
+                        if ($this->reflectionProvider->hasClass($inputClassName)) {
+                            $inputReflection = $this->reflectionProvider->getClass($inputClassName);
 
                             if ($isCommandHandler && !$inputReflection->implementsInterface(Command::class)) {
                                 $errors[] = RuleErrorBuilder::message(
                                     'Input must implement Command interface for CommandHandler.',
-                                )->build();
+                                )->identifier('useCase')->build();
                             }
 
                             if ($isQueryHandler && !$inputReflection->implementsInterface(Query::class)) {
                                 $errors[] = RuleErrorBuilder::message(
                                     'Input must implement Query interface for QueryHandler.',
-                                )->build();
+                                )->identifier('useCase')->build();
                             }
                         }
                     }
@@ -146,7 +142,7 @@ final readonly class UseCaseRule implements Rule
                     if ($returnType->isVoid()->yes()) {
                         $errors[] = RuleErrorBuilder::message(
                             'QueryHandler must return an Output, not void.',
-                        )->build();
+                        )->identifier('useCase')->build();
                     } else {
                         $returnClassNames = $returnType->getObjectClassNames();
                         if (\count($returnClassNames) > 0) {
@@ -161,7 +157,7 @@ final readonly class UseCaseRule implements Rule
                                         $handlerNamespace,
                                         $outputNamespace,
                                     ),
-                                )->build();
+                                )->identifier('useCase')->build();
                             }
                         }
                     }
@@ -170,7 +166,7 @@ final readonly class UseCaseRule implements Rule
         } else {
             $errors[] = RuleErrorBuilder::message(
                 'Handler must have an __invoke method.',
-            )->build();
+            )->identifier('useCase')->build();
         }
 
         return $errors;

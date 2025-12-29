@@ -24,7 +24,7 @@ final class TestNameRuleTest extends RuleTestCase
     public function testItShouldPassForValidTestNames(): void
     {
         $this->analyse(
-            [__DIR__ . '/../fixtures/TestNameRule/ValidTestNames.php'],
+            [__DIR__.'/../fixtures/TestNameRule/ValidTestNames.php'],
             [],
         );
     }
@@ -32,7 +32,7 @@ final class TestNameRuleTest extends RuleTestCase
     public function testItShouldReportErrorsForInvalidTestNames(): void
     {
         $this->analyse(
-            [__DIR__ . '/../fixtures/TestNameRule/InvalidTestNames.php'],
+            [__DIR__.'/../fixtures/TestNameRule/InvalidTestNames.php'],
             [
                 [
                     'Test method "testSomething" must start with "testItShould".',

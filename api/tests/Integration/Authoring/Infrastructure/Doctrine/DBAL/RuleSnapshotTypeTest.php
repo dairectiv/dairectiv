@@ -30,7 +30,7 @@ final class RuleSnapshotTypeTest extends IntegrationTestCase
                 'content'  => 'Always use strict types',
                 'examples' => ['examples' => []],
             ]),
-            'databaseValue' => json_encode([
+            'databaseValue' => \Safe\json_encode([
                 'class' => RuleSnapshot::class,
                 'state' => [
                     'content'  => 'Always use strict types',
@@ -47,7 +47,7 @@ final class RuleSnapshotTypeTest extends IntegrationTestCase
                     ],
                 ],
             ]),
-            'databaseValue' => json_encode([
+            'databaseValue' => \Safe\json_encode([
                 'class' => RuleSnapshot::class,
                 'state' => [
                     'content'  => 'Use readonly classes',
