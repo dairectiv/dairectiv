@@ -259,7 +259,7 @@ namespace Symfony\Component\DependencyInjection\Loader\Configurator;
  *         formats?: array<string, string|list<scalar|null>>,
  *     },
  *     assets?: bool|array{ // Assets configuration
- *         enabled?: bool, // Default: true
+ *         enabled?: bool, // Default: false
  *         strict_mode?: bool, // Throw an exception if an entry is missing from the manifest.json. // Default: false
  *         version_strategy?: scalar|null, // Default: null
  *         version?: scalar|null, // Default: null
@@ -406,7 +406,7 @@ namespace Symfony\Component\DependencyInjection\Loader\Configurator;
  *         log_channel?: scalar|null, // The channel of log message. Null to let Symfony decide. // Default: null
  *     }>,
  *     web_link?: bool|array{ // Web links configuration
- *         enabled?: bool, // Default: true
+ *         enabled?: bool, // Default: false
  *     },
  *     lock?: bool|string|array{ // Lock configuration
  *         enabled?: bool, // Default: false
@@ -463,7 +463,7 @@ namespace Symfony\Component\DependencyInjection\Loader\Configurator;
  *     },
  *     disallow_search_engine_index?: bool, // Enabled by default when debug is enabled. // Default: true
  *     http_client?: bool|array{ // HTTP Client configuration
- *         enabled?: bool, // Default: true
+ *         enabled?: bool, // Default: false
  *         max_host_connections?: int, // The maximum number of connections to a single host.
  *         default_options?: array{
  *             headers?: array<string, mixed>,
@@ -636,7 +636,7 @@ namespace Symfony\Component\DependencyInjection\Loader\Configurator;
  *         }>,
  *     },
  *     uid?: bool|array{ // Uid configuration
- *         enabled?: bool, // Default: true
+ *         enabled?: bool, // Default: false
  *         default_uuid_version?: 7|6|4|1, // Default: 7
  *         name_based_uuid_version?: 5|3, // Default: 5
  *         name_based_uuid_namespace?: scalar|null,
