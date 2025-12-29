@@ -13,6 +13,7 @@ final class ChecklistWorkflowPayload extends WorkflowPayload
      */
     public function __construct(
         #[Constraints\Valid]
+        #[Constraints\Count(min: 1)]
         public array $items = [],
     ) {
     }

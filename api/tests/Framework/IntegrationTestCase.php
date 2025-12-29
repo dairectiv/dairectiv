@@ -13,6 +13,8 @@ use Dairectiv\SharedKernel\Domain\Object\Event\DomainEventQueue;
 use Dairectiv\SharedKernel\Infrastructure\Symfony\Messenger\Message\DomainEventWrapper;
 use Dairectiv\SharedKernel\Infrastructure\Symfony\Messenger\Transport\TestTransport;
 use Doctrine\ORM\EntityManagerInterface;
+use Faker\Factory;
+use Faker\Generator;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\Messenger\Envelope;
@@ -20,6 +22,8 @@ use Symfony\Component\Messenger\Envelope;
 abstract class IntegrationTestCase extends WebTestCase
 {
     use ReflectionAssertions;
+
+    private static ?Generator $faker = null;
 
     protected KernelBrowser $client;
 
@@ -91,6 +95,7 @@ abstract class IntegrationTestCase extends WebTestCase
             $uri,
             server: [
                 'CONTENT_TYPE'        => 'application/json',
+                'HTTP_ACCEPT'         => 'application/json',
             ],
             content: \Safe\json_encode($json, \JSON_THROW_ON_ERROR),
         );
@@ -224,6 +229,64 @@ abstract class IntegrationTestCase extends WebTestCase
         $json = $this->client->getResponse()->getContent();
         self::assertNotFalse($json);
         self::assertJson($json);
-        self::assertEqualsCanonicalizing(\Safe\json_decode($json, true, 512, \JSON_THROW_ON_ERROR), $expectedJson);
+        self::assertEqualsCanonicalizing($expectedJson, \Safe\json_decode($json, true, 512, \JSON_THROW_ON_ERROR));
+    }
+
+    /**
+     * @param array<array{propertyPath: string, title: string}> $expectedViolations
+     */
+    public function assertResponseReturnsUnprocessableEntity(array $expectedViolations): void
+    {
+        $json = $this->client->getResponse()->getContent();
+        self::assertNotFalse($json);
+        self::assertJson($json);
+        $decodedJson = \Safe\json_decode($json, true, 512, \JSON_THROW_ON_ERROR);
+        self::assertIsArray($decodedJson);
+        self::assertArrayHasKey('violations', $decodedJson);
+        $violations = $decodedJson['violations'];
+        self::assertIsArray($violations);
+
+        $mapViolation = static function (mixed $violation): array {
+            self::assertIsArray($violation);
+            self::assertArrayHasKey('propertyPath', $violation);
+            self::assertIsString($violation['propertyPath']);
+            self::assertArrayHasKey('title', $violation);
+            self::assertIsString($violation['title']);
+
+            return [
+                'propertyPath' => $violation['propertyPath'],
+                'title'        => $violation['title'],
+            ];
+        };
+
+        $violations = array_map($mapViolation, $violations);
+        self::assertEqualsCanonicalizing($expectedViolations, $violations);
+    }
+
+    /**
+     * @param array<array-key, mixed> $base
+     * @param array<array-key, mixed> $overrides
+     * @return array<array-key, mixed>
+     */
+    public static function override(array $base, array $overrides): array
+    {
+        $mergeRecursive = function (array $a, array $b) use (&$mergeRecursive): array {
+            foreach ($b as $key => $value) {
+                if (\is_array($value) && isset($a[$key]) && \is_array($a[$key])) {
+                    $a[$key] = $mergeRecursive($a[$key], $value);
+                } else {
+                    $a[$key] = $value;
+                }
+            }
+
+            return $a;
+        };
+
+        return $mergeRecursive($base, $overrides);
+    }
+
+    public static function faker(): Generator
+    {
+        return self::$faker ??= Factory::create();
     }
 }
