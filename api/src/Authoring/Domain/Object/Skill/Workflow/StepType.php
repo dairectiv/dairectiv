@@ -10,4 +10,12 @@ enum StepType: string
     case Decision = 'decision';
     case Template = 'template';
     case Validation = 'validation';
+
+    /**
+     * @return array<value-of<self::*>>
+     */
+    public static function values(): array
+    {
+        return array_map(static fn (self $type): string => $type->value, self::cases());
+    }
 }
