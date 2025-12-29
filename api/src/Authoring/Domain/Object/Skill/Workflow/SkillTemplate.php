@@ -38,6 +38,9 @@ final readonly class SkillTemplate implements ObjectValue
         return new self($state['name'], $state['content'], $description);
     }
 
+    /**
+     * @return array{name: string, content: string, description?: ?string}
+     */
     public function toArray(): array
     {
         return [

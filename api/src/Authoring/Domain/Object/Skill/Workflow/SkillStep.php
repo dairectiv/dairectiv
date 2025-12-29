@@ -83,6 +83,9 @@ final readonly class SkillStep implements ObjectValue
         );
     }
 
+    /**
+     * @return array{order: int, title: string, content: string, type: string, condition?: ?string}
+     */
     public function toArray(): array
     {
         return [
