@@ -88,6 +88,21 @@ final class UpdateTest extends IntegrationTestCase
         self::assertCount(2, $skill->examples);
     }
 
+    public function testItShouldClearExamples(): void
+    {
+        $skill = SkillFactory::new()->with(['id' => 'skill-to-update'])->create();
+
+        $this->execute(new Input(
+            id: $skill->id,
+            examples: [],
+        ));
+
+        self::assertDomainEventHasBeenDispatched(DirectiveUpdated::class);
+        $skill = $this->findEntity(Skill::class, ['id' => DirectiveId::fromString($skill->id)], true);
+
+        self::assertCount(0, $skill->examples);
+    }
+
     public function testItShouldUpdateBothMetadataAndContent(): void
     {
         $skill = SkillFactory::new()->with(['id' => 'skill-to-update'])->create();
