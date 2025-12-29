@@ -23,19 +23,11 @@ class TestNameRule implements Rule
 
     public function processNode(Node $node, Scope $scope): array
     {
-        if (!$node instanceof ClassMethod) {
-            return [];
-        }
-
         if (!$scope->isInClass()) {
             return [];
         }
 
-
         $classReflection = $scope->getClassReflection();
-        if ($classReflection === null) {
-            return [];
-        }
 
         if (!$classReflection->getNativeReflection()->isSubclassOf(TestCase::class)) {
             return [];
@@ -49,10 +41,10 @@ class TestNameRule implements Rule
 
         if (!str_starts_with($methodName, 'testItShould')) {
             return [
-                RuleErrorBuilder::message(sprintf(
+                RuleErrorBuilder::message(\sprintf(
                     'Test method "%s" must start with "testItShould".',
-                    $methodName
-                ))->build(),
+                    $methodName,
+                ))->identifier('test.name')->build(),
             ];
         }
 

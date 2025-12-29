@@ -57,6 +57,8 @@ return function (ECSConfig $ecsConfig): void {
         __DIR__.'/migrations',
         __DIR__.'/rector.php',
         __DIR__.'/ecs.php',
+        __DIR__.'/tools/phpstan/src',
+        __DIR__.'/tools/phpstan/tests',
     ]);
 
     $ecsConfig->cacheDirectory(__DIR__.'/var/cache/.ecs.cache');

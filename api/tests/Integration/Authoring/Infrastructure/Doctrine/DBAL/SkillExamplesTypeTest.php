@@ -28,7 +28,7 @@ final class SkillExamplesTypeTest extends IntegrationTestCase
         ];
         yield 'empty examples' => [
             'phpValue'      => SkillExamples::empty(),
-            'databaseValue' => json_encode([
+            'databaseValue' => \Safe\json_encode([
                 'class' => SkillExamples::class,
                 'state' => ['examples' => []],
             ], \JSON_THROW_ON_ERROR),
@@ -37,7 +37,7 @@ final class SkillExamplesTypeTest extends IntegrationTestCase
             'phpValue'      => SkillExamples::fromList([
                 SkillExample::create('User asks to commit', 'git status output', 'feat: add feature'),
             ]),
-            'databaseValue' => json_encode([
+            'databaseValue' => \Safe\json_encode([
                 'class' => SkillExamples::class,
                 'state' => [
                     'examples' => [
@@ -55,7 +55,7 @@ final class SkillExamplesTypeTest extends IntegrationTestCase
             'phpValue'      => SkillExamples::fromList([
                 SkillExample::create('Complex scenario', 'input data', 'output data', 'Detailed explanation'),
             ]),
-            'databaseValue' => json_encode([
+            'databaseValue' => \Safe\json_encode([
                 'class' => SkillExamples::class,
                 'state' => [
                     'examples' => [
@@ -74,7 +74,7 @@ final class SkillExamplesTypeTest extends IntegrationTestCase
                 SkillExample::create('First scenario', 'input 1', 'output 1'),
                 SkillExample::create('Second scenario', 'input 2', 'output 2', 'Explanation'),
             ]),
-            'databaseValue' => json_encode([
+            'databaseValue' => \Safe\json_encode([
                 'class' => SkillExamples::class,
                 'state' => [
                     'examples' => [

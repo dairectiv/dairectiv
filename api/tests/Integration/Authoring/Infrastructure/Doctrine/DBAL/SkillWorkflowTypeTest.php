@@ -35,7 +35,7 @@ final class SkillWorkflowTypeTest extends IntegrationTestCase
             'phpValue'      => SequentialWorkflow::create([
                 SkillStep::action(1, 'Step 1', 'First step'),
             ]),
-            'databaseValue' => json_encode([
+            'databaseValue' => \Safe\json_encode([
                 'class' => SequentialWorkflow::class,
                 'state' => [
                     'type'  => 'sequential',
@@ -49,7 +49,7 @@ final class SkillWorkflowTypeTest extends IntegrationTestCase
             'phpValue'      => TemplateWorkflow::create([
                 SkillTemplate::create('Entity', '<?php class Entity {}'),
             ]),
-            'databaseValue' => json_encode([
+            'databaseValue' => \Safe\json_encode([
                 'class' => TemplateWorkflow::class,
                 'state' => [
                     'type'      => 'template',
@@ -63,7 +63,7 @@ final class SkillWorkflowTypeTest extends IntegrationTestCase
             'phpValue'      => ChecklistWorkflow::create([
                 SkillStep::validation(1, 'Check 1', 'First check'),
             ]),
-            'databaseValue' => json_encode([
+            'databaseValue' => \Safe\json_encode([
                 'class' => ChecklistWorkflow::class,
                 'state' => [
                     'type'  => 'checklist',
@@ -78,7 +78,7 @@ final class SkillWorkflowTypeTest extends IntegrationTestCase
                 [SkillStep::action(1, 'Step', 'Content')],
                 [SkillTemplate::create('Template', 'Code')],
             ),
-            'databaseValue' => json_encode([
+            'databaseValue' => \Safe\json_encode([
                 'class' => HybridWorkflow::class,
                 'state' => [
                     'type'      => 'hybrid',

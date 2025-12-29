@@ -28,7 +28,7 @@ final class RuleExamplesTypeTest extends IntegrationTestCase
         ];
         yield 'empty examples' => [
             'phpValue'      => RuleExamples::empty(),
-            'databaseValue' => json_encode([
+            'databaseValue' => \Safe\json_encode([
                 'class' => RuleExamples::class,
                 'state' => ['examples' => []],
             ], \JSON_THROW_ON_ERROR),
@@ -37,7 +37,7 @@ final class RuleExamplesTypeTest extends IntegrationTestCase
             'phpValue'      => RuleExamples::fromList([
                 RuleExample::good('readonly class Foo {}', 'Immutable class'),
             ]),
-            'databaseValue' => json_encode([
+            'databaseValue' => \Safe\json_encode([
                 'class' => RuleExamples::class,
                 'state' => [
                     'examples' => [
@@ -50,7 +50,7 @@ final class RuleExamplesTypeTest extends IntegrationTestCase
             'phpValue'      => RuleExamples::fromList([
                 RuleExample::bad('class Foo {}', 'Mutable class'),
             ]),
-            'databaseValue' => json_encode([
+            'databaseValue' => \Safe\json_encode([
                 'class' => RuleExamples::class,
                 'state' => [
                     'examples' => [
@@ -63,7 +63,7 @@ final class RuleExamplesTypeTest extends IntegrationTestCase
             'phpValue'      => RuleExamples::fromList([
                 RuleExample::transformation('class Foo {}', 'readonly class Foo {}', 'Prefer immutability'),
             ]),
-            'databaseValue' => json_encode([
+            'databaseValue' => \Safe\json_encode([
                 'class' => RuleExamples::class,
                 'state' => [
                     'examples' => [

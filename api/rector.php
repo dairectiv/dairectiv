@@ -19,6 +19,8 @@ return static function (RectorConfig $rectorConfig): void {
         __DIR__.'/migrations',
         __DIR__.'/src',
         __DIR__.'/tests',
+        __DIR__.'/tools/phpstan/src',
+        __DIR__.'/tools/phpstan/tests',
     ]);
     $rectorConfig->phpVersion(PhpVersion::PHP_85);
     $rectorConfig->symfonyContainerXml(__DIR__.'/var/cache/dev/Dairectiv_SharedKernel_Infrastructure_Symfony_KernelDevDebugContainer.xml');
@@ -85,4 +87,7 @@ return static function (RectorConfig $rectorConfig): void {
         RectorSymfony\Symfony43\Rector\MethodCall\WebTestCaseAssertIsSuccessfulRector::class,
         RectorSymfony\Symfony43\Rector\MethodCall\WebTestCaseAssertResponseCodeRector::class,
     ]);
+
+    $safe = require __DIR__.'/vendor/thecodingmachine/safe/rector-migrate.php';
+    $safe($rectorConfig);
 };

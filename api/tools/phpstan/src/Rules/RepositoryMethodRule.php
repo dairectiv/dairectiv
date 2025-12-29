@@ -9,6 +9,7 @@ use PhpParser\Node;
 use PhpParser\Node\Stmt\ClassMethod;
 use PHPStan\Analyser\Scope;
 use PHPStan\Reflection\ReflectionProvider;
+use PHPStan\Rules\IdentifierRuleError;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleErrorBuilder;
 
@@ -29,20 +30,12 @@ final readonly class RepositoryMethodRule implements Rule
 
     public function processNode(Node $node, Scope $scope): array
     {
-        if (!$node instanceof ClassMethod) {
-            return [];
-        }
-
         if (!$scope->isInClass()) {
             return [];
         }
 
         $classReflection = $scope->getClassReflection();
-        if ($classReflection === null) {
-            return [];
-        }
 
-        // Only check Repository interfaces in Domain\Repository namespace
         if (!$classReflection->isInterface()) {
             return [];
         }
@@ -53,6 +46,7 @@ final readonly class RepositoryMethodRule implements Rule
         }
 
         $methodName = $node->name->toString();
+
         $errors = [];
 
         if (str_starts_with($methodName, 'get')) {
@@ -65,7 +59,7 @@ final readonly class RepositoryMethodRule implements Rule
     }
 
     /**
-     * @return list<\PHPStan\Rules\RuleError>
+     * @return list<IdentifierRuleError>
      */
     private function validateGetMethod(ClassMethod $node, Scope $scope, string $methodName): array
     {
@@ -73,45 +67,45 @@ final readonly class RepositoryMethodRule implements Rule
 
         // Check return type is non-nullable
         $returnType = $node->getReturnType();
-        if ($returnType === null) {
+        if (null === $returnType) {
             $errors[] = RuleErrorBuilder::message(
                 \sprintf('Repository method "%s" must have a return type.', $methodName),
-            )->build();
+            )->identifier('repository.method')->build();
         } elseif ($returnType instanceof Node\NullableType) {
             $errors[] = RuleErrorBuilder::message(
                 \sprintf('Repository method "%s" must return a non-nullable type.', $methodName),
-            )->build();
+            )->identifier('repository.method')->build();
         }
 
         // Check for @throws annotation with EntityNotFoundException subclass
         $docComment = $node->getDocComment();
-        if ($docComment === null) {
+        if (null === $docComment) {
             $errors[] = RuleErrorBuilder::message(
                 \sprintf('Repository method "%s" must have a @throws annotation with an exception extending EntityNotFoundException.', $methodName),
-            )->build();
+            )->identifier('repository.method')->build();
         } else {
             $docText = $docComment->getText();
-            if (!preg_match('/@throws\s+([^\s]+)/', $docText, $matches)) {
+            if (0 === \Safe\preg_match('/@throws\s+([^\s]+)/', $docText, $matches)) {
                 $errors[] = RuleErrorBuilder::message(
                     \sprintf('Repository method "%s" must have a @throws annotation with an exception extending EntityNotFoundException.', $methodName),
-                )->build();
+                )->identifier('repository.method')->build();
             } else {
                 $exceptionClass = $matches[1];
 
                 // Resolve the exception class name
                 $resolvedExceptionClass = $this->resolveClassName($exceptionClass, $scope);
 
-                if ($resolvedExceptionClass !== null && $this->reflectionProvider->hasClass($resolvedExceptionClass)) {
+                if (null !== $resolvedExceptionClass && $this->reflectionProvider->hasClass($resolvedExceptionClass)) {
                     $exceptionReflection = $this->reflectionProvider->getClass($resolvedExceptionClass);
 
-                    if (!$exceptionReflection->isSubclassOf(EntityNotFoundException::class)) {
+                    if (!\in_array(EntityNotFoundException::class, $exceptionReflection->getParentClassesNames(), true)) {
                         $errors[] = RuleErrorBuilder::message(
                             \sprintf(
                                 'Repository method "%s" @throws annotation must reference an exception extending EntityNotFoundException, got "%s".',
                                 $methodName,
                                 $resolvedExceptionClass,
                             ),
-                        )->build();
+                        )->identifier('repository.method')->build();
                     }
                 }
             }
@@ -121,21 +115,21 @@ final readonly class RepositoryMethodRule implements Rule
     }
 
     /**
-     * @return list<\PHPStan\Rules\RuleError>
+     * @return list<IdentifierRuleError>
      */
     private function validateFindMethod(ClassMethod $node, string $methodName): array
     {
         $errors = [];
 
         $returnType = $node->getReturnType();
-        if ($returnType === null) {
+        if (null === $returnType) {
             $errors[] = RuleErrorBuilder::message(
                 \sprintf('Repository method "%s" must have a return type.', $methodName),
-            )->build();
+            )->identifier('repository.method')->build();
         } elseif (!$returnType instanceof Node\NullableType) {
             $errors[] = RuleErrorBuilder::message(
                 \sprintf('Repository method "%s" must return a nullable type.', $methodName),
-            )->build();
+            )->identifier('repository.method')->build();
         }
 
         return $errors;
@@ -150,7 +144,7 @@ final readonly class RepositoryMethodRule implements Rule
 
         // Try to resolve using the current namespace context
         $classReflection = $scope->getClassReflection();
-        if ($classReflection === null) {
+        if (null === $classReflection) {
             return null;
         }
 
@@ -161,7 +155,7 @@ final readonly class RepositoryMethodRule implements Rule
         $currentNamespace = implode('\\', $parts);
 
         // Try the class in the current namespace first
-        $fullyQualified = $currentNamespace . '\\' . $className;
+        $fullyQualified = $currentNamespace.'\\'.$className;
         if ($this->reflectionProvider->hasClass($fullyQualified)) {
             return $fullyQualified;
         }
