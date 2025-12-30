@@ -7,6 +7,7 @@ namespace Dairectiv\Authoring\Domain\Object\Workflow\Example;
 use Cake\Chronos\Chronos;
 use Dairectiv\Authoring\Domain\Object\Workflow\Workflow;
 use Dairectiv\SharedKernel\Domain\Object\Assert;
+use Dairectiv\SharedKernel\Domain\Object\StringNormalizer;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -14,6 +15,8 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Table(name: 'authoring_workflow_example')]
 class Example
 {
+    use StringNormalizer;
+
     #[ORM\Id]
     #[ORM\Column(type: 'authoring_workflow_example_id')]
     public private(set) ExampleId $id;
@@ -57,10 +60,10 @@ class Example
 
         $example->id = ExampleId::generate();
         $example->workflow = $workflow;
-        $example->scenario = $scenario;
-        $example->input = $input;
-        $example->output = $output;
-        $example->explanation = $explanation;
+        $example->scenario = self::trim($scenario);
+        $example->input = self::trim($input);
+        $example->output = self::trim($output);
+        $example->explanation = self::trimOrNull($explanation);
         $example->workflow->addExample($example);
 
         return $example;
@@ -77,10 +80,10 @@ class Example
             'At least one field must be provided.',
         );
 
-        $this->scenario = $scenario ?? $this->scenario;
-        $this->input = $input ?? $this->input;
-        $this->output = $output ?? $this->output;
-        $this->explanation = $explanation ?? $this->explanation;
+        $this->scenario = self::trimOrNull($scenario) ?? $this->scenario;
+        $this->input = self::trimOrNull($input) ?? $this->input;
+        $this->output = self::trimOrNull($output) ?? $this->output;
+        $this->explanation = self::trimOrNull($explanation) ?? $this->explanation;
         $this->updatedAt = Chronos::now();
 
         $this->workflow->markAsUpdated();

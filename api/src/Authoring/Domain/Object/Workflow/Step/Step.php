@@ -6,6 +6,7 @@ namespace Dairectiv\Authoring\Domain\Object\Workflow\Step;
 
 use Cake\Chronos\Chronos;
 use Dairectiv\Authoring\Domain\Object\Workflow\Workflow;
+use Dairectiv\SharedKernel\Domain\Object\StringNormalizer;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -13,6 +14,8 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Table(name: 'authoring_workflow_step')]
 class Step
 {
+    use StringNormalizer;
+
     #[ORM\Id]
     #[ORM\Column(type: 'authoring_workflow_step_id')]
     public private(set) StepId $id;
@@ -45,7 +48,7 @@ class Step
 
         $step->id = StepId::generate();
         $step->workflow = $workflow;
-        $step->content = $content;
+        $step->content = self::trim($content);
         $step->workflow->addStep($step, $after);
 
         return $step;
@@ -53,7 +56,7 @@ class Step
 
     public function update(string $content): void
     {
-        $this->content = $content;
+        $this->content = self::trim($content);
         $this->updatedAt = Chronos::now();
         $this->workflow->markAsUpdated();
     }

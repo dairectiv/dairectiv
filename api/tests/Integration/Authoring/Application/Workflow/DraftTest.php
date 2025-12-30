@@ -103,16 +103,17 @@ final class DraftTest extends IntegrationTestCase
         self::assertDomainEventHasBeenDispatched(DirectiveDrafted::class, 3);
     }
 
-    public function testItShouldPreserveOriginalNameAndDescription(): void
+    public function testItShouldTrimNameAndDescription(): void
     {
-        $output = $this->executeDraftWorkflow('  Workflow With  Extra   Spaces  ', 'Description with trailing space ');
+        $output = $this->executeDraftWorkflow('  Workflow With  Extra   Spaces  ', '  Description with trailing space  ');
 
         // ID should be kebab-cased from trimmed name
         self::assertSame('workflow-with-extra-spaces', (string) $output->workflow->id);
 
-        // But original name and description should be preserved as provided
-        self::assertSame('  Workflow With  Extra   Spaces  ', $output->workflow->name);
-        self::assertSame('Description with trailing space ', $output->workflow->description);
+        // Name and description should be trimmed (leading/trailing whitespace removed)
+        // Internal spaces are preserved
+        self::assertSame('Workflow With  Extra   Spaces', $output->workflow->name);
+        self::assertSame('Description with trailing space', $output->workflow->description);
 
         self::assertDomainEventHasBeenDispatched(DirectiveDrafted::class);
     }

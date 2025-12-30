@@ -6,6 +6,7 @@ namespace Dairectiv\Authoring\Domain\Object\Rule\Example;
 
 use Cake\Chronos\Chronos;
 use Dairectiv\Authoring\Domain\Object\Rule\Rule;
+use Dairectiv\SharedKernel\Domain\Object\StringNormalizer;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -13,6 +14,8 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Table(name: 'authoring_rule_example')]
 class Example
 {
+    use StringNormalizer;
+
     #[ORM\Id]
     #[ORM\Column(type: 'authoring_rule_example_id')]
     public private(set) ExampleId $id;
@@ -52,9 +55,9 @@ class Example
 
         $example->id = ExampleId::generate();
         $example->rule = $rule;
-        $example->good = $good;
-        $example->bad = $bad;
-        $example->explanation = $explanation;
+        $example->good = self::trimOrNull($good);
+        $example->bad = self::trimOrNull($bad);
+        $example->explanation = self::trimOrNull($explanation);
         $example->rule->addExample($example);
 
         return $example;
@@ -65,9 +68,9 @@ class Example
         ?string $bad = null,
         ?string $explanation = null,
     ): void {
-        $this->good = $good ?? $this->good;
-        $this->bad = $bad ?? $this->bad;
-        $this->explanation = $explanation ?? $this->explanation;
+        $this->good = self::trimOrNull($good) ?? $this->good;
+        $this->bad = self::trimOrNull($bad) ?? $this->bad;
+        $this->explanation = self::trimOrNull($explanation) ?? $this->explanation;
         $this->updatedAt = Chronos::now();
 
         $this->rule->markAsUpdated();

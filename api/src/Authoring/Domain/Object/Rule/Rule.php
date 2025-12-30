@@ -41,7 +41,7 @@ class Rule extends Directive
 
     public function updateContent(string $content): void
     {
-        $this->content = $content;
+        $this->content = self::trim($content);
         $this->markAsUpdated();
     }
 
