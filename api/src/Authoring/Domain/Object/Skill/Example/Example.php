@@ -6,6 +6,7 @@ namespace Dairectiv\Authoring\Domain\Object\Skill\Example;
 
 use Cake\Chronos\Chronos;
 use Dairectiv\Authoring\Domain\Object\Skill\Skill;
+use Dairectiv\SharedKernel\Domain\Object\Assert;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -63,5 +64,25 @@ class Example
         $example->skill->addExample($example);
 
         return $example;
+    }
+
+    public function update(
+        ?string $scenario = null,
+        ?string $input = null,
+        ?string $output = null,
+        ?string $explanation = null,
+    ): void {
+        Assert::true(
+            null !== $scenario || null !== $input || null !== $output || null !== $explanation,
+            'At least one field must be provided.'
+        );
+
+        $this->scenario = $scenario ?? $this->scenario;
+        $this->input = $input ?? $this->input;
+        $this->output = $output ?? $this->output;
+        $this->explanation = $explanation ?? $this->explanation;
+        $this->updatedAt = Chronos::now();
+
+        $this->skill->markAsUpdated();
     }
 }
