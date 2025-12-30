@@ -23,7 +23,7 @@ class Step
     #[ORM\Column(type: 'chronos')]
     public private(set) Chronos $updatedAt;
 
-    #[ORM\Column(type: Types::INTEGER)]
+    #[ORM\Column(name: 'step_order', type: Types::INTEGER)]
     public private(set) int $order;
 
     #[ORM\Column(type: Types::TEXT)]
