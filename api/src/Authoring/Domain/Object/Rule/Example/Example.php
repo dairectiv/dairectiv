@@ -55,7 +55,21 @@ class Example
         $example->good = $good;
         $example->bad = $bad;
         $example->explanation = $explanation;
+        $example->rule->addExample($example);
 
         return $example;
+    }
+
+    public function update(
+        ?string $good = null,
+        ?string $bad = null,
+        ?string $explanation = null,
+    ): void {
+        $this->good = $good ?? $this->good;
+        $this->bad = $bad ?? $this->bad;
+        $this->explanation = $explanation ?? $this->explanation;
+        $this->updatedAt = Chronos::now();
+
+        $this->rule->markAsUpdated();
     }
 }

@@ -7,6 +7,7 @@ namespace Dairectiv\Authoring\Domain\Object\Rule;
 use Dairectiv\Authoring\Domain\Object\Directive\Directive;
 use Dairectiv\Authoring\Domain\Object\Directive\DirectiveId;
 use Dairectiv\Authoring\Domain\Object\Rule\Example\Example;
+use Dairectiv\SharedKernel\Domain\Object\Assert;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
@@ -21,7 +22,7 @@ class Rule extends Directive
     /**
      * @var Collection<int, Example>
      */
-    #[ORM\OneToMany(targetEntity: Example::class, mappedBy: 'rule', cascade: ['persist'])]
+    #[ORM\OneToMany(targetEntity: Example::class, mappedBy: 'rule', cascade: ['persist'], orphanRemoval: true)]
     public private(set) Collection $examples;
 
     public function __construct()
@@ -44,16 +45,18 @@ class Rule extends Directive
         $this->markAsUpdated();
     }
 
-    public function addExample(?string $good, ?string $bad, ?string $explanation): void
+    public function addExample(Example $example): void
     {
-        $this->examples->add(
-            Example::create(
-                $this,
-                $good,
-                $bad,
-                $explanation,
-            ),
-        );
+        $this->examples->add($example);
+
+        $this->markAsUpdated();
+    }
+
+    public function removeExample(Example $example): void
+    {
+        Assert::true($this->examples->contains($example), 'Example does not belong to this rule.');
+
+        $this->examples->removeElement($example);
 
         $this->markAsUpdated();
     }
