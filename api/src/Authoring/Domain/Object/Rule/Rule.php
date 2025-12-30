@@ -6,49 +6,49 @@ namespace Dairectiv\Authoring\Domain\Object\Rule;
 
 use Dairectiv\Authoring\Domain\Object\Directive\Directive;
 use Dairectiv\Authoring\Domain\Object\Directive\DirectiveId;
-use Dairectiv\Authoring\Domain\Object\Directive\Metadata\DirectiveMetadata;
+use Dairectiv\Authoring\Domain\Object\Rule\Example\Example;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity]
 class Rule extends Directive
 {
-    #[ORM\Column(name: 'rule_content', type: 'authoring_rule_content')]
-    public private(set) RuleContent $content;
+    #[ORM\Column(name: 'rule_content', type: Types::TEXT, nullable: true)]
+    public private(set) ?string $content = null;
 
-    #[ORM\Column(name: 'rule_examples', type: 'object_value')]
-    public private(set) RuleExamples $examples;
+    /**
+     * @var Collection<int, Example>
+     */
+    #[ORM\OneToMany(targetEntity: Example::class, mappedBy: 'rule', cascade: ['persist'])]
+    public private(set) Collection $examples;
 
-    public static function draft(
-        DirectiveId $id,
-        DirectiveMetadata $metadata,
-        RuleContent $content,
-        ?RuleExamples $examples = null,
-    ): self {
+    public function __construct()
+    {
+        $this->examples = new ArrayCollection();
+    }
+
+    public static function draft(DirectiveId $id, string $name, string $description): Rule
+    {
         $rule = new self();
 
-        $rule->content = $content;
-        $rule->examples = $examples ?? RuleExamples::empty();
-
-        $rule->initialize($id, $metadata);
+        $rule->initialize($id, $name, $description);
 
         return $rule;
     }
 
-    public function updateContent(?RuleContent $content = null, ?RuleExamples $examples = null): void
+    public function addExample(?string $good, ?string $bad, ?string $explanation): void
     {
-        if (null !== $content) {
-            $this->content = $content;
-        }
+        $this->examples->add(
+            Example::create(
+                $this,
+                $good,
+                $bad,
+                $explanation,
+            ),
+        );
 
-        if (null !== $examples) {
-            $this->examples = $examples;
-        }
-
-        $this->markContentAsUpdated();
-    }
-
-    public function getCurrentSnapshot(): RuleSnapshot
-    {
-        return RuleSnapshot::fromRule($this);
+        $this->markAsUpdated();
     }
 }
