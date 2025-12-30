@@ -38,6 +38,12 @@ class Rule extends Directive
         return $rule;
     }
 
+    public function updateContent(string $content): void
+    {
+        $this->content = $content;
+        $this->markAsUpdated();
+    }
+
     public function addExample(?string $good, ?string $bad, ?string $explanation): void
     {
         $this->examples->add(
