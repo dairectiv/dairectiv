@@ -23,13 +23,13 @@ class Skill extends Directive
     /**
      * @var Collection<int, Example>
      */
-    #[ORM\OneToMany(targetEntity: Example::class, mappedBy: 'skill')]
+    #[ORM\OneToMany(targetEntity: Example::class, mappedBy: 'skill', cascade: ['persist'])]
     public private(set) Collection $examples;
 
     /**
      * @var Collection<int, Step>
      */
-    #[ORM\OneToMany(targetEntity: Step::class, mappedBy: 'skill')]
+    #[ORM\OneToMany(targetEntity: Step::class, mappedBy: 'skill', cascade: ['persist'])]
     #[ORM\OrderBy(['order' => 'ASC'])]
     public private(set) Collection $steps;
 
