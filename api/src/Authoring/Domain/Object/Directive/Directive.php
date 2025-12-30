@@ -58,7 +58,10 @@ abstract class Directive extends AggregateRoot
 
     final public function updateMetadata(?string $name = null, ?string $description = null): void
     {
-        Assert::allNotNull([$name, $description], 'At least one metadata field must be provided.');
+        Assert::true(
+            null !== $name || null !== $description,
+            'At least one metadata field must be provided.'
+        );
 
         $this->name = $name ?? $this->name;
         $this->description = $description ?? $this->description;
