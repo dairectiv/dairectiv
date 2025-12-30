@@ -6,23 +6,20 @@ namespace Dairectiv\Authoring\Application\Workflow\UpdateStep;
 
 use Dairectiv\Authoring\Domain\Object\Directive\DirectiveId;
 use Dairectiv\Authoring\Domain\Object\Workflow\Step\StepId;
-use Dairectiv\Authoring\Domain\Object\Workflow\Workflow;
-use Dairectiv\Authoring\Domain\Repository\DirectiveRepository;
+use Dairectiv\Authoring\Domain\Repository\WorkflowRepository;
 use Dairectiv\SharedKernel\Application\Command\CommandHandler;
 use Dairectiv\SharedKernel\Domain\Object\Assert;
 
 final readonly class Handler implements CommandHandler
 {
-    public function __construct(private DirectiveRepository $directiveRepository)
+    public function __construct(private WorkflowRepository $workflowRepository)
     {
     }
 
     public function __invoke(Input $input): void
     {
         $workflowId = DirectiveId::fromString($input->workflowId);
-        $workflow = $this->directiveRepository->getDirectiveById($workflowId);
-
-        \assert($workflow instanceof Workflow);
+        $workflow = $this->workflowRepository->getWorkflowById($workflowId);
 
         $stepId = StepId::fromString($input->stepId);
         $step = $workflow->steps->filter(
@@ -32,7 +29,5 @@ final readonly class Handler implements CommandHandler
         Assert::notFalse($step, \sprintf('Step with ID "%s" not found.', $input->stepId));
 
         $step->update($input->content);
-
-        $this->directiveRepository->save($workflow);
     }
 }

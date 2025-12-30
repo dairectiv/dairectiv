@@ -7,7 +7,7 @@ namespace Dairectiv\Tests\Integration\Authoring\Application\Rule;
 use Cake\Chronos\Chronos;
 use Dairectiv\Authoring\Application\Rule\Update\Input;
 use Dairectiv\Authoring\Domain\Object\Directive\Event\DirectiveUpdated;
-use Dairectiv\Authoring\Domain\Object\Directive\Exception\DirectiveNotFoundException;
+use Dairectiv\Authoring\Domain\Object\Rule\Exception\RuleNotFoundException;
 use Dairectiv\Authoring\Domain\Object\Rule\Rule;
 use Dairectiv\SharedKernel\Domain\Object\Exception\InvalidArgumentException;
 use Dairectiv\Tests\Framework\IntegrationTestCase;
@@ -98,7 +98,7 @@ final class UpdateTest extends IntegrationTestCase
 
     public function testItShouldThrowExceptionWhenRuleNotFound(): void
     {
-        $this->expectException(DirectiveNotFoundException::class);
+        $this->expectException(RuleNotFoundException::class);
 
         $this->execute(new Input('non-existent-rule', name: 'Name'));
     }

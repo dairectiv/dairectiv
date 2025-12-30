@@ -5,14 +5,13 @@ declare(strict_types=1);
 namespace Dairectiv\Authoring\Application\Workflow\Update;
 
 use Dairectiv\Authoring\Domain\Object\Directive\DirectiveId;
-use Dairectiv\Authoring\Domain\Object\Workflow\Workflow;
-use Dairectiv\Authoring\Domain\Repository\DirectiveRepository;
+use Dairectiv\Authoring\Domain\Repository\WorkflowRepository;
 use Dairectiv\SharedKernel\Application\Command\CommandHandler;
 use Dairectiv\SharedKernel\Domain\Object\Assert;
 
 final readonly class Handler implements CommandHandler
 {
-    public function __construct(private DirectiveRepository $directiveRepository)
+    public function __construct(private WorkflowRepository $workflowRepository)
     {
     }
 
@@ -24,9 +23,7 @@ final readonly class Handler implements CommandHandler
         );
 
         $id = DirectiveId::fromString($input->id);
-        $workflow = $this->directiveRepository->getDirectiveById($id);
-
-        \assert($workflow instanceof Workflow);
+        $workflow = $this->workflowRepository->getWorkflowById($id);
 
         if (null !== $input->name || null !== $input->description) {
             $workflow->updateMetadata($input->name, $input->description);
@@ -35,7 +32,5 @@ final readonly class Handler implements CommandHandler
         if (null !== $input->content) {
             $workflow->updateContent($input->content);
         }
-
-        $this->directiveRepository->save($workflow);
     }
 }

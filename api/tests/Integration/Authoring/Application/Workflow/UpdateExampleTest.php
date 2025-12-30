@@ -6,8 +6,8 @@ namespace Dairectiv\Tests\Integration\Authoring\Application\Workflow;
 
 use Dairectiv\Authoring\Application\Workflow\UpdateExample\Input;
 use Dairectiv\Authoring\Domain\Object\Directive\Event\DirectiveUpdated;
-use Dairectiv\Authoring\Domain\Object\Directive\Exception\DirectiveNotFoundException;
 use Dairectiv\Authoring\Domain\Object\Workflow\Example\Example;
+use Dairectiv\Authoring\Domain\Object\Workflow\Exception\WorkflowNotFoundException;
 use Dairectiv\Authoring\Domain\Object\Workflow\Workflow;
 use Dairectiv\SharedKernel\Domain\Object\Exception\InvalidArgumentException;
 use Dairectiv\Tests\Framework\IntegrationTestCase;
@@ -136,7 +136,7 @@ final class UpdateExampleTest extends IntegrationTestCase
 
     public function testItShouldThrowExceptionWhenWorkflowNotFound(): void
     {
-        $this->expectException(DirectiveNotFoundException::class);
+        $this->expectException(WorkflowNotFoundException::class);
 
         $this->execute(new Input(
             'non-existent-workflow',

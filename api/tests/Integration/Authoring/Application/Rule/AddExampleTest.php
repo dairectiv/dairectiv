@@ -8,8 +8,8 @@ use Cake\Chronos\Chronos;
 use Dairectiv\Authoring\Application\Rule\AddExample\Input;
 use Dairectiv\Authoring\Application\Rule\AddExample\Output;
 use Dairectiv\Authoring\Domain\Object\Directive\Event\DirectiveUpdated;
-use Dairectiv\Authoring\Domain\Object\Directive\Exception\DirectiveNotFoundException;
 use Dairectiv\Authoring\Domain\Object\Rule\Example\Example;
+use Dairectiv\Authoring\Domain\Object\Rule\Exception\RuleNotFoundException;
 use Dairectiv\Authoring\Domain\Object\Rule\Rule;
 use Dairectiv\SharedKernel\Domain\Object\Exception\InvalidArgumentException;
 use Dairectiv\Tests\Framework\IntegrationTestCase;
@@ -108,7 +108,7 @@ final class AddExampleTest extends IntegrationTestCase
 
     public function testItShouldThrowExceptionWhenRuleNotFound(): void
     {
-        $this->expectException(DirectiveNotFoundException::class);
+        $this->expectException(RuleNotFoundException::class);
 
         $this->execute(new Input('non-existent-rule', good: 'Good'));
     }
