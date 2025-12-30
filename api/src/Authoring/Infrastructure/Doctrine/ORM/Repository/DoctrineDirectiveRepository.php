@@ -21,11 +21,6 @@ final class DoctrineDirectiveRepository extends ServiceEntityRepository implemen
         parent::__construct($registry, Directive::class);
     }
 
-    public function save(Directive $directive): void
-    {
-        $this->getEntityManager()->persist($directive);
-    }
-
     public function getDirectiveById(DirectiveId $id): Directive
     {
         $directive = $this->find($id);

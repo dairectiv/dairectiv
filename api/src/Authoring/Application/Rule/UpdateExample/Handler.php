@@ -6,14 +6,13 @@ namespace Dairectiv\Authoring\Application\Rule\UpdateExample;
 
 use Dairectiv\Authoring\Domain\Object\Directive\DirectiveId;
 use Dairectiv\Authoring\Domain\Object\Rule\Example\ExampleId;
-use Dairectiv\Authoring\Domain\Object\Rule\Rule;
-use Dairectiv\Authoring\Domain\Repository\DirectiveRepository;
+use Dairectiv\Authoring\Domain\Repository\RuleRepository;
 use Dairectiv\SharedKernel\Application\Command\CommandHandler;
 use Dairectiv\SharedKernel\Domain\Object\Assert;
 
 final readonly class Handler implements CommandHandler
 {
-    public function __construct(private DirectiveRepository $directiveRepository)
+    public function __construct(private RuleRepository $ruleRepository)
     {
     }
 
@@ -25,9 +24,7 @@ final readonly class Handler implements CommandHandler
         );
 
         $ruleId = DirectiveId::fromString($input->ruleId);
-        $rule = $this->directiveRepository->getDirectiveById($ruleId);
-
-        \assert($rule instanceof Rule);
+        $rule = $this->ruleRepository->getRuleById($ruleId);
 
         $exampleId = ExampleId::fromString($input->exampleId);
         $example = $rule->examples->filter(
@@ -41,7 +38,5 @@ final readonly class Handler implements CommandHandler
             $input->bad,
             $input->explanation,
         );
-
-        $this->directiveRepository->save($rule);
     }
 }

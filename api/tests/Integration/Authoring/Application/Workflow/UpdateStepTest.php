@@ -7,7 +7,7 @@ namespace Dairectiv\Tests\Integration\Authoring\Application\Workflow;
 use Cake\Chronos\Chronos;
 use Dairectiv\Authoring\Application\Workflow\UpdateStep\Input;
 use Dairectiv\Authoring\Domain\Object\Directive\Event\DirectiveUpdated;
-use Dairectiv\Authoring\Domain\Object\Directive\Exception\DirectiveNotFoundException;
+use Dairectiv\Authoring\Domain\Object\Workflow\Exception\WorkflowNotFoundException;
 use Dairectiv\Authoring\Domain\Object\Workflow\Step\Step;
 use Dairectiv\Authoring\Domain\Object\Workflow\Workflow;
 use Dairectiv\SharedKernel\Domain\Object\Exception\InvalidArgumentException;
@@ -95,7 +95,7 @@ final class UpdateStepTest extends IntegrationTestCase
 
     public function testItShouldThrowExceptionWhenWorkflowNotFound(): void
     {
-        $this->expectException(DirectiveNotFoundException::class);
+        $this->expectException(WorkflowNotFoundException::class);
 
         $this->execute(new Input(
             'non-existent-workflow',

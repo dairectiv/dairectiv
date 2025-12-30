@@ -10,8 +10,6 @@ use Dairectiv\Authoring\Domain\Object\Directive\Exception\DirectiveNotFoundExcep
 
 interface DirectiveRepository
 {
-    public function save(Directive $directive): void;
-
     /**
      * @throws DirectiveNotFoundException
      */

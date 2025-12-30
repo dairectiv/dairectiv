@@ -27,10 +27,7 @@ final class DoctrineDirectiveRepositoryTest extends IntegrationTestCase
     public function testItShouldSaveAndFindDirectiveById(): void
     {
         $rule = self::draftRule();
-
-        $this->repository->save($rule);
-        $this->getEntityManager()->flush();
-        $this->getEntityManager()->clear();
+        $this->persistEntity($rule);
 
         $found = $this->repository->findDirectiveById($rule->id);
 
@@ -42,10 +39,7 @@ final class DoctrineDirectiveRepositoryTest extends IntegrationTestCase
     public function testItShouldSaveAndGetDirectiveById(): void
     {
         $rule = self::draftRule();
-
-        $this->repository->save($rule);
-        $this->getEntityManager()->flush();
-        $this->getEntityManager()->clear();
+        $this->persistEntity($rule);
 
         $found = $this->repository->getDirectiveById($rule->id);
 
