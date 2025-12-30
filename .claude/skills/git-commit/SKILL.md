@@ -1,7 +1,7 @@
 ---
 name: git-commit
 description: Creates structured Git commit messages following Conventional Commits format. Use when the user asks to commit changes, create a commit, or mentions committing staged changes.
-allowed-tools: Bash, AskUserQuestion, mcp__linear__get_issue
+allowed-tools: Bash, AskUserQuestion, mcp__linear__get_issue, mcp__linear__update_issue
 ---
 
 # Git Commit Message Generator
@@ -208,17 +208,89 @@ Before committing:
 3. Check if body is needed (complex changes only)
 4. Confirm with user if uncertain
 
-### Step 6: Create Commit
+### Step 6: Run Quality Checks
 
-After user approval, execute:
+**Before staging and committing, always run QA with auto-fix:**
+
 ```bash
+castor qa -f
+```
+
+This will:
+- Run Rector with auto-fix
+- Run ECS (code style) with auto-fix
+- Run linters
+- Validate Doctrine schema
+- Run PHPStan
+- Run PHPUnit tests
+
+**Wait for QA to pass before proceeding.** If tests fail, fix the issues first.
+
+### Step 7: Create Commit
+
+After QA passes and user approval, execute:
+```bash
+git add -A
 git commit -m "<commit message>"
 ```
 
 If body is needed:
 ```bash
+git add -A
 git commit -m "<title>" -m "<body>"
 ```
+
+### Step 8: Update Linear Issue Description (if empty)
+
+**After successful commit, check if the Linear issue has an empty description:**
+
+1. If the issue description was empty (or minimal) when fetched in Step 3:
+   - Generate a description based on the committed changes
+   - Use the mcp__linear__update_issue tool to update the description
+
+2. **Description format:**
+```markdown
+# <Type Emoji> <Type Name>
+
+## Context
+- [Brief context about why this was needed]
+
+## Changes
+- [List of main changes made]
+
+## Done When
+- [Completion criteria based on what was implemented]
+```
+
+3. **Type emoji mapping:**
+   - Feature: ✨
+   - Bugfix: 🐛
+   - Refactor: ♻️
+   - Performance: ⚡
+   - Documentation: 📚
+   - Test: ✅
+   - Chore: 🧹
+   - Spike: 🧪
+
+4. **Example:**
+```markdown
+# ✨ Feature
+
+## Context
+- Need to retrieve a single rule by its ID for display purposes
+
+## Changes
+- Create Get Rule Query with Input, Output, and Handler
+- Handler uses RuleRepository to fetch rule by ID
+- Add integration tests for success and not found scenarios
+
+## Done When
+- Query returns rule with all properties (name, description, content, examples)
+- Returns RuleNotFoundException when rule doesn't exist
+- All tests pass
+```
+
+**Note**: Only update if description is empty or contains just a placeholder. Don't overwrite detailed descriptions that already exist.
 
 ## Important Notes
 
