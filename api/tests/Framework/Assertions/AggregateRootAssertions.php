@@ -2,85 +2,38 @@
 
 declare(strict_types=1);
 
-namespace Dairectiv\Tests\Framework;
+namespace Dairectiv\Tests\Framework\Assertions;
 
-use Cake\Chronos\Chronos;
 use Dairectiv\SharedKernel\Domain\Object\Event\DomainEvent;
 use Dairectiv\SharedKernel\Domain\Object\Event\DomainEventQueue;
+use Dairectiv\Tests\Framework\Constraints\DomainEvent\DomainEventRecordedConstraint;
+use Dairectiv\Tests\Framework\Constraints\DomainEvent\NoDomainEventRecordedConstraint;
 
 trait AggregateRootAssertions
 {
-    /**
-     * @var array<int, true>
-     */
-    private array $assertedEventIds = [];
-
-    private bool $noEventsAsserted = false;
+    private bool $domainEventsAsserted = false;
 
     protected function setUp(): void
     {
-        $this->assertedEventIds = [];
-        $this->noEventsAsserted = false;
-        DomainEventQueue::reset();
-        Chronos::setTestNow(Chronos::now());
+        $this->resetDomainEvents();
     }
 
     protected function tearDown(): void
     {
-        DomainEventQueue::reset();
-        Chronos::setTestNow();
-    }
+        self::assertNoDomainEvents();
 
-    protected function assertPostConditions(): void
-    {
-        if ($this->noEventsAsserted) {
-            parent::assertPostConditions();
-
-            return;
-        }
-
-        $events = DomainEventQueue::all();
-        $unassertedEvents = [];
-
-        foreach ($events as $event) {
-            if (!isset($this->assertedEventIds[spl_object_id($event)])) {
-                $unassertedEvents[] = $event::class;
-            }
-        }
-
-        if (\count($unassertedEvents) > 0) {
-            self::fail(\sprintf(
-                'The following domain events were recorded but not asserted: %s. You must assert all domain events or use assertNoDomainEvents() if none are expected.',
-                implode(', ', $unassertedEvents),
-            ));
-        }
-
-        parent::assertPostConditions();
+        parent::tearDown();
     }
 
     /**
      * @template T of DomainEvent
      *
      * @param class-string<T> $domainEvent
-     *
-     * @return T
      */
-    final protected function assertDomainEventRecorded(string $domainEvent): DomainEvent
+    final protected function assertDomainEventRecorded(string $domainEvent, int $count = 1): void
     {
-        $events = DomainEventQueue::all();
-
-        foreach ($events as $event) {
-            if ($event instanceof $domainEvent && !isset($this->assertedEventIds[spl_object_id($event)])) {
-                $this->assertedEventIds[spl_object_id($event)] = true;
-
-                return $event;
-            }
-        }
-
-        self::fail(\sprintf(
-            'Expected domain event of type "%s" to be recorded, but it was not found.',
-            $domainEvent,
-        ));
+        self::assertThat($domainEvent, new DomainEventRecordedConstraint($count));
+        $this->domainEventsAsserted = true;
     }
 
     /**
@@ -88,9 +41,8 @@ trait AggregateRootAssertions
      */
     final protected function assertNoDomainEvents(): void
     {
-        $events = DomainEventQueue::all();
-        self::assertCount(0, $events, 'Expected no domain events, but some were found.');
-        $this->noEventsAsserted = true;
+        self::assertThat(null, new NoDomainEventRecordedConstraint());
+        $this->domainEventsAsserted = true;
     }
 
     /**
@@ -100,7 +52,6 @@ trait AggregateRootAssertions
     final protected function resetDomainEvents(): void
     {
         DomainEventQueue::reset();
-        $this->assertedEventIds = [];
-        $this->noEventsAsserted = false;
+        $this->domainEventsAsserted = false;
     }
 }
