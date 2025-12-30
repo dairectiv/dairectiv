@@ -1,0 +1,38 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Dairectiv\Authoring\Application\Workflow\Draft;
+
+use Dairectiv\Authoring\Domain\Object\Directive\DirectiveId;
+use Dairectiv\Authoring\Domain\Object\Directive\Exception\DirectiveAlreadyExistsException;
+use Dairectiv\Authoring\Domain\Object\Workflow\Workflow;
+use Dairectiv\Authoring\Domain\Repository\DirectiveRepository;
+use Dairectiv\SharedKernel\Application\Command\CommandHandler;
+use function Symfony\Component\String\u;
+
+final readonly class Handler implements CommandHandler
+{
+    public function __construct(private DirectiveRepository $directiveRepository)
+    {
+    }
+
+    public function __invoke(Input $input): Output
+    {
+        $id = DirectiveId::fromString(u($input->name)->kebab()->toString());
+
+        if (null !== $this->directiveRepository->findDirectiveById($id)) {
+            throw DirectiveAlreadyExistsException::fromId($id);
+        }
+
+        $workflow = Workflow::draft(
+            $id,
+            $input->name,
+            $input->description,
+        );
+
+        $this->directiveRepository->save($workflow);
+
+        return new Output($workflow);
+    }
+}

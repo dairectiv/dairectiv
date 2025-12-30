@@ -9,7 +9,7 @@ use Dairectiv\Authoring\Domain\Object\Directive\DirectiveState;
 use Dairectiv\Authoring\Domain\Object\Directive\Event\DirectivePublished;
 use Dairectiv\Authoring\Domain\Object\Directive\Exception\DirectiveNotFoundException;
 use Dairectiv\Authoring\Domain\Object\Rule\Rule;
-use Dairectiv\Authoring\Domain\Object\Skill\Skill;
+use Dairectiv\Authoring\Domain\Object\Workflow\Workflow;
 use Dairectiv\Tests\Framework\IntegrationTestCase;
 use PHPUnit\Framework\Attributes\Group;
 
@@ -31,17 +31,17 @@ final class PublishTest extends IntegrationTestCase
         self::assertSame(DirectiveState::Published, $rule->state);
     }
 
-    public function testItShouldPublishSkill(): void
+    public function testItShouldPublishWorkflow(): void
     {
-        $skill = self::draftSkill();
-        $this->persistEntity($skill);
+        $workflow = self::draftWorkflow();
+        $this->persistEntity($workflow);
 
-        $this->execute(new Input((string) $skill->id));
+        $this->execute(new Input((string) $workflow->id));
 
         self::assertDomainEventHasBeenDispatched(DirectivePublished::class);
-        $skill = $this->findEntity(Skill::class, ['id' => $skill->id], true);
+        $workflow = $this->findEntity(Workflow::class, ['id' => $workflow->id], true);
 
-        self::assertSame(DirectiveState::Published, $skill->state);
+        self::assertSame(DirectiveState::Published, $workflow->state);
     }
 
     public function testItShouldThrowExceptionWhenDirectiveNotFound(): void

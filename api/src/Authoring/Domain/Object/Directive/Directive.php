@@ -10,7 +10,7 @@ use Dairectiv\Authoring\Domain\Object\Directive\Event\DirectiveDrafted;
 use Dairectiv\Authoring\Domain\Object\Directive\Event\DirectivePublished;
 use Dairectiv\Authoring\Domain\Object\Directive\Event\DirectiveUpdated;
 use Dairectiv\Authoring\Domain\Object\Rule\Rule;
-use Dairectiv\Authoring\Domain\Object\Skill\Skill;
+use Dairectiv\Authoring\Domain\Object\Workflow\Workflow;
 use Dairectiv\SharedKernel\Domain\Object\AggregateRoot;
 use Dairectiv\SharedKernel\Domain\Object\Assert;
 use Doctrine\DBAL\Types\Types;
@@ -20,7 +20,7 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Table(name: 'authoring_directive')]
 #[ORM\InheritanceType('SINGLE_TABLE')]
 #[ORM\DiscriminatorColumn(name: 'discr', type: 'string')]
-#[ORM\DiscriminatorMap(['rule' => Rule::class, 'skill' => Skill::class])]
+#[ORM\DiscriminatorMap(['rule' => Rule::class, 'workflow' => Workflow::class])]
 abstract class Directive extends AggregateRoot
 {
     #[ORM\Id]
