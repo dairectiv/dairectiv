@@ -9,7 +9,7 @@ use Dairectiv\Authoring\Domain\Object\Directive\DirectiveState;
 use Dairectiv\Authoring\Domain\Object\Directive\Event\DirectiveArchived;
 use Dairectiv\Authoring\Domain\Object\Directive\Exception\DirectiveNotFoundException;
 use Dairectiv\Authoring\Domain\Object\Rule\Rule;
-use Dairectiv\Authoring\Domain\Object\Skill\Skill;
+use Dairectiv\Authoring\Domain\Object\Workflow\Workflow;
 use Dairectiv\Tests\Framework\IntegrationTestCase;
 use PHPUnit\Framework\Attributes\Group;
 
@@ -31,17 +31,17 @@ final class ArchiveTest extends IntegrationTestCase
         self::assertSame(DirectiveState::Archived, $rule->state);
     }
 
-    public function testItShouldArchiveSkill(): void
+    public function testItShouldArchiveWorkflow(): void
     {
-        $skill = self::draftSkill();
-        $this->persistEntity($skill);
+        $workflow = self::draftWorkflow();
+        $this->persistEntity($workflow);
 
-        $this->execute(new Input((string) $skill->id));
+        $this->execute(new Input((string) $workflow->id));
 
         self::assertDomainEventHasBeenDispatched(DirectiveArchived::class);
-        $skill = $this->findEntity(Skill::class, ['id' => $skill->id], true);
+        $workflow = $this->findEntity(Workflow::class, ['id' => $workflow->id], true);
 
-        self::assertSame(DirectiveState::Archived, $skill->state);
+        self::assertSame(DirectiveState::Archived, $workflow->state);
     }
 
     public function testItShouldThrowExceptionWhenDirectiveNotFound(): void

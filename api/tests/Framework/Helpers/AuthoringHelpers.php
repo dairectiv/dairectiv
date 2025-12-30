@@ -6,7 +6,7 @@ namespace Dairectiv\Tests\Framework\Helpers;
 
 use Dairectiv\Authoring\Domain\Object\Directive\DirectiveId;
 use Dairectiv\Authoring\Domain\Object\Rule\Rule;
-use Dairectiv\Authoring\Domain\Object\Skill\Skill;
+use Dairectiv\Authoring\Domain\Object\Workflow\Workflow;
 
 trait AuthoringHelpers
 {
@@ -23,11 +23,11 @@ trait AuthoringHelpers
         return Rule::draft(self::getDirectiveId($id), $name, $description);
     }
 
-    public static function draftSkill(
-        string $id = 'skill-id',
-        string $name = 'My Skill',
+    public static function draftWorkflow(
+        string $id = 'workflow-id',
+        string $name = 'My Workflow',
         string $description = 'Description',
-    ): Skill {
-        return Skill::draft(self::getDirectiveId($id), $name, $description);
+    ): Workflow {
+        return Workflow::draft(self::getDirectiveId($id), $name, $description);
     }
 }

@@ -6,8 +6,8 @@ doctrine:
             chronos: Dairectiv\SharedKernel\Infrastructure\Doctrine\DBAL\Types\ChronosType
             object_value: Dairectiv\SharedKernel\Infrastructure\Doctrine\DBAL\Types\ObjectValueType
             authoring_directive_id: Dairectiv\Authoring\Infrastructure\Doctrine\DBAL\Types\DirectiveIdType
-            authoring_skill_example_id: Dairectiv\Authoring\Infrastructure\Doctrine\DBAL\Types\SkillExampleIdType
-            authoring_skill_step_id: Dairectiv\Authoring\Infrastructure\Doctrine\DBAL\Types\SkillStepIdType
+            authoring_workflow_example_id: Dairectiv\Authoring\Infrastructure\Doctrine\DBAL\Types\WorkflowExampleIdType
+            authoring_workflow_step_id: Dairectiv\Authoring\Infrastructure\Doctrine\DBAL\Types\WorkflowStepIdType
             authoring_rule_example_id: Dairectiv\Authoring\Infrastructure\Doctrine\DBAL\Types\RuleExampleIdType
 
     orm:
