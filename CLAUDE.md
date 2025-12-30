@@ -307,8 +307,8 @@ Aggregates can emit domain events for cross-context communication:
 
 ```php
 // Aggregate emits event
-$directive = new Directive($id, $content);
-$directive->recordEvent(new DirectiveCreated($id));
+$directive = new Directive($value, $content);
+$directive->recordEvent(new DirectiveCreated($value));
 
 // Messenger middleware publishes events after transaction
 // Other bounded contexts can listen via event handlers

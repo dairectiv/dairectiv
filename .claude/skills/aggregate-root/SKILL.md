@@ -49,7 +49,7 @@ use Cake\Chronos\Chronos;
  */
 abstract class {Aggregate} extends AggregateRoot
 {
-    private(set) {Aggregate}Id $id;
+    private(set) {Aggregate}Id $value;
     private(set) {Aggregate}State $state;
     private(set) {Aggregate}Version $version;
     private(set) Chronos $createdAt;
@@ -60,10 +60,10 @@ abstract class {Aggregate} extends AggregateRoot
      */
     abstract protected function doApplyChanges(Change $change): void;
 
-    public static function create({Aggregate}Id $id, /* other params */): static
+    public static function create({Aggregate}Id $value, /* other params */): static
     {
         $aggregate = new static();
-        $aggregate->id = $id;
+        $aggregate->id = $value;
         $aggregate->version = {Aggregate}Version::initial();
         $aggregate->state = {Aggregate}State::Draft;
         $aggregate->createdAt = Chronos::now();
