@@ -29,7 +29,7 @@ class Skill extends Directive
     /**
      * @var Collection<int, Step>
      */
-    #[ORM\OneToMany(targetEntity: Step::class, mappedBy: 'skill', cascade: ['persist'])]
+    #[ORM\OneToMany(targetEntity: Step::class, mappedBy: 'skill', cascade: ['persist'], orphanRemoval: true)]
     #[ORM\OrderBy(['order' => 'ASC'])]
     public private(set) Collection $steps;
 
@@ -66,6 +66,23 @@ class Skill extends Directive
         Assert::true($this->examples->contains($example), 'Example does not belong to this skill.');
 
         $this->examples->removeElement($example);
+
+        $this->markAsUpdated();
+    }
+
+    public function removeStep(Step $step): void
+    {
+        Assert::true($this->steps->contains($step), 'Step does not belong to this skill.');
+
+        $removedOrder = $step->order;
+        $this->steps->removeElement($step);
+
+        // Reorder remaining steps to fill the gap
+        foreach ($this->steps as $s) {
+            if ($s->order > $removedOrder) {
+                $s->setOrder($s->order - 1);
+            }
+        }
 
         $this->markAsUpdated();
     }
