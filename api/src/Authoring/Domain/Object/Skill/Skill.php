@@ -23,7 +23,7 @@ class Skill extends Directive
     /**
      * @var Collection<int, Example>
      */
-    #[ORM\OneToMany(targetEntity: Example::class, mappedBy: 'skill', cascade: ['persist'])]
+    #[ORM\OneToMany(targetEntity: Example::class, mappedBy: 'skill', cascade: ['persist'], orphanRemoval: true)]
     public private(set) Collection $examples;
 
     /**
@@ -57,6 +57,15 @@ class Skill extends Directive
     public function addExample(Example $example): void
     {
         $this->examples->add($example);
+
+        $this->markAsUpdated();
+    }
+
+    public function removeExample(Example $example): void
+    {
+        Assert::true($this->examples->contains($example), 'Example does not belong to this skill.');
+
+        $this->examples->removeElement($example);
 
         $this->markAsUpdated();
     }
