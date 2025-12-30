@@ -53,4 +53,17 @@ final class DomainEventQueue
 
         return $instance->domainEvents;
     }
+
+    public static function markAsDispatched(DomainEvent $event): void
+    {
+        $instance = self::getInstance();
+
+        foreach ($instance->domainEvents as $key => $domainEvent) {
+            if ($domainEvent === $event) {
+                unset($instance->domainEvents[$key]);
+
+                return;
+            }
+        }
+    }
 }

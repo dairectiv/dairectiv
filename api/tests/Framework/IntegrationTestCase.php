@@ -12,6 +12,7 @@ use Dairectiv\SharedKernel\Application\Query\QueryBus;
 use Dairectiv\SharedKernel\Domain\Object\Event\DomainEventQueue;
 use Dairectiv\SharedKernel\Infrastructure\Symfony\Messenger\Message\DomainEventWrapper;
 use Dairectiv\SharedKernel\Infrastructure\Symfony\Messenger\Transport\TestTransport;
+use Dairectiv\Tests\Framework\Helpers\AuthoringHelpers;
 use Doctrine\ORM\EntityManagerInterface;
 use Faker\Factory;
 use Faker\Generator;
@@ -21,6 +22,7 @@ use Symfony\Component\Messenger\Envelope;
 
 abstract class IntegrationTestCase extends WebTestCase
 {
+    use AuthoringHelpers;
     use ReflectionAssertions;
 
     private static ?Generator $faker = null;
@@ -200,20 +202,12 @@ abstract class IntegrationTestCase extends WebTestCase
 
     /**
      * @template T of object
-     * @param class-string<T> $entityClass
-     * @param array<string, mixed> $values
+     * @param T $entity
      * @return T
      */
-    final public function persistEntity(string $entityClass, array $values = []): object
+    final public function persistEntity(object $entity): object
     {
         $entityManager = self::getService(EntityManagerInterface::class);
-
-        $entity = new \ReflectionClass($entityClass)->newInstance();
-
-        foreach ($values as $property => $value) {
-            $reflector = new \ReflectionProperty($entity, $property);
-            $reflector->setRawValue($entity, $value);
-        }
 
         $entityManager->persist($entity);
         $entityManager->flush();
