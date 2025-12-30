@@ -12,7 +12,6 @@ use Dairectiv\Authoring\Domain\Object\Rule\Rule;
 use Dairectiv\Authoring\Domain\Object\Skill\Skill;
 use Dairectiv\Tests\Framework\IntegrationTestCase;
 use PHPUnit\Framework\Attributes\Group;
-use Zenstruck\Foundry\Test\Factories;
 
 #[Group('integration')]
 #[Group('authoring')]

@@ -29,7 +29,7 @@ final readonly class Handler implements CommandHandler
         if (null !== $input->afterStepId) {
             $afterStepId = StepId::fromString($input->afterStepId);
             $afterStep = $skill->steps->filter(
-                static fn ($s) => $s->id->equals($afterStepId)
+                static fn ($s) => $s->id->equals($afterStepId),
             )->first();
 
             Assert::notFalse($afterStep, \sprintf('Step with ID "%s" not found.', $input->afterStepId));

@@ -74,7 +74,7 @@ class Example
     ): void {
         Assert::true(
             null !== $scenario || null !== $input || null !== $output || null !== $explanation,
-            'At least one field must be provided.'
+            'At least one field must be provided.',
         );
 
         $this->scenario = $scenario ?? $this->scenario;

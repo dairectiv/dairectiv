@@ -26,7 +26,7 @@ final readonly class Handler implements CommandHandler
 
         $exampleId = ExampleId::fromString($input->exampleId);
         $example = $skill->examples->filter(
-            static fn ($e) => $e->id->equals($exampleId)
+            static fn ($e) => $e->id->equals($exampleId),
         )->first();
 
         Assert::notFalse($example, \sprintf('Example with ID "%s" not found.', $input->exampleId));

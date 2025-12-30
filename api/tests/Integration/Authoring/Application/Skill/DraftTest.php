@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Dairectiv\Tests\Integration\Authoring\Application\Skill;
 
-use Cake\Chronos\Chronos;
 use Dairectiv\Authoring\Application\Skill\Draft\Input;
 use Dairectiv\Authoring\Application\Skill\Draft\Output;
 use Dairectiv\Authoring\Domain\Object\Directive\DirectiveState;
@@ -120,7 +119,7 @@ final class DraftTest extends IntegrationTestCase
 
     private function executeDraftSkill(
         string $name = 'My Skill',
-        string $description = 'A description of my skill'
+        string $description = 'A description of my skill',
     ): Output {
         $output = $this->execute(new Input($name, $description));
 

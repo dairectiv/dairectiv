@@ -11,6 +11,6 @@ final class DirectiveAlreadyExistsException extends EntityNotFoundException
 {
     public static function fromId(DirectiveId $id): self
     {
-        return new self(sprintf('Directive with ID "%s" already exists.', $id));
+        return new self(\sprintf('Directive with ID "%s" already exists.', $id));
     }
 }

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Dairectiv\Tests\Integration\Authoring\Application\Skill;
 
+use Cake\Chronos\Chronos;
 use Dairectiv\Authoring\Application\Skill\UpdateStep\Input;
 use Dairectiv\Authoring\Domain\Object\Directive\Event\DirectiveUpdated;
 use Dairectiv\Authoring\Domain\Object\Directive\Exception\DirectiveNotFoundException;
@@ -37,6 +38,8 @@ final class UpdateStepTest extends IntegrationTestCase
         $persistedSkill = $this->findEntity(Skill::class, ['id' => $skill->id], true);
         $persistedStep = $persistedSkill->steps->first();
 
+        self::assertInstanceOf(Step::class, $persistedStep);
+
         self::assertSame('Updated content', $persistedStep->content);
     }
 
@@ -45,6 +48,8 @@ final class UpdateStepTest extends IntegrationTestCase
         $skill = self::draftSkill();
         $step = Step::create($skill, 'Content');
         $this->persistEntity($skill);
+
+        Chronos::setTestNow(Chronos::now()->addDays(1));
 
         $this->execute(new Input(
             (string) $skill->id,
@@ -57,8 +62,8 @@ final class UpdateStepTest extends IntegrationTestCase
         $persistedSkill = $this->findEntity(Skill::class, ['id' => $skill->id], true);
         $persistedStep = $persistedSkill->steps->first();
 
-        self::assertNotNull($persistedStep->updatedAt);
-        self::assertTrue($persistedStep->updatedAt->greaterThanOrEquals($persistedStep->createdAt));
+        self::assertInstanceOf(Step::class, $persistedStep);
+        self::assertTrue($persistedStep->updatedAt->greaterThan($persistedStep->createdAt));
     }
 
     public function testItShouldPreserveStepOrder(): void
@@ -66,7 +71,7 @@ final class UpdateStepTest extends IntegrationTestCase
         $skill = self::draftSkill();
         $step1 = Step::create($skill, 'Step 1');
         $step2 = Step::create($skill, 'Step 2', $step1);
-        $step3 = Step::create($skill, 'Step 3', $step2);
+        Step::create($skill, 'Step 3', $step2);
         $this->persistEntity($skill);
 
         $this->execute(new Input(
@@ -129,7 +134,7 @@ final class UpdateStepTest extends IntegrationTestCase
     {
         $skill = self::draftSkill();
         $step1 = Step::create($skill, 'Original Step 1');
-        $step2 = Step::create($skill, 'Original Step 2', $step1);
+        Step::create($skill, 'Original Step 2', $step1);
         $this->persistEntity($skill);
 
         $this->execute(new Input(

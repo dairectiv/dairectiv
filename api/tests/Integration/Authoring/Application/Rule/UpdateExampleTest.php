@@ -37,6 +37,7 @@ final class UpdateExampleTest extends IntegrationTestCase
         $persistedRule = $this->findEntity(Rule::class, ['id' => $rule->id], true);
         $persistedExample = $persistedRule->examples->first();
 
+        self::assertInstanceOf(Example::class, $persistedExample);
         self::assertSame('Updated good', $persistedExample->good);
         self::assertSame('Updated bad', $persistedExample->bad);
         self::assertSame('Updated explanation', $persistedExample->explanation);
@@ -59,6 +60,7 @@ final class UpdateExampleTest extends IntegrationTestCase
         $persistedRule = $this->findEntity(Rule::class, ['id' => $rule->id], true);
         $persistedExample = $persistedRule->examples->first();
 
+        self::assertInstanceOf(Example::class, $persistedExample);
         self::assertSame('Updated good', $persistedExample->good);
         self::assertSame('Original bad', $persistedExample->bad);
         self::assertSame('Original explanation', $persistedExample->explanation);
@@ -81,6 +83,7 @@ final class UpdateExampleTest extends IntegrationTestCase
         $persistedRule = $this->findEntity(Rule::class, ['id' => $rule->id], true);
         $persistedExample = $persistedRule->examples->first();
 
+        self::assertInstanceOf(Example::class, $persistedExample);
         self::assertSame('Original good', $persistedExample->good);
         self::assertSame('Updated bad', $persistedExample->bad);
     }
@@ -102,6 +105,7 @@ final class UpdateExampleTest extends IntegrationTestCase
         $persistedRule = $this->findEntity(Rule::class, ['id' => $rule->id], true);
         $persistedExample = $persistedRule->examples->first();
 
+        self::assertInstanceOf(Example::class, $persistedExample);
         self::assertSame('New explanation', $persistedExample->explanation);
     }
 

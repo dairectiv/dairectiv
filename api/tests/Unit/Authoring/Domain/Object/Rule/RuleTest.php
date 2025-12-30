@@ -161,11 +161,9 @@ final class RuleTest extends UnitTestCase
 
         Chronos::setTestNow(Chronos::now()->addMinutes(1));
 
-        $rule->addExample('Good example', 'Bad example', 'Explanation');
+        $example = Example::create($rule, 'Good example', 'Bad example', 'Explanation');
 
         self::assertCount(1, $rule->examples);
-        $example = $rule->examples->first();
-        self::assertInstanceOf(Example::class, $example);
         self::assertSame('Good example', $example->good);
         self::assertSame('Bad example', $example->bad);
         self::assertSame('Explanation', $example->explanation);
@@ -182,11 +180,9 @@ final class RuleTest extends UnitTestCase
         $rule = Rule::draft(DirectiveId::fromString('my-rule'), 'My Rule', 'Description');
         $this->resetDomainEvents();
 
-        $rule->addExample('Good example', null, null);
+        $example = Example::create($rule, 'Good example');
 
         self::assertCount(1, $rule->examples);
-        $example = $rule->examples->first();
-        self::assertInstanceOf(Example::class, $example);
         self::assertSame('Good example', $example->good);
         self::assertNull($example->bad);
         self::assertNull($example->explanation);
@@ -199,11 +195,9 @@ final class RuleTest extends UnitTestCase
         $rule = Rule::draft(DirectiveId::fromString('my-rule'), 'My Rule', 'Description');
         $this->resetDomainEvents();
 
-        $rule->addExample(null, 'Bad example', null);
+        $example = Example::create($rule, null, 'Bad example');
 
         self::assertCount(1, $rule->examples);
-        $example = $rule->examples->first();
-        self::assertInstanceOf(Example::class, $example);
         self::assertNull($example->good);
         self::assertSame('Bad example', $example->bad);
         self::assertNull($example->explanation);
@@ -216,9 +210,9 @@ final class RuleTest extends UnitTestCase
         $rule = Rule::draft(DirectiveId::fromString('my-rule'), 'My Rule', 'Description');
         $this->resetDomainEvents();
 
-        $rule->addExample('Good 1', 'Bad 1', 'Explanation 1');
-        $rule->addExample('Good 2', 'Bad 2', 'Explanation 2');
-        $rule->addExample('Good 3', 'Bad 3', 'Explanation 3');
+        Example::create($rule, 'Good 1', 'Bad 1', 'Explanation 1');
+        Example::create($rule, 'Good 2', 'Bad 2', 'Explanation 2');
+        Example::create($rule, 'Good 3', 'Bad 3', 'Explanation 3');
 
         self::assertCount(3, $rule->examples);
 
@@ -234,6 +228,6 @@ final class RuleTest extends UnitTestCase
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('Cannot perform this action on an archived directive.');
 
-        $rule->addExample('Good', 'Bad', 'Explanation');
+        Example::create($rule, 'Good', 'Bad', 'Explanation');
     }
 }

@@ -38,6 +38,7 @@ final class UpdateExampleTest extends IntegrationTestCase
         $persistedSkill = $this->findEntity(Skill::class, ['id' => $skill->id], true);
         $persistedExample = $persistedSkill->examples->first();
 
+        self::assertInstanceOf(Example::class, $persistedExample);
         self::assertSame('Updated scenario', $persistedExample->scenario);
         self::assertSame('Updated input', $persistedExample->input);
         self::assertSame('Updated output', $persistedExample->output);
@@ -61,6 +62,7 @@ final class UpdateExampleTest extends IntegrationTestCase
         $persistedSkill = $this->findEntity(Skill::class, ['id' => $skill->id], true);
         $persistedExample = $persistedSkill->examples->first();
 
+        self::assertInstanceOf(Example::class, $persistedExample);
         self::assertSame('Updated scenario', $persistedExample->scenario);
         self::assertSame('Original input', $persistedExample->input);
         self::assertSame('Original output', $persistedExample->output);
@@ -84,6 +86,7 @@ final class UpdateExampleTest extends IntegrationTestCase
         $persistedSkill = $this->findEntity(Skill::class, ['id' => $skill->id], true);
         $persistedExample = $persistedSkill->examples->first();
 
+        self::assertInstanceOf(Example::class, $persistedExample);
         self::assertSame('Original scenario', $persistedExample->scenario);
         self::assertSame('Updated input', $persistedExample->input);
     }
@@ -105,6 +108,7 @@ final class UpdateExampleTest extends IntegrationTestCase
         $persistedSkill = $this->findEntity(Skill::class, ['id' => $skill->id], true);
         $persistedExample = $persistedSkill->examples->first();
 
+        self::assertInstanceOf(Example::class, $persistedExample);
         self::assertSame('Original scenario', $persistedExample->scenario);
         self::assertSame('Updated output', $persistedExample->output);
     }
@@ -126,6 +130,7 @@ final class UpdateExampleTest extends IntegrationTestCase
         $persistedSkill = $this->findEntity(Skill::class, ['id' => $skill->id], true);
         $persistedExample = $persistedSkill->examples->first();
 
+        self::assertInstanceOf(Example::class, $persistedExample);
         self::assertSame('New explanation', $persistedExample->explanation);
     }
 
