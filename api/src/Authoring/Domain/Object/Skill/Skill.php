@@ -6,62 +6,127 @@ namespace Dairectiv\Authoring\Domain\Object\Skill;
 
 use Dairectiv\Authoring\Domain\Object\Directive\Directive;
 use Dairectiv\Authoring\Domain\Object\Directive\DirectiveId;
-use Dairectiv\Authoring\Domain\Object\Directive\Metadata\DirectiveMetadata;
-use Dairectiv\Authoring\Domain\Object\Skill\Workflow\SkillWorkflow;
+use Dairectiv\Authoring\Domain\Object\Skill\Example\Example;
+use Dairectiv\Authoring\Domain\Object\Skill\Workflow\Step;
+use Dairectiv\SharedKernel\Domain\Object\Assert;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity]
 class Skill extends Directive
 {
-    #[ORM\Column(name: 'skill_content', type: 'authoring_skill_content')]
-    public private(set) SkillContent $content;
+    #[ORM\Column(name: 'skill_content', type: Types::TEXT, nullable: true)]
+    public private(set) ?string $content = null;
 
-    #[ORM\Column(name: 'skill_workflow', type: 'object_value')]
-    public private(set) SkillWorkflow $workflow;
+    /**
+     * @var Collection<int, Example>
+     */
+    #[ORM\OneToMany(targetEntity: Example::class, mappedBy: 'skill')]
+    public private(set) Collection $examples;
 
-    #[ORM\Column(name: 'skill_examples', type: 'object_value')]
-    public private(set) SkillExamples $examples;
+    /**
+     * @var Collection<int, Step>
+     */
+    #[ORM\OneToMany(targetEntity: Step::class, mappedBy: 'skill')]
+    #[ORM\OrderBy(['order' => 'ASC'])]
+    public private(set) Collection $steps;
 
-    public static function draft(
-        DirectiveId $id,
-        DirectiveMetadata $metadata,
-        SkillContent $content,
-        SkillWorkflow $workflow,
-        ?SkillExamples $examples = null,
-    ): self {
+    public function __construct()
+    {
+        $this->examples = new ArrayCollection();
+        $this->steps = new ArrayCollection();
+    }
+
+    public static function draft(DirectiveId $id, string $name, string $description): Skill
+    {
         $skill = new self();
 
-        $skill->content = $content;
-        $skill->workflow = $workflow;
-        $skill->examples = $examples ?? SkillExamples::empty();
-
-        $skill->initialize($id, $metadata);
+        $skill->initialize($id, $name, $description);
 
         return $skill;
     }
 
-    public function updateContent(
-        ?SkillContent $content = null,
-        ?SkillWorkflow $workflow = null,
-        ?SkillExamples $examples = null,
-    ): void {
-        if (null !== $content) {
-            $this->content = $content;
-        }
-
-        if (null !== $workflow) {
-            $this->workflow = $workflow;
-        }
-
-        if (null !== $examples) {
-            $this->examples = $examples;
-        }
-
-        $this->markContentAsUpdated();
+    public function updateContent(string $content): void
+    {
+        $this->content = $content;
+        $this->markAsUpdated();
     }
 
-    public function getCurrentSnapshot(): SkillSnapshot
+    public function addExample(Example $example): void
     {
-        return SkillSnapshot::fromSkill($this);
+        $this->examples->add($example);
+
+        $this->markAsUpdated();
+    }
+
+    /**
+     * @internal Called by Step::create() only
+     */
+    public function addStep(Step $step, ?Step $after = null): void
+    {
+        if (null !== $after) {
+            Assert::true($this->steps->contains($after), 'Reference step does not belong to this skill.');
+        }
+
+        $newOrder = null === $after ? 1 : $after->order + 1;
+
+        // Shift existing steps to make room
+        foreach ($this->steps as $s) {
+            if ($s->order >= $newOrder) {
+                $s->setOrder($s->order + 1);
+            }
+        }
+
+        $step->setOrder($newOrder);
+        $this->steps->add($step);
+
+        $this->markAsUpdated();
+    }
+
+    /**
+     * Move a step after another step, or to the beginning if $after is null.
+     */
+    public function moveStepAfter(Step $stepToMove, ?Step $after = null): void
+    {
+        $this->assertNotArchived();
+        Assert::true($this->steps->contains($stepToMove), 'Step does not belong to this skill.');
+
+        if (null !== $after) {
+            Assert::true($this->steps->contains($after), 'Reference step does not belong to this skill.');
+        }
+
+        $currentOrder = $stepToMove->order;
+        $newOrder = null === $after ? 1 : $after->order + 1;
+
+        // If moving after itself or already in correct position, do nothing
+        if ($after === $stepToMove || $currentOrder === $newOrder) {
+            return;
+        }
+
+        // Adjust newOrder if moving forward (after reference step will shift)
+        if ($currentOrder < $newOrder) {
+            --$newOrder;
+        }
+
+        if ($currentOrder < $newOrder) {
+            // Moving forward: decrement orders between current+1 and new
+            foreach ($this->steps as $s) {
+                if ($s->order > $currentOrder && $s->order <= $newOrder) {
+                    $s->setOrder($s->order - 1);
+                }
+            }
+        } else {
+            // Moving backward: increment orders between new and current-1
+            foreach ($this->steps as $s) {
+                if ($s->order >= $newOrder && $s->order < $currentOrder) {
+                    $s->setOrder($s->order + 1);
+                }
+            }
+        }
+
+        $stepToMove->setOrder($newOrder);
+        $this->markAsUpdated();
     }
 }

@@ -2,68 +2,66 @@
 
 declare(strict_types=1);
 
-namespace Dairectiv\Authoring\Domain\Object\Skill;
+namespace Dairectiv\Authoring\Domain\Object\Skill\Example;
 
-use Dairectiv\SharedKernel\Domain\Object\Assert;
-use Dairectiv\SharedKernel\Domain\Object\ValueObject\ObjectValue;
+use Cake\Chronos\Chronos;
+use Dairectiv\Authoring\Domain\Object\Skill\Skill;
+use Doctrine\DBAL\Types\Types;
+use Doctrine\ORM\Mapping as ORM;
 
-final readonly class SkillExample implements ObjectValue
+#[ORM\Entity]
+#[ORM\Table(name: 'authoring_skill_example')]
+class Example
 {
-    private function __construct(
-        public string $scenario,
-        public string $input,
-        public string $output,
-        public ?string $explanation,
-    ) {
+    #[ORM\Id]
+    #[ORM\Column(type: 'authoring_skill_example_id')]
+    public private(set) ExampleId $id;
+
+    #[ORM\Column(type: 'chronos')]
+    public private(set) Chronos $createdAt;
+
+    #[ORM\Column(type: 'chronos')]
+    public private(set) Chronos $updatedAt;
+
+    #[ORM\Column(type: Types::TEXT)]
+    public private(set) string $scenario;
+
+    #[ORM\Column(type: Types::TEXT)]
+    public private(set) string $input;
+
+    #[ORM\Column(type: Types::TEXT)]
+    public private(set) string $output;
+
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    public private(set) ?string $explanation = null;
+
+    #[ORM\ManyToOne(targetEntity: Skill::class, inversedBy: 'examples')]
+    #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
+    public private(set) Skill $skill;
+
+    private function __construct()
+    {
+        $this->createdAt = Chronos::now();
+        $this->updatedAt = Chronos::now();
     }
 
     public static function create(
+        Skill $skill,
         string $scenario,
         string $input,
         string $output,
         ?string $explanation = null,
     ): self {
-        Assert::notEmpty($scenario, 'Skill example scenario cannot be empty.');
-        Assert::notEmpty($input, 'Skill example input cannot be empty.');
-        Assert::notEmpty($output, 'Skill example output cannot be empty.');
+        $example = new self();
 
-        return new self($scenario, $input, $output, $explanation);
-    }
+        $example->id = ExampleId::generate();
+        $example->skill = $skill;
+        $example->scenario = $scenario;
+        $example->input = $input;
+        $example->output = $output;
+        $example->explanation = $explanation;
+        $example->skill->addExample($example);
 
-    public function hasExplanation(): bool
-    {
-        return null !== $this->explanation;
-    }
-
-    public static function fromArray(array $state): static
-    {
-        Assert::keyExists($state, 'scenario');
-        Assert::string($state['scenario']);
-
-        Assert::keyExists($state, 'input');
-        Assert::string($state['input']);
-
-        Assert::keyExists($state, 'output');
-        Assert::string($state['output']);
-
-        $explanation = $state['explanation'] ?? null;
-        Assert::nullOrString($explanation);
-
-        return new self(
-            $state['scenario'],
-            $state['input'],
-            $state['output'],
-            $explanation,
-        );
-    }
-
-    public function toArray(): array
-    {
-        return [
-            'scenario'    => $this->scenario,
-            'input'       => $this->input,
-            'output'      => $this->output,
-            'explanation' => $this->explanation,
-        ];
+        return $example;
     }
 }
