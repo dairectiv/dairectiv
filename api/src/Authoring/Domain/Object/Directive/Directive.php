@@ -13,6 +13,7 @@ use Dairectiv\Authoring\Domain\Object\Rule\Rule;
 use Dairectiv\Authoring\Domain\Object\Workflow\Workflow;
 use Dairectiv\SharedKernel\Domain\Object\AggregateRoot;
 use Dairectiv\SharedKernel\Domain\Object\Assert;
+use Dairectiv\SharedKernel\Domain\Object\StringNormalizer;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -23,6 +24,8 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\DiscriminatorMap(['rule' => Rule::class, 'workflow' => Workflow::class])]
 abstract class Directive extends AggregateRoot
 {
+    use StringNormalizer;
+
     #[ORM\Id]
     #[ORM\Column(type: 'authoring_directive_id')]
     public private(set) DirectiveId $id;
@@ -47,8 +50,8 @@ abstract class Directive extends AggregateRoot
         $this->id = $id;
         $this->createdAt = Chronos::now();
         $this->updatedAt = Chronos::now();
-        $this->name = $name;
-        $this->description = $description;
+        $this->name = self::trim($name);
+        $this->description = self::trim($description);
         $this->state = DirectiveState::Draft;
 
         $this->recordEvent(new DirectiveDrafted($this->id));
@@ -63,8 +66,8 @@ abstract class Directive extends AggregateRoot
             'At least one metadata field must be provided.',
         );
 
-        $this->name = $name ?? $this->name;
-        $this->description = $description ?? $this->description;
+        $this->name = self::trimOrNull($name) ?? $this->name;
+        $this->description = self::trimOrNull($description) ?? $this->description;
         $this->markAsUpdated();
     }
 

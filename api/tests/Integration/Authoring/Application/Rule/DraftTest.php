@@ -100,16 +100,17 @@ final class DraftTest extends IntegrationTestCase
         self::assertDomainEventHasBeenDispatched(DirectiveDrafted::class, 3);
     }
 
-    public function testItShouldPreserveOriginalNameAndDescription(): void
+    public function testItShouldTrimNameAndDescription(): void
     {
-        $output = $this->executeDraftRule('  Rule With  Extra   Spaces  ', 'Description with trailing space ');
+        $output = $this->executeDraftRule('  Rule With  Extra   Spaces  ', '  Description with trailing space  ');
 
         // ID should be kebab-cased from trimmed name
         self::assertSame('rule-with-extra-spaces', (string) $output->rule->id);
 
-        // But original name and description should be preserved as provided
-        self::assertSame('  Rule With  Extra   Spaces  ', $output->rule->name);
-        self::assertSame('Description with trailing space ', $output->rule->description);
+        // Name and description should be trimmed (leading/trailing whitespace removed)
+        // Internal spaces are preserved
+        self::assertSame('Rule With  Extra   Spaces', $output->rule->name);
+        self::assertSame('Description with trailing space', $output->rule->description);
 
         self::assertDomainEventHasBeenDispatched(DirectiveDrafted::class);
     }
