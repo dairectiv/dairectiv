@@ -19,8 +19,6 @@ use Zenstruck\Foundry\Test\Factories;
 #[Group('use-case')]
 final class PublishTest extends IntegrationTestCase
 {
-    use Factories;
-
     public function testItShouldPublishRule(): void
     {
         $rule = self::draftRule();

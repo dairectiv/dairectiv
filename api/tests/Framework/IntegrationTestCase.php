@@ -108,7 +108,11 @@ abstract class IntegrationTestCase extends WebTestCase
         DomainEventQueue::reset();
         $commandBus = self::getService(CommandBus::class);
 
-        return $commandBus->execute($command);
+        $output = $commandBus->execute($command);
+
+        $this->getEntityManager()->clear();
+
+        return $output;
     }
 
     final public function fetch(Query $query): object
