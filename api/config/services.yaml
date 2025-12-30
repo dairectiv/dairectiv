@@ -12,3 +12,4 @@ services:
             - '../src/**/Domain/Object/**/*'
             - '../src/**/Application/**/{Input,Output}.php'
             - '../src/**/UserInterface/Http/**/*{Payload,Response}.php'
+            - '../src/**/Infrastructure/Zenstruck/**/*'
