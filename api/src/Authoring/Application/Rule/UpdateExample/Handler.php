@@ -21,7 +21,7 @@ final readonly class Handler implements CommandHandler
     {
         Assert::true(
             null !== $input->good || null !== $input->bad || null !== $input->explanation,
-            'At least one field must be provided.'
+            'At least one field must be provided.',
         );
 
         $ruleId = DirectiveId::fromString($input->ruleId);
@@ -31,7 +31,7 @@ final readonly class Handler implements CommandHandler
 
         $exampleId = ExampleId::fromString($input->exampleId);
         $example = $rule->examples->filter(
-            static fn ($e) => $e->id->equals($exampleId)
+            static fn ($e) => $e->id->equals($exampleId),
         )->first();
 
         Assert::notFalse($example, \sprintf('Example with ID "%s" not found.', $input->exampleId));

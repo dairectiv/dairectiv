@@ -38,9 +38,9 @@ final class RemoveExampleTest extends IntegrationTestCase
     public function testItShouldRemoveOneExampleFromMultiple(): void
     {
         $skill = self::draftSkill();
-        $example1 = Example::create($skill, 'Scenario 1', 'Input 1', 'Output 1');
+        Example::create($skill, 'Scenario 1', 'Input 1', 'Output 1');
         $example2 = Example::create($skill, 'Scenario 2', 'Input 2', 'Output 2');
-        $example3 = Example::create($skill, 'Scenario 3', 'Input 3', 'Output 3');
+        Example::create($skill, 'Scenario 3', 'Input 3', 'Output 3');
         $this->persistEntity($skill);
 
         self::assertCount(3, $skill->examples);
@@ -53,7 +53,7 @@ final class RemoveExampleTest extends IntegrationTestCase
 
         self::assertCount(2, $persistedSkill->examples);
 
-        $remainingScenarios = $persistedSkill->examples->map(fn ($e) => $e->scenario)->toArray();
+        $remainingScenarios = $persistedSkill->examples->map(static fn ($e) => $e->scenario)->toArray();
         self::assertContains('Scenario 1', $remainingScenarios);
         self::assertContains('Scenario 3', $remainingScenarios);
         self::assertNotContains('Scenario 2', $remainingScenarios);

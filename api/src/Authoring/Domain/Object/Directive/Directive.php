@@ -60,7 +60,7 @@ abstract class Directive extends AggregateRoot
     {
         Assert::true(
             null !== $name || null !== $description,
-            'At least one metadata field must be provided.'
+            'At least one metadata field must be provided.',
         );
 
         $this->name = $name ?? $this->name;

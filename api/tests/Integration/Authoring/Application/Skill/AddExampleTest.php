@@ -48,6 +48,7 @@ final class AddExampleTest extends IntegrationTestCase
 
         $persistedExample = $persistedSkill->examples->first();
 
+        self::assertInstanceOf(Example::class, $persistedExample);
         self::assertSame('Test scenario', $persistedExample->scenario);
         self::assertSame('Test input', $persistedExample->input);
         self::assertSame('Test output', $persistedExample->output);
@@ -73,6 +74,7 @@ final class AddExampleTest extends IntegrationTestCase
         $persistedSkill = $this->findEntity(Skill::class, ['id' => $skill->id], true);
         $persistedExample = $persistedSkill->examples->first();
 
+        self::assertInstanceOf(Example::class, $persistedExample);
         self::assertNull($persistedExample->explanation);
     }
 

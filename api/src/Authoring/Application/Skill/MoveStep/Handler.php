@@ -26,7 +26,7 @@ final readonly class Handler implements CommandHandler
 
         $stepId = StepId::fromString($input->stepId);
         $step = $skill->steps->filter(
-            static fn ($s) => $s->id->equals($stepId)
+            static fn ($s) => $s->id->equals($stepId),
         )->first();
 
         Assert::notFalse($step, \sprintf('Step with ID "%s" not found.', $input->stepId));
@@ -35,7 +35,7 @@ final readonly class Handler implements CommandHandler
         if (null !== $input->afterStepId) {
             $afterStepId = StepId::fromString($input->afterStepId);
             $afterStep = $skill->steps->filter(
-                static fn ($s) => $s->id->equals($afterStepId)
+                static fn ($s) => $s->id->equals($afterStepId),
             )->first();
 
             Assert::notFalse($afterStep, \sprintf('Reference step with ID "%s" not found.', $input->afterStepId));

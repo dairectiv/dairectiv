@@ -9,7 +9,6 @@ use Dairectiv\Authoring\Domain\Object\Directive\Exception\DirectiveAlreadyExists
 use Dairectiv\Authoring\Domain\Object\Rule\Rule;
 use Dairectiv\Authoring\Domain\Repository\DirectiveRepository;
 use Dairectiv\SharedKernel\Application\Command\CommandHandler;
-
 use function Symfony\Component\String\u;
 
 final readonly class Handler implements CommandHandler

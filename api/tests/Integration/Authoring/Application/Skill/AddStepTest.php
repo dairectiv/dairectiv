@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Dairectiv\Tests\Integration\Authoring\Application\Skill;
 
+use Cake\Chronos\Chronos;
 use Dairectiv\Authoring\Application\Skill\AddStep\Input;
 use Dairectiv\Authoring\Application\Skill\AddStep\Output;
 use Dairectiv\Authoring\Domain\Object\Directive\Event\DirectiveUpdated;
@@ -29,7 +30,6 @@ final class AddStepTest extends IntegrationTestCase
         $output = $this->execute(new Input((string) $skill->id, 'Step 1 content'));
 
         self::assertInstanceOf(Output::class, $output);
-        self::assertInstanceOf(Step::class, $output->step);
         self::assertSame('Step 1 content', $output->step->content);
         self::assertSame(1, $output->step->order);
 
@@ -38,8 +38,10 @@ final class AddStepTest extends IntegrationTestCase
         $persistedSkill = $this->findEntity(Skill::class, ['id' => $skill->id], true);
 
         self::assertCount(1, $persistedSkill->steps);
-        self::assertSame('Step 1 content', $persistedSkill->steps->first()->content);
-        self::assertSame(1, $persistedSkill->steps->first()->order);
+        $persistedStep = $persistedSkill->steps->first();
+        self::assertInstanceOf(Step::class, $persistedStep);
+        self::assertSame('Step 1 content', $persistedStep->content);
+        self::assertSame(1, $persistedStep->order);
     }
 
     public function testItShouldAddMultipleStepsInOrder(): void
@@ -56,8 +58,13 @@ final class AddStepTest extends IntegrationTestCase
         $output3 = $this->execute(new Input((string) $skill->id, 'Step 3'));
         self::assertDomainEventHasBeenDispatched(DirectiveUpdated::class);
 
+        self::assertInstanceOf(Output::class, $output1);
         self::assertSame(1, $output1->step->order);
+
+        self::assertInstanceOf(Output::class, $output2);
         self::assertSame(1, $output2->step->order);
+
+        self::assertInstanceOf(Output::class, $output3);
         self::assertSame(1, $output3->step->order);
 
         $persistedSkill = $this->findEntity(Skill::class, ['id' => $skill->id], true);
@@ -77,12 +84,12 @@ final class AddStepTest extends IntegrationTestCase
     {
         $skill = self::draftSkill();
         $step1 = Step::create($skill, 'Step 1');
-        $step2 = Step::create($skill, 'Step 2', $step1);
+        Step::create($skill, 'Step 2', $step1);
         $this->persistEntity($skill);
 
         self::assertCount(2, $skill->steps);
 
-        $output = $this->execute(new Input(
+        $this->execute(new Input(
             (string) $skill->id,
             'Inserted Step',
             (string) $step1->id,
@@ -110,7 +117,7 @@ final class AddStepTest extends IntegrationTestCase
         $step2 = Step::create($skill, 'Step 2', $step1);
         $this->persistEntity($skill);
 
-        $output = $this->execute(new Input(
+        $this->execute(new Input(
             (string) $skill->id,
             'Last Step',
             (string) $step2->id,
@@ -168,18 +175,22 @@ final class AddStepTest extends IntegrationTestCase
         $skill = self::draftSkill();
         $this->persistEntity($skill);
 
+        Chronos::setTestNow(Chronos::now()->addDays(1));
+
         $output = $this->execute(new Input((string) $skill->id, 'Step content'));
 
         self::assertDomainEventHasBeenDispatched(DirectiveUpdated::class);
 
-        self::assertNotNull($output->step->createdAt);
-        self::assertNotNull($output->step->updatedAt);
+        self::assertInstanceOf(Output::class, $output);
+        self::assertTrue(Chronos::now()->equals($output->step->createdAt));
+        self::assertTrue(Chronos::now()->equals($output->step->updatedAt));
 
         $persistedSkill = $this->findEntity(Skill::class, ['id' => $skill->id], true);
         $persistedStep = $persistedSkill->steps->first();
 
-        self::assertNotNull($persistedStep->createdAt);
-        self::assertNotNull($persistedStep->updatedAt);
+        self::assertInstanceOf(Step::class, $persistedStep);
+        self::assertTrue($persistedSkill->createdAt->lessThan($persistedStep->createdAt));
+        self::assertTrue($persistedSkill->createdAt->lessThan($persistedStep->updatedAt));
     }
 
     public function testItShouldGenerateUniqueStepId(): void
@@ -189,9 +200,11 @@ final class AddStepTest extends IntegrationTestCase
 
         $output1 = $this->execute(new Input((string) $skill->id, 'Step 1'));
         self::assertDomainEventHasBeenDispatched(DirectiveUpdated::class);
+        self::assertInstanceOf(Output::class, $output1);
 
         $output2 = $this->execute(new Input((string) $skill->id, 'Step 2'));
         self::assertDomainEventHasBeenDispatched(DirectiveUpdated::class);
+        self::assertInstanceOf(Output::class, $output2);
 
         self::assertFalse($output1->step->id->equals($output2->step->id));
     }
@@ -205,6 +218,7 @@ final class AddStepTest extends IntegrationTestCase
 
         self::assertDomainEventHasBeenDispatched(DirectiveUpdated::class);
 
+        self::assertInstanceOf(Output::class, $output);
         self::assertTrue($output->step->skill->id->equals($skill->id));
     }
 }

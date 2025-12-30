@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Dairectiv\Tests\Integration\Authoring\Application\Rule;
 
+use Cake\Chronos\Chronos;
 use Dairectiv\Authoring\Application\Rule\AddExample\Input;
 use Dairectiv\Authoring\Application\Rule\AddExample\Output;
 use Dairectiv\Authoring\Domain\Object\Directive\Event\DirectiveUpdated;
@@ -34,7 +35,6 @@ final class AddExampleTest extends IntegrationTestCase
         ));
 
         self::assertInstanceOf(Output::class, $output);
-        self::assertInstanceOf(Example::class, $output->example);
         self::assertSame('Good example', $output->example->good);
         self::assertSame('Bad example', $output->example->bad);
         self::assertSame('Explanation', $output->example->explanation);
@@ -45,6 +45,7 @@ final class AddExampleTest extends IntegrationTestCase
 
         self::assertCount(1, $persistedRule->examples);
         $persistedExample = $persistedRule->examples->first();
+        self::assertInstanceOf(Example::class, $persistedExample);
         self::assertSame('Good example', $persistedExample->good);
         self::assertSame('Bad example', $persistedExample->bad);
         self::assertSame('Explanation', $persistedExample->explanation);
@@ -62,6 +63,7 @@ final class AddExampleTest extends IntegrationTestCase
 
         self::assertDomainEventHasBeenDispatched(DirectiveUpdated::class);
 
+        self::assertInstanceOf(Output::class, $output);
         self::assertSame('Good example only', $output->example->good);
         self::assertNull($output->example->bad);
         self::assertNull($output->example->explanation);
@@ -79,6 +81,7 @@ final class AddExampleTest extends IntegrationTestCase
 
         self::assertDomainEventHasBeenDispatched(DirectiveUpdated::class);
 
+        self::assertInstanceOf(Output::class, $output);
         self::assertNull($output->example->good);
         self::assertSame('Bad example only', $output->example->bad);
         self::assertNull($output->example->explanation);
@@ -89,13 +92,13 @@ final class AddExampleTest extends IntegrationTestCase
         $rule = self::draftRule();
         $this->persistEntity($rule);
 
-        $output1 = $this->execute(new Input((string) $rule->id, good: 'Good 1'));
+        $this->execute(new Input((string) $rule->id, good: 'Good 1'));
         self::assertDomainEventHasBeenDispatched(DirectiveUpdated::class);
 
-        $output2 = $this->execute(new Input((string) $rule->id, good: 'Good 2'));
+        $this->execute(new Input((string) $rule->id, good: 'Good 2'));
         self::assertDomainEventHasBeenDispatched(DirectiveUpdated::class);
 
-        $output3 = $this->execute(new Input((string) $rule->id, bad: 'Bad 3'));
+        $this->execute(new Input((string) $rule->id, bad: 'Bad 3'));
         self::assertDomainEventHasBeenDispatched(DirectiveUpdated::class);
 
         $persistedRule = $this->findEntity(Rule::class, ['id' => $rule->id], true);
@@ -129,9 +132,11 @@ final class AddExampleTest extends IntegrationTestCase
 
         $output1 = $this->execute(new Input((string) $rule->id, good: 'Good 1'));
         self::assertDomainEventHasBeenDispatched(DirectiveUpdated::class);
+        self::assertInstanceOf(Output::class, $output1);
 
         $output2 = $this->execute(new Input((string) $rule->id, good: 'Good 2'));
         self::assertDomainEventHasBeenDispatched(DirectiveUpdated::class);
+        self::assertInstanceOf(Output::class, $output2);
 
         self::assertFalse($output1->example->id->equals($output2->example->id));
     }
@@ -145,6 +150,7 @@ final class AddExampleTest extends IntegrationTestCase
 
         self::assertDomainEventHasBeenDispatched(DirectiveUpdated::class);
 
+        self::assertInstanceOf(Output::class, $output);
         self::assertTrue($output->example->rule->id->equals($rule->id));
     }
 
@@ -153,17 +159,21 @@ final class AddExampleTest extends IntegrationTestCase
         $rule = self::draftRule();
         $this->persistEntity($rule);
 
+        Chronos::setTestNow(Chronos::now()->addDays(1));
+
         $output = $this->execute(new Input((string) $rule->id, good: 'Good'));
 
         self::assertDomainEventHasBeenDispatched(DirectiveUpdated::class);
 
-        self::assertNotNull($output->example->createdAt);
-        self::assertNotNull($output->example->updatedAt);
+        self::assertInstanceOf(Output::class, $output);
+        self::assertTrue(Chronos::now()->equals($output->example->createdAt));
+        self::assertTrue(Chronos::now()->equals($output->example->updatedAt));
 
         $persistedRule = $this->findEntity(Rule::class, ['id' => $rule->id], true);
         $persistedExample = $persistedRule->examples->first();
 
-        self::assertNotNull($persistedExample->createdAt);
-        self::assertNotNull($persistedExample->updatedAt);
+        self::assertInstanceOf(Example::class, $persistedExample);
+        self::assertTrue($persistedRule->createdAt->lessThan($persistedExample->createdAt));
+        self::assertTrue($persistedRule->createdAt->lessThan($persistedExample->updatedAt));
     }
 }

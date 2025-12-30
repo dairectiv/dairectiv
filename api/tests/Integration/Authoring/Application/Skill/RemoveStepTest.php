@@ -40,7 +40,7 @@ final class RemoveStepTest extends IntegrationTestCase
         $skill = self::draftSkill();
         $step1 = Step::create($skill, 'Step 1');
         $step2 = Step::create($skill, 'Step 2', $step1);
-        $step3 = Step::create($skill, 'Step 3', $step2);
+        Step::create($skill, 'Step 3', $step2);
         $this->persistEntity($skill);
 
         self::assertCount(3, $skill->steps);
@@ -63,7 +63,7 @@ final class RemoveStepTest extends IntegrationTestCase
         $skill = self::draftSkill();
         $step1 = Step::create($skill, 'Step 1');
         $step2 = Step::create($skill, 'Step 2', $step1);
-        $step3 = Step::create($skill, 'Step 3', $step2);
+        Step::create($skill, 'Step 3', $step2);
         $this->persistEntity($skill);
 
         $this->execute(new Input((string) $skill->id, (string) $step2->id));
@@ -82,7 +82,7 @@ final class RemoveStepTest extends IntegrationTestCase
         $skill = self::draftSkill();
         $step1 = Step::create($skill, 'Step 1');
         $step2 = Step::create($skill, 'Step 2', $step1);
-        $step3 = Step::create($skill, 'Step 3', $step2);
+        Step::create($skill, 'Step 3', $step2);
         $this->persistEntity($skill);
 
         $this->execute(new Input((string) $skill->id, (string) $step1->id));

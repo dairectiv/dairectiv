@@ -20,7 +20,7 @@ final readonly class Handler implements CommandHandler
     {
         Assert::true(
             null !== $input->name || null !== $input->description || null !== $input->content,
-            'At least one field must be provided.'
+            'At least one field must be provided.',
         );
 
         $id = DirectiveId::fromString($input->id);

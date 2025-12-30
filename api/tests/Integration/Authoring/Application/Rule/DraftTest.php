@@ -116,7 +116,7 @@ final class DraftTest extends IntegrationTestCase
 
     private function executeDraftRule(
         string $name = 'My Rule',
-        string $description = 'A description of my rule'
+        string $description = 'A description of my rule',
     ): Output {
         $output = $this->execute(new Input($name, $description));
 

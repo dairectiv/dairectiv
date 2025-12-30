@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Dairectiv\Tests\Integration\Authoring\Application\Rule;
 
+use Cake\Chronos\Chronos;
 use Dairectiv\Authoring\Application\Rule\Update\Input;
 use Dairectiv\Authoring\Domain\Object\Directive\Event\DirectiveUpdated;
 use Dairectiv\Authoring\Domain\Object\Directive\Exception\DirectiveNotFoundException;
@@ -119,13 +120,14 @@ final class UpdateTest extends IntegrationTestCase
         $rule = self::draftRule();
         $this->persistEntity($rule);
 
+        Chronos::setTestNow(Chronos::now()->addDays(1));
+
         $this->execute(new Input((string) $rule->id, content: 'New content'));
 
         self::assertDomainEventHasBeenDispatched(DirectiveUpdated::class);
 
         $persistedRule = $this->findEntity(Rule::class, ['id' => $rule->id], true);
 
-        self::assertNotNull($persistedRule->updatedAt);
-        self::assertTrue($persistedRule->updatedAt->greaterThanOrEquals($persistedRule->createdAt));
+        self::assertTrue($persistedRule->updatedAt->greaterThan($persistedRule->createdAt));
     }
 }

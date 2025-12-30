@@ -38,9 +38,9 @@ final class RemoveExampleTest extends IntegrationTestCase
     public function testItShouldRemoveOneExampleFromMultiple(): void
     {
         $rule = self::draftRule();
-        $example1 = Example::create($rule, 'Good 1', 'Bad 1');
+        Example::create($rule, 'Good 1', 'Bad 1');
         $example2 = Example::create($rule, 'Good 2', 'Bad 2');
-        $example3 = Example::create($rule, 'Good 3', 'Bad 3');
+        Example::create($rule, 'Good 3', 'Bad 3');
         $this->persistEntity($rule);
 
         self::assertCount(3, $rule->examples);
@@ -53,7 +53,7 @@ final class RemoveExampleTest extends IntegrationTestCase
 
         self::assertCount(2, $persistedRule->examples);
 
-        $remainingGoods = $persistedRule->examples->map(fn ($e) => $e->good)->toArray();
+        $remainingGoods = $persistedRule->examples->map(static fn ($e) => $e->good)->toArray();
         self::assertContains('Good 1', $remainingGoods);
         self::assertContains('Good 3', $remainingGoods);
         self::assertNotContains('Good 2', $remainingGoods);

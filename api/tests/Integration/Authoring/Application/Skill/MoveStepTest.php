@@ -92,7 +92,7 @@ final class MoveStepTest extends IntegrationTestCase
         $skill = self::draftSkill();
         $step1 = Step::create($skill, 'Step 1');
         $step2 = Step::create($skill, 'Step 2', $step1);
-        $step3 = Step::create($skill, 'Step 3', $step2);
+        Step::create($skill, 'Step 3', $step2);
         $this->persistEntity($skill);
 
         $this->execute(new Input((string) $skill->id, (string) $step2->id, (string) $step2->id));
@@ -114,7 +114,7 @@ final class MoveStepTest extends IntegrationTestCase
         $skill = self::draftSkill();
         $step1 = Step::create($skill, 'Step 1');
         $step2 = Step::create($skill, 'Step 2', $step1);
-        $step3 = Step::create($skill, 'Step 3', $step2);
+        Step::create($skill, 'Step 3', $step2);
         $this->persistEntity($skill);
 
         $this->execute(new Input((string) $skill->id, (string) $step2->id, (string) $step1->id));
@@ -189,7 +189,7 @@ final class MoveStepTest extends IntegrationTestCase
         $step1 = Step::create($skill, 'Step 1');
         $step2 = Step::create($skill, 'Step 2', $step1);
         $step3 = Step::create($skill, 'Step 3', $step2);
-        $step4 = Step::create($skill, 'Step 4', $step3);
+        Step::create($skill, 'Step 4', $step3);
         $this->persistEntity($skill);
 
         $this->execute(new Input((string) $skill->id, (string) $step2->id, (string) $step3->id));
@@ -215,7 +215,7 @@ final class MoveStepTest extends IntegrationTestCase
         $step1 = Step::create($skill, 'Step 1');
         $step2 = Step::create($skill, 'Step 2', $step1);
         $step3 = Step::create($skill, 'Step 3', $step2);
-        $step4 = Step::create($skill, 'Step 4', $step3);
+        Step::create($skill, 'Step 4', $step3);
         $this->persistEntity($skill);
 
         $this->execute(new Input((string) $skill->id, (string) $step3->id, null));

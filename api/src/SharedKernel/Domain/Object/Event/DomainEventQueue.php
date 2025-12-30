@@ -45,6 +45,7 @@ final class DomainEventQueue
     }
 
     /**
+     * @internal this method is only used for testing purposes
      * @return DomainEvent[]
      */
     public static function all(): array
@@ -54,6 +55,9 @@ final class DomainEventQueue
         return $instance->domainEvents;
     }
 
+    /**
+     * @internal this method is only used for testing purposes
+     */
     public static function markAsDispatched(DomainEvent $event): void
     {
         $instance = self::getInstance();
