@@ -6,11 +6,7 @@ namespace Dairectiv\Tests\Integration\Authoring\Infrastructure\Doctrine\ORM\Repo
 
 use Dairectiv\Authoring\Domain\Object\Directive\DirectiveId;
 use Dairectiv\Authoring\Domain\Object\Directive\Exception\DirectiveNotFoundException;
-use Dairectiv\Authoring\Domain\Object\Directive\Metadata\DirectiveDescription;
-use Dairectiv\Authoring\Domain\Object\Directive\Metadata\DirectiveMetadata;
-use Dairectiv\Authoring\Domain\Object\Directive\Metadata\DirectiveName;
 use Dairectiv\Authoring\Domain\Object\Rule\Rule;
-use Dairectiv\Authoring\Domain\Object\Rule\RuleContent;
 use Dairectiv\Authoring\Infrastructure\Doctrine\ORM\Repository\DoctrineDirectiveRepository;
 use Dairectiv\Tests\Framework\IntegrationTestCase;
 use PHPUnit\Framework\Attributes\Group;
@@ -30,33 +26,31 @@ final class DoctrineDirectiveRepositoryTest extends IntegrationTestCase
 
     public function testItShouldSaveAndFindDirectiveById(): void
     {
-        $id = DirectiveId::fromString('test-rule');
-        $rule = $this->createRule($id);
+        $rule = self::draftRule();
 
         $this->repository->save($rule);
         $this->getEntityManager()->flush();
         $this->getEntityManager()->clear();
 
-        $found = $this->repository->findDirectiveById($id);
+        $found = $this->repository->findDirectiveById($rule->id);
 
         self::assertNotNull($found);
         self::assertInstanceOf(Rule::class, $found);
-        self::assertTrue($id->id === $found->id->id);
+        self::assertTrue($rule->id->equals($found->id));
     }
 
     public function testItShouldSaveAndGetDirectiveById(): void
     {
-        $id = DirectiveId::fromString('test-rule-get');
-        $rule = $this->createRule($id);
+        $rule = self::draftRule();
 
         $this->repository->save($rule);
         $this->getEntityManager()->flush();
         $this->getEntityManager()->clear();
 
-        $found = $this->repository->getDirectiveById($id);
+        $found = $this->repository->getDirectiveById($rule->id);
 
         self::assertInstanceOf(Rule::class, $found);
-        self::assertTrue($id->id === $found->id->id);
+        self::assertTrue($rule->id->equals($found->id));
     }
 
     public function testItShouldReturnNullWhenDirectiveNotFound(): void
@@ -76,17 +70,5 @@ final class DoctrineDirectiveRepositoryTest extends IntegrationTestCase
         $this->expectExceptionMessage('Directive with ID non-existent-rule not found.');
 
         $this->repository->getDirectiveById($id);
-    }
-
-    private function createRule(DirectiveId $id): Rule
-    {
-        return Rule::draft(
-            $id,
-            DirectiveMetadata::create(
-                DirectiveName::fromString('Test Rule'),
-                DirectiveDescription::fromString('A test rule description'),
-            ),
-            RuleContent::fromString('Always write tests'),
-        );
     }
 }

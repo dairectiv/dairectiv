@@ -9,17 +9,11 @@ use Dairectiv\Authoring\Domain\Object\Directive\Event\DirectiveArchived;
 use Dairectiv\Authoring\Domain\Object\Directive\Event\DirectiveDrafted;
 use Dairectiv\Authoring\Domain\Object\Directive\Event\DirectivePublished;
 use Dairectiv\Authoring\Domain\Object\Directive\Event\DirectiveUpdated;
-use Dairectiv\Authoring\Domain\Object\Directive\Metadata\DirectiveDescription;
-use Dairectiv\Authoring\Domain\Object\Directive\Metadata\DirectiveMetadata;
-use Dairectiv\Authoring\Domain\Object\Directive\Metadata\DirectiveName;
-use Dairectiv\Authoring\Domain\Object\Directive\Version\Version;
-use Dairectiv\Authoring\Domain\Object\Directive\Version\VersionSnapshot;
 use Dairectiv\Authoring\Domain\Object\Rule\Rule;
 use Dairectiv\Authoring\Domain\Object\Skill\Skill;
 use Dairectiv\SharedKernel\Domain\Object\AggregateRoot;
 use Dairectiv\SharedKernel\Domain\Object\Assert;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity]
@@ -36,8 +30,11 @@ abstract class Directive extends AggregateRoot
     #[ORM\Column(type: 'string', enumType: DirectiveState::class)]
     public private(set) DirectiveState $state;
 
-    #[ORM\Embedded(class: DirectiveMetadata::class, columnPrefix: false)]
-    public private(set) DirectiveMetadata $metadata;
+    #[ORM\Column(type: Types::STRING)]
+    public private(set) string $name;
+
+    #[ORM\Column(type: Types::TEXT)]
+    public private(set) string $description;
 
     #[ORM\Column(type: 'chronos')]
     public private(set) Chronos $createdAt;
@@ -45,49 +42,42 @@ abstract class Directive extends AggregateRoot
     #[ORM\Column(type: 'chronos')]
     public private(set) Chronos $updatedAt;
 
-    /**
-     * @var Collection<int, Version>
-     */
-    #[ORM\OneToMany(targetEntity: Version::class, mappedBy: 'directive', cascade: ['persist'])]
-    #[ORM\OrderBy(['number' => 'DESC'])]
-    public private(set) Collection $history;
-
-    public function __construct()
-    {
-        $this->createdAt = Chronos::now();
-        $this->updatedAt = Chronos::now();
-        $this->history = new ArrayCollection();
-    }
-
-    abstract public function getCurrentSnapshot(): VersionSnapshot;
-
-    final protected function initialize(DirectiveId $id, DirectiveMetadata $metadata): void
+    final protected function initialize(DirectiveId $id, string $name, string $description): void
     {
         $this->id = $id;
-        $this->metadata = $metadata;
+        $this->createdAt = Chronos::now();
+        $this->updatedAt = Chronos::now();
+        $this->name = $name;
+        $this->description = $description;
         $this->state = DirectiveState::Draft;
-        $this->history->add(Version::initialize($this));
 
         $this->recordEvent(new DirectiveDrafted($this->id));
     }
 
-    final public function updateMetadata(?DirectiveName $name = null, ?DirectiveDescription $description = null): void
+    abstract public static function draft(DirectiveId $id, string $name, string $description): Directive;
+
+    final public function updateMetadata(?string $name = null, ?string $description = null): void
     {
-        $this->metadata = $this->metadata->with($name, $description);
-        $this->updatedAt = Chronos::now();
+        Assert::allNotNull([$name, $description], 'At least one metadata field must be provided.');
+
+        $this->name = $name ?? $this->name;
+        $this->description = $description ?? $this->description;
+        $this->markAsUpdated();
     }
 
-    final protected function markContentAsUpdated(): void
+    final public function markAsUpdated(): void
     {
-        $this->updatedAt = Chronos::now();
-        $newVersion = $this->getCurrentVersion()->increment();
-        $this->history->add($newVersion);
+        $this->assertNotArchived();
 
-        $this->recordEvent(new DirectiveUpdated($this->id, $newVersion->number));
+        $this->updatedAt = Chronos::now();
+
+        $this->recordEvent(new DirectiveUpdated($this->id));
     }
 
     final public function publish(): void
     {
+        Assert::eq($this->state, DirectiveState::Draft, 'Only draft directives can be published.');
+
         $this->state = DirectiveState::Published;
         $this->updatedAt = Chronos::now();
 
@@ -96,22 +86,16 @@ abstract class Directive extends AggregateRoot
 
     final public function archive(): void
     {
+        Assert::notEq($this->state, DirectiveState::Archived, 'Directive is already archived.');
+
         $this->state = DirectiveState::Archived;
         $this->updatedAt = Chronos::now();
 
         $this->recordEvent(new DirectiveArchived($this->id));
     }
 
-    final public function getCurrentVersion(): Version
+    final protected function assertNotArchived(): void
     {
-        $currentVersion = $this->history->reduce(
-            static fn (?Version $current, Version $version): Version => null === $current || $version->number->number > $current->number->number
-                ? $version
-                : $current,
-        );
-
-        Assert::isInstanceOf($currentVersion, Version::class, 'Directive has no versions.');
-
-        return $currentVersion;
+        Assert::notEq($this->state, DirectiveState::Archived, 'Cannot perform this action on an archived directive.');
     }
 }
