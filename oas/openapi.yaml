@@ -9,6 +9,8 @@ servers:
 tags:
     - name: Rules
       description: Rule management endpoints
+    - name: Workflows
+      description: Workflow management endpoints
 
 paths:
     /authoring/rules/{id}:
@@ -37,6 +39,37 @@ paths:
                                 $ref: "#/components/schemas/RuleResponse"
                 "404":
                     description: Rule not found
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/ErrorResponse"
+
+    /authoring/workflows/{id}:
+        get:
+            tags:
+                - Workflows
+            summary: Get a workflow by ID
+            description: Retrieves a single workflow with all its details including examples and steps
+            operationId: getWorkflow
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  description: The unique identifier of the workflow
+                  schema:
+                      type: string
+                      pattern: "^[a-z0-9-]+$"
+                      examples:
+                          - "my-workflow-id"
+            responses:
+                "200":
+                    description: Workflow found and returned successfully
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/WorkflowResponse"
+                "404":
+                    description: Workflow not found
                     content:
                         application/json:
                             schema:
@@ -95,9 +128,9 @@ components:
                     type: array
                     description: List of examples demonstrating the rule
                     items:
-                        $ref: "#/components/schemas/ExampleResponse"
+                        $ref: "#/components/schemas/RuleExampleResponse"
 
-        ExampleResponse:
+        RuleExampleResponse:
             type: object
             required:
                 - id
@@ -142,6 +175,152 @@ components:
                     description: Explanation of why the good example is better
                     examples:
                         - "Descriptive names improve code readability"
+
+        WorkflowResponse:
+            type: object
+            required:
+                - id
+                - createdAt
+                - updatedAt
+                - state
+                - name
+                - description
+                - examples
+                - steps
+            properties:
+                id:
+                    type: string
+                    description: Unique identifier of the workflow
+                    examples:
+                        - "my-workflow-id"
+                createdAt:
+                    type: string
+                    format: date-time
+                    description: Timestamp when the workflow was created
+                    examples:
+                        - "2025-12-31T12:00:00+00:00"
+                updatedAt:
+                    type: string
+                    format: date-time
+                    description: Timestamp when the workflow was last updated
+                    examples:
+                        - "2025-12-31T12:00:00+00:00"
+                state:
+                    $ref: "#/components/schemas/DirectiveState"
+                name:
+                    type: string
+                    description: Name of the workflow
+                    examples:
+                        - "My Workflow"
+                description:
+                    type: string
+                    description: Description of the workflow
+                    examples:
+                        - "A detailed description of what this workflow does"
+                content:
+                    type:
+                        - string
+                        - "null"
+                    description: The actual content/body of the workflow
+                    examples:
+                        - "This workflow guides you through the process"
+                examples:
+                    type: array
+                    description: List of examples demonstrating the workflow
+                    items:
+                        $ref: "#/components/schemas/WorkflowExampleResponse"
+                steps:
+                    type: array
+                    description: Ordered list of steps in the workflow
+                    items:
+                        $ref: "#/components/schemas/StepResponse"
+
+        WorkflowExampleResponse:
+            type: object
+            required:
+                - id
+                - createdAt
+                - updatedAt
+                - scenario
+                - input
+                - output
+            properties:
+                id:
+                    type: string
+                    description: Unique identifier of the example
+                    examples:
+                        - "019b7460-798e-77f8-af01-bc6ab6e25f84"
+                createdAt:
+                    type: string
+                    format: date-time
+                    description: Timestamp when the example was created
+                    examples:
+                        - "2025-12-31T12:00:00+00:00"
+                updatedAt:
+                    type: string
+                    format: date-time
+                    description: Timestamp when the example was last updated
+                    examples:
+                        - "2025-12-31T12:00:00+00:00"
+                scenario:
+                    type: string
+                    description: Description of the scenario
+                    examples:
+                        - "User wants to create a new account"
+                input:
+                    type: string
+                    description: Input for the scenario
+                    examples:
+                        - "User provides email and password"
+                output:
+                    type: string
+                    description: Expected output for the scenario
+                    examples:
+                        - "Account is created and confirmation email is sent"
+                explanation:
+                    type:
+                        - string
+                        - "null"
+                    description: Additional explanation of the example
+                    examples:
+                        - "This demonstrates the happy path for account creation"
+
+        StepResponse:
+            type: object
+            required:
+                - id
+                - createdAt
+                - updatedAt
+                - order
+                - content
+            properties:
+                id:
+                    type: string
+                    description: Unique identifier of the step
+                    examples:
+                        - "019b7460-798e-77f8-af01-bc6ab6e25f84"
+                createdAt:
+                    type: string
+                    format: date-time
+                    description: Timestamp when the step was created
+                    examples:
+                        - "2025-12-31T12:00:00+00:00"
+                updatedAt:
+                    type: string
+                    format: date-time
+                    description: Timestamp when the step was last updated
+                    examples:
+                        - "2025-12-31T12:00:00+00:00"
+                order:
+                    type: integer
+                    description: Position of the step in the workflow (1-based)
+                    examples:
+                        - 1
+                content:
+                    type: string
+                    description: Content/instructions of the step
+                    examples:
+                        - "First, analyze the requirements"
 
         DirectiveState:
             type: string
