@@ -4,13 +4,16 @@ declare(strict_types=1);
 
 namespace Dairectiv\Authoring\UserInterface\Http\Api\Controller;
 
+use Dairectiv\Authoring\Application\Workflow\AddExample;
 use Dairectiv\Authoring\Application\Workflow\Draft;
 use Dairectiv\Authoring\Application\Workflow\Get;
 use Dairectiv\Authoring\Application\Workflow\Update;
 use Dairectiv\Authoring\Domain\Object\Directive\Exception\DirectiveAlreadyExistsException;
 use Dairectiv\Authoring\Domain\Object\Workflow\Exception\WorkflowNotFoundException;
+use Dairectiv\Authoring\UserInterface\Http\Api\Payload\Workflow\AddWorkflowExample\AddWorkflowExamplePayload;
 use Dairectiv\Authoring\UserInterface\Http\Api\Payload\Workflow\DraftWorkflow\DraftWorkflowPayload;
 use Dairectiv\Authoring\UserInterface\Http\Api\Payload\Workflow\UpdateWorkflow\UpdateWorkflowPayload;
+use Dairectiv\Authoring\UserInterface\Http\Api\Response\Workflow\ExampleResponse;
 use Dairectiv\Authoring\UserInterface\Http\Api\Response\Workflow\WorkflowResponse;
 use Dairectiv\SharedKernel\Application\Command\CommandBus;
 use Dairectiv\SharedKernel\Application\Query\QueryBus;
@@ -24,6 +27,7 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 #[Route('/workflows', name: 'workflow_')]
 final class WorkflowController extends AbstractController
@@ -78,6 +82,39 @@ final class WorkflowController extends AbstractController
             Assert::isInstanceOf($output, Get\Output::class);
 
             return $this->json(WorkflowResponse::fromWorkflow($output->workflow));
+        } catch (WorkflowNotFoundException $e) {
+            throw new NotFoundHttpException($e->getMessage(), $e);
+        } catch (InvalidArgumentException $e) {
+            throw new BadRequestHttpException($e->getMessage(), $e);
+        }
+    }
+
+    #[Route('/{id}/examples', name: 'add_example', requirements: ['id' => '^[a-z0-9-]+$'], methods: ['POST'])]
+    public function addExample(string $id, #[MapRequestPayload] AddWorkflowExamplePayload $payload): JsonResponse
+    {
+        try {
+            $output = $this->commandBus->execute(new AddExample\Input(
+                $id,
+                $payload->scenario,
+                $payload->input,
+                $payload->output,
+                $payload->explanation,
+            ));
+
+            Assert::isInstanceOf($output, AddExample\Output::class);
+
+            $exampleId = $output->example->id->toString();
+            $workflowUrl = $this->generateUrl(
+                'api_authoring_workflow_get',
+                ['id' => $id],
+                UrlGeneratorInterface::ABSOLUTE_URL,
+            );
+
+            return $this->json(
+                ExampleResponse::fromExample($output->example),
+                Response::HTTP_CREATED,
+                ['Location' => \sprintf('%s/examples/%s', $workflowUrl, $exampleId)],
+            );
         } catch (WorkflowNotFoundException $e) {
             throw new NotFoundHttpException($e->getMessage(), $e);
         } catch (InvalidArgumentException $e) {
