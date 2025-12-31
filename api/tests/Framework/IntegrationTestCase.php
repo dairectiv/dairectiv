@@ -146,7 +146,7 @@ abstract class IntegrationTestCase extends WebTestCase
     /**
      * @param class-string $domainEvent
      */
-    final public function assertDomainEventHasBeenDispatched(string $domainEvent, int $times = 1): void
+    final public static function assertDomainEventHasBeenDispatched(string $domainEvent, int $times = 1): void
     {
         self::assertIsDomainEvent($domainEvent);
         $countDispatchedDomainEvent = TestTransport::countDispatchedDomainEvent($domainEvent);

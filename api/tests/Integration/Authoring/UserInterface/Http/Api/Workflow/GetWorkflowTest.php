@@ -25,7 +25,7 @@ final class GetWorkflowTest extends IntegrationTestCase
 
         self::assertResponseIsSuccessful();
 
-        IntegrationTestCase::assertResponseReturnsJson([
+        self::assertResponseReturnsJson([
             'id'          => (string) $workflow->id,
             'name'        => $workflow->name,
             'description' => $workflow->description,
@@ -48,7 +48,7 @@ final class GetWorkflowTest extends IntegrationTestCase
 
         self::assertResponseIsSuccessful();
 
-        IntegrationTestCase::assertResponseReturnsJson([
+        self::assertResponseReturnsJson([
             'id'          => (string) $workflow->id,
             'name'        => $workflow->name,
             'description' => $workflow->description,
@@ -72,7 +72,7 @@ final class GetWorkflowTest extends IntegrationTestCase
 
         self::assertResponseIsSuccessful();
 
-        IntegrationTestCase::assertResponseReturnsJson([
+        self::assertResponseReturnsJson([
             'id'          => (string) $workflow->id,
             'name'        => $workflow->name,
             'description' => $workflow->description,
@@ -115,7 +115,7 @@ final class GetWorkflowTest extends IntegrationTestCase
 
         self::assertResponseIsSuccessful();
 
-        IntegrationTestCase::assertResponseReturnsJson([
+        self::assertResponseReturnsJson([
             'id'          => (string) $workflow->id,
             'name'        => $workflow->name,
             'description' => $workflow->description,
@@ -155,7 +155,7 @@ final class GetWorkflowTest extends IntegrationTestCase
 
         self::assertResponseIsSuccessful();
 
-        IntegrationTestCase::assertResponseReturnsJson([
+        self::assertResponseReturnsJson([
             'id'          => (string) $workflow->id,
             'name'        => $workflow->name,
             'description' => $workflow->description,
@@ -196,7 +196,7 @@ final class GetWorkflowTest extends IntegrationTestCase
 
         self::assertResponseIsSuccessful();
 
-        IntegrationTestCase::assertResponseReturnsJson([
+        self::assertResponseReturnsJson([
             'id'          => (string) $workflow->id,
             'name'        => $workflow->name,
             'description' => $workflow->description,
@@ -219,7 +219,7 @@ final class GetWorkflowTest extends IntegrationTestCase
 
         self::assertResponseIsSuccessful();
 
-        IntegrationTestCase::assertResponseReturnsJson([
+        self::assertResponseReturnsJson([
             'id'          => (string) $workflow->id,
             'name'        => $workflow->name,
             'description' => $workflow->description,

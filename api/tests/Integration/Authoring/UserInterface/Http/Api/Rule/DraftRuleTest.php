@@ -23,7 +23,7 @@ final class DraftRuleTest extends IntegrationTestCase
         self::assertResponseIsSuccessful();
         self::assertResponseStatusCodeSame(Response::HTTP_CREATED);
 
-        IntegrationTestCase::assertResponseReturnsJson([
+        self::assertResponseReturnsJson([
             'id'          => 'my-rule',
             'name'        => 'My Rule',
             'description' => 'Description',
@@ -34,7 +34,7 @@ final class DraftRuleTest extends IntegrationTestCase
             'createdAt'   => Chronos::now()->toIso8601String(),
         ]);
 
-        $this->assertDomainEventHasBeenDispatched(DirectiveDrafted::class);
+        self::assertDomainEventHasBeenDispatched(DirectiveDrafted::class);
     }
 
     /**
