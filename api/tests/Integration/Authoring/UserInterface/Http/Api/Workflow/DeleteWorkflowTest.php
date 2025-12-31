@@ -111,6 +111,18 @@ final class DeleteWorkflowTest extends IntegrationTestCase
         self::assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
     }
 
+    public function testItShouldReturn404WhenWorkflowAlreadyDeleted(): void
+    {
+        $workflow = self::draftWorkflowEntity();
+        $workflow->delete();
+        $this->persistEntity($workflow);
+
+        // The soft delete filter excludes deleted directives, so we get 404
+        $this->deleteWorkflow('workflow-id');
+
+        self::assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
+    }
+
     private function deleteWorkflow(string $id): void
     {
         DomainEventQueue::reset();
