@@ -11,4 +11,6 @@ enum DirectiveState: string
     case Published = 'published';
 
     case Archived = 'archived';
+
+    case Deleted = 'deleted';
 }

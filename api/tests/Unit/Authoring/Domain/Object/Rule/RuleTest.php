@@ -8,6 +8,7 @@ use Cake\Chronos\Chronos;
 use Dairectiv\Authoring\Domain\Object\Directive\DirectiveId;
 use Dairectiv\Authoring\Domain\Object\Directive\DirectiveState;
 use Dairectiv\Authoring\Domain\Object\Directive\Event\DirectiveArchived;
+use Dairectiv\Authoring\Domain\Object\Directive\Event\DirectiveDeleted;
 use Dairectiv\Authoring\Domain\Object\Directive\Event\DirectiveDrafted;
 use Dairectiv\Authoring\Domain\Object\Directive\Event\DirectivePublished;
 use Dairectiv\Authoring\Domain\Object\Directive\Event\DirectiveUpdated;
@@ -87,6 +88,41 @@ final class RuleTest extends UnitTestCase
         $this->assertDomainEventRecorded(DirectiveArchived::class);
     }
 
+    public function testItShouldDeleteRule(): void
+    {
+        $rule = Rule::draft(DirectiveId::fromString('my-rule'), 'My Rule', 'Description');
+        $originalId = (string) $rule->id;
+        $this->resetDomainEvents();
+
+        Chronos::setTestNow(Chronos::now()->addMinutes(1));
+        $rule->delete();
+
+        self::assertSame(DirectiveState::Deleted, $rule->state);
+        self::assertEquals(Chronos::now(), $rule->updatedAt);
+        self::assertStringStartsWith('my-rule-', (string) $rule->id);
+        self::assertNotSame($originalId, (string) $rule->id);
+        self::assertMatchesRegularExpression(
+            '/^my-rule-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/',
+            (string) $rule->id,
+        );
+
+        $this->assertDomainEventRecorded(DirectiveDeleted::class);
+    }
+
+    public function testItShouldDeleteArchivedRule(): void
+    {
+        $rule = Rule::draft(DirectiveId::fromString('my-rule'), 'My Rule', 'Description');
+        $rule->archive();
+        $this->resetDomainEvents();
+
+        Chronos::setTestNow(Chronos::now()->addMinutes(1));
+        $rule->delete();
+
+        self::assertSame(DirectiveState::Deleted, $rule->state);
+
+        $this->assertDomainEventRecorded(DirectiveDeleted::class);
+    }
+
     // ========================================================================
     // RULE LIFECYCLE - INVALID STATE TRANSITIONS
     // ========================================================================
@@ -125,6 +161,66 @@ final class RuleTest extends UnitTestCase
         $this->expectExceptionMessage('Directive is already archived.');
 
         $rule->archive();
+    }
+
+    public function testItShouldNotArchiveDeletedRule(): void
+    {
+        $rule = Rule::draft(DirectiveId::fromString('my-rule'), 'My Rule', 'Description');
+        $rule->delete();
+        $this->resetDomainEvents();
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Cannot archive a deleted directive.');
+
+        $rule->archive();
+    }
+
+    public function testItShouldNotDeleteAlreadyDeletedRule(): void
+    {
+        $rule = Rule::draft(DirectiveId::fromString('my-rule'), 'My Rule', 'Description');
+        $rule->delete();
+        $this->resetDomainEvents();
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Directive is already deleted.');
+
+        $rule->delete();
+    }
+
+    public function testItShouldNotUpdateMetadataOfDeletedRule(): void
+    {
+        $rule = Rule::draft(DirectiveId::fromString('my-rule'), 'My Rule', 'Description');
+        $rule->delete();
+        $this->resetDomainEvents();
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Cannot perform this action on a deleted directive.');
+
+        $rule->updateMetadata('New Name', 'New Description');
+    }
+
+    public function testItShouldNotAddExampleToDeletedRule(): void
+    {
+        $rule = Rule::draft(DirectiveId::fromString('my-rule'), 'My Rule', 'Description');
+        $rule->delete();
+        $this->resetDomainEvents();
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Cannot perform this action on a deleted directive.');
+
+        Example::create($rule, 'Good', 'Bad', 'Explanation');
+    }
+
+    public function testItShouldNotPublishDeletedRule(): void
+    {
+        $rule = Rule::draft(DirectiveId::fromString('my-rule'), 'My Rule', 'Description');
+        $rule->delete();
+        $this->resetDomainEvents();
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Only draft directives can be published.');
+
+        $rule->publish();
     }
 
     public function testItShouldNotUpdateMetadataOfArchivedRule(): void
