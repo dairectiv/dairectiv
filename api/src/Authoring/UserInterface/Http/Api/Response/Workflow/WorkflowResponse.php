@@ -29,6 +29,9 @@ final readonly class WorkflowResponse
 
     public static function fromWorkflow(Workflow $workflow): self
     {
+        $steps = $workflow->steps->toArray();
+        usort($steps, static fn ($a, $b) => $a->order <=> $b->order);
+
         return new self(
             (string) $workflow->id,
             $workflow->createdAt,
@@ -38,7 +41,7 @@ final readonly class WorkflowResponse
             $workflow->description,
             $workflow->content,
             array_values($workflow->examples->map(ExampleResponse::fromExample(...))->toArray()),
-            array_values($workflow->steps->map(StepResponse::fromStep(...))->toArray()),
+            array_map(StepResponse::fromStep(...), $steps),
         );
     }
 }
