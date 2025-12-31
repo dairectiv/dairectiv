@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Dairectiv\Authoring\Application\Workflow\UpdateExample;
 
 use Dairectiv\Authoring\Domain\Object\Directive\DirectiveId;
+use Dairectiv\Authoring\Domain\Object\Workflow\Example\Example;
 use Dairectiv\Authoring\Domain\Object\Workflow\Example\ExampleId;
 use Dairectiv\Authoring\Domain\Repository\WorkflowRepository;
 use Dairectiv\SharedKernel\Application\Command\CommandHandler;
@@ -22,11 +23,11 @@ final readonly class Handler implements CommandHandler
         $workflow = $this->workflowRepository->getWorkflowById($workflowId);
 
         $exampleId = ExampleId::fromString($input->exampleId);
-        $example = $workflow->examples->filter(
-            static fn ($e) => $e->id->equals($exampleId),
-        )->first();
+        $example = $workflow->examples->findFirst(
+            static fn (int $key, Example $e) => $e->id->equals($exampleId),
+        );
 
-        Assert::notFalse($example, \sprintf('Example with ID "%s" not found.', $input->exampleId));
+        Assert::notNull($example, \sprintf('Example with ID "%s" not found.', $input->exampleId));
 
         $example->update(
             $input->scenario,

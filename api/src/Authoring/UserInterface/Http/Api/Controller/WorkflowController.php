@@ -17,9 +17,7 @@ use Dairectiv\Authoring\Application\Workflow\Update;
 use Dairectiv\Authoring\Application\Workflow\UpdateExample;
 use Dairectiv\Authoring\Application\Workflow\UpdateStep;
 use Dairectiv\Authoring\Domain\Object\Directive\Exception\DirectiveAlreadyExistsException;
-use Dairectiv\Authoring\Domain\Object\Workflow\Example\ExampleId;
 use Dairectiv\Authoring\Domain\Object\Workflow\Exception\WorkflowNotFoundException;
-use Dairectiv\Authoring\Domain\Object\Workflow\Step\StepId;
 use Dairectiv\Authoring\UserInterface\Http\Api\Payload\Workflow\AddWorkflowExample\AddWorkflowExamplePayload;
 use Dairectiv\Authoring\UserInterface\Http\Api\Payload\Workflow\AddWorkflowStep\AddWorkflowStepPayload;
 use Dairectiv\Authoring\UserInterface\Http\Api\Payload\Workflow\DraftWorkflow\DraftWorkflowPayload;
@@ -27,8 +25,6 @@ use Dairectiv\Authoring\UserInterface\Http\Api\Payload\Workflow\MoveWorkflowStep
 use Dairectiv\Authoring\UserInterface\Http\Api\Payload\Workflow\UpdateWorkflow\UpdateWorkflowPayload;
 use Dairectiv\Authoring\UserInterface\Http\Api\Payload\Workflow\UpdateWorkflowExample\UpdateWorkflowExamplePayload;
 use Dairectiv\Authoring\UserInterface\Http\Api\Payload\Workflow\UpdateWorkflowStep\UpdateWorkflowStepPayload;
-use Dairectiv\Authoring\UserInterface\Http\Api\Response\Workflow\ExampleResponse;
-use Dairectiv\Authoring\UserInterface\Http\Api\Response\Workflow\StepResponse;
 use Dairectiv\Authoring\UserInterface\Http\Api\Response\Workflow\WorkflowResponse;
 use Dairectiv\SharedKernel\Application\Command\CommandBus;
 use Dairectiv\SharedKernel\Application\Query\QueryBus;
@@ -104,8 +100,8 @@ final class WorkflowController extends AbstractController
         }
     }
 
-    #[Route('/{id}/publish', name: 'publish', requirements: ['id' => '^[a-z0-9-]+$'], methods: ['POST'])]
-    public function publish(string $id): JsonResponse
+    #[Route('/{id}/publish', name: 'publish', requirements: ['id' => '^[a-z0-9-]+$'], methods: ['PUT'])]
+    public function publish(string $id): Response
     {
         try {
             // First verify the workflow exists (throws WorkflowNotFoundException if not found or not a Workflow)
@@ -114,12 +110,7 @@ final class WorkflowController extends AbstractController
             // Then publish it
             $this->commandBus->execute(new Publish\Input($id));
 
-            // Fetch the updated workflow
-            $output = $this->queryBus->fetch(new Get\Input($id));
-
-            Assert::isInstanceOf($output, Get\Output::class);
-
-            return $this->json(WorkflowResponse::fromWorkflow($output->workflow));
+            return new Response(null, Response::HTTP_NO_CONTENT);
         } catch (WorkflowNotFoundException $e) {
             throw new NotFoundHttpException($e->getMessage(), $e);
         } catch (InvalidArgumentException $e) {
@@ -127,8 +118,8 @@ final class WorkflowController extends AbstractController
         }
     }
 
-    #[Route('/{id}/archive', name: 'archive', requirements: ['id' => '^[a-z0-9-]+$'], methods: ['POST'])]
-    public function archive(string $id): JsonResponse
+    #[Route('/{id}/archive', name: 'archive', requirements: ['id' => '^[a-z0-9-]+$'], methods: ['PUT'])]
+    public function archive(string $id): Response
     {
         try {
             // First verify the workflow exists (throws WorkflowNotFoundException if not found or not a Workflow)
@@ -137,12 +128,7 @@ final class WorkflowController extends AbstractController
             // Then archive it
             $this->commandBus->execute(new Archive\Input($id));
 
-            // Fetch the updated workflow
-            $output = $this->queryBus->fetch(new Get\Input($id));
-
-            Assert::isInstanceOf($output, Get\Output::class);
-
-            return $this->json(WorkflowResponse::fromWorkflow($output->workflow));
+            return new Response(null, Response::HTTP_NO_CONTENT);
         } catch (WorkflowNotFoundException $e) {
             throw new NotFoundHttpException($e->getMessage(), $e);
         } catch (InvalidArgumentException $e) {
@@ -151,7 +137,7 @@ final class WorkflowController extends AbstractController
     }
 
     #[Route('/{id}/examples', name: 'add_example', requirements: ['id' => '^[a-z0-9-]+$'], methods: ['POST'])]
-    public function addExample(string $id, #[MapRequestPayload] AddWorkflowExamplePayload $payload): JsonResponse
+    public function addExample(string $id, #[MapRequestPayload] AddWorkflowExamplePayload $payload): Response
     {
         try {
             $output = $this->commandBus->execute(new AddExample\Input(
@@ -171,8 +157,8 @@ final class WorkflowController extends AbstractController
                 UrlGeneratorInterface::ABSOLUTE_URL,
             );
 
-            return $this->json(
-                ExampleResponse::fromExample($output->example),
+            return new Response(
+                null,
                 Response::HTTP_CREATED,
                 ['Location' => \sprintf('%s/examples/%s', $workflowUrl, $exampleId)],
             );
@@ -188,7 +174,7 @@ final class WorkflowController extends AbstractController
         string $id,
         string $exampleId,
         #[MapRequestPayload] UpdateWorkflowExamplePayload $payload,
-    ): JsonResponse {
+    ): Response {
         try {
             $this->commandBus->execute(new UpdateExample\Input(
                 $id,
@@ -199,18 +185,7 @@ final class WorkflowController extends AbstractController
                 $payload->explanation,
             ));
 
-            $output = $this->queryBus->fetch(new Get\Input($id));
-
-            Assert::isInstanceOf($output, Get\Output::class);
-
-            $exampleIdValue = ExampleId::fromString($exampleId);
-            $example = $output->workflow->examples->filter(
-                static fn ($e) => $e->id->equals($exampleIdValue),
-            )->first();
-
-            Assert::notFalse($example, \sprintf('Example with ID "%s" not found.', $exampleId));
-
-            return $this->json(ExampleResponse::fromExample($example));
+            return new Response(null, Response::HTTP_NO_CONTENT);
         } catch (WorkflowNotFoundException $e) {
             throw new NotFoundHttpException($e->getMessage(), $e);
         } catch (InvalidArgumentException $e) {
@@ -233,7 +208,7 @@ final class WorkflowController extends AbstractController
     }
 
     #[Route('/{id}/steps', name: 'add_step', requirements: ['id' => '^[a-z0-9-]+$'], methods: ['POST'])]
-    public function addStep(string $id, #[MapRequestPayload] AddWorkflowStepPayload $payload): JsonResponse
+    public function addStep(string $id, #[MapRequestPayload] AddWorkflowStepPayload $payload): Response
     {
         try {
             $output = $this->commandBus->execute(new AddStep\Input(
@@ -251,8 +226,8 @@ final class WorkflowController extends AbstractController
                 UrlGeneratorInterface::ABSOLUTE_URL,
             );
 
-            return $this->json(
-                StepResponse::fromStep($output->step),
+            return new Response(
+                null,
                 Response::HTTP_CREATED,
                 ['Location' => \sprintf('%s/steps/%s', $workflowUrl, $stepId)],
             );
@@ -268,7 +243,7 @@ final class WorkflowController extends AbstractController
         string $id,
         string $stepId,
         #[MapRequestPayload] UpdateWorkflowStepPayload $payload,
-    ): JsonResponse {
+    ): Response {
         try {
             $this->commandBus->execute(new UpdateStep\Input(
                 $id,
@@ -276,18 +251,7 @@ final class WorkflowController extends AbstractController
                 $payload->content,
             ));
 
-            $output = $this->queryBus->fetch(new Get\Input($id));
-
-            Assert::isInstanceOf($output, Get\Output::class);
-
-            $stepIdValue = StepId::fromString($stepId);
-            $step = $output->workflow->steps->filter(
-                static fn ($s) => $s->id->equals($stepIdValue),
-            )->first();
-
-            Assert::notFalse($step, \sprintf('Step with ID "%s" not found.', $stepId));
-
-            return $this->json(StepResponse::fromStep($step));
+            return new Response(null, Response::HTTP_NO_CONTENT);
         } catch (WorkflowNotFoundException $e) {
             throw new NotFoundHttpException($e->getMessage(), $e);
         } catch (InvalidArgumentException $e) {
@@ -295,43 +259,23 @@ final class WorkflowController extends AbstractController
         }
     }
 
-    #[Route('/{id}/steps/{stepId}/move', name: 'move_step', requirements: ['id' => '^[a-z0-9-]+$', 'stepId' => '^[a-z0-9-]+$'], methods: ['POST'])]
+    #[Route('/{id}/steps/{stepId}/move', name: 'move_step', requirements: ['id' => '^[a-z0-9-]+$', 'stepId' => '^[a-z0-9-]+$'], methods: ['PUT'])]
     public function moveStep(
         string $id,
         string $stepId,
         #[MapRequestPayload] MoveWorkflowStepPayload $payload,
-    ): JsonResponse {
+    ): Response {
         try {
-            $output = $this->queryBus->fetch(new Get\Input($id));
-
-            Assert::isInstanceOf($output, Get\Output::class);
-
-            $steps = $output->workflow->steps->toArray();
-            $totalSteps = \count($steps);
-
-            if ($payload->position > $totalSteps) {
-                throw new BadRequestHttpException(\sprintf('Invalid position %d. Workflow has only %d steps.', $payload->position, $totalSteps));
-            }
-
-            $stepIdValue = StepId::fromString($stepId);
-            $otherSteps = array_values(array_filter($steps, static fn ($s) => !$s->id->equals($stepIdValue)));
-
-            $afterStepId = null;
-            if ($payload->position > 1) {
-                $afterStepId = $otherSteps[$payload->position - 2]->id->toString();
-            }
+            // Verify the workflow exists
+            $this->queryBus->fetch(new Get\Input($id));
 
             $this->commandBus->execute(new MoveStep\Input(
                 $id,
                 $stepId,
-                $afterStepId,
+                $payload->afterStepId,
             ));
 
-            $output = $this->queryBus->fetch(new Get\Input($id));
-
-            Assert::isInstanceOf($output, Get\Output::class);
-
-            return $this->json(WorkflowResponse::fromWorkflow($output->workflow));
+            return new Response(null, Response::HTTP_NO_CONTENT);
         } catch (WorkflowNotFoundException $e) {
             throw new NotFoundHttpException($e->getMessage(), $e);
         } catch (InvalidArgumentException $e) {

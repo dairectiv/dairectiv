@@ -13,13 +13,11 @@ use Dairectiv\Authoring\Application\Rule\RemoveExample;
 use Dairectiv\Authoring\Application\Rule\Update;
 use Dairectiv\Authoring\Application\Rule\UpdateExample;
 use Dairectiv\Authoring\Domain\Object\Directive\Exception\DirectiveAlreadyExistsException;
-use Dairectiv\Authoring\Domain\Object\Rule\Example\ExampleId;
 use Dairectiv\Authoring\Domain\Object\Rule\Exception\RuleNotFoundException;
 use Dairectiv\Authoring\UserInterface\Http\Api\Payload\Rule\AddRuleExample\AddRuleExamplePayload;
 use Dairectiv\Authoring\UserInterface\Http\Api\Payload\Rule\DraftRule\DraftRulePayload;
 use Dairectiv\Authoring\UserInterface\Http\Api\Payload\Rule\UpdateRule\UpdateRulePayload;
 use Dairectiv\Authoring\UserInterface\Http\Api\Payload\Rule\UpdateRuleExample\UpdateRuleExamplePayload;
-use Dairectiv\Authoring\UserInterface\Http\Api\Response\Rule\ExampleResponse;
 use Dairectiv\Authoring\UserInterface\Http\Api\Response\Rule\RuleResponse;
 use Dairectiv\SharedKernel\Application\Command\CommandBus;
 use Dairectiv\SharedKernel\Application\Query\QueryBus;
@@ -95,8 +93,8 @@ final class RuleController extends AbstractController
         }
     }
 
-    #[Route('/{id}/publish', name: 'publish', requirements: ['id' => '^[a-z0-9-]+$'], methods: ['POST'])]
-    public function publish(string $id): JsonResponse
+    #[Route('/{id}/publish', name: 'publish', requirements: ['id' => '^[a-z0-9-]+$'], methods: ['PUT'])]
+    public function publish(string $id): Response
     {
         try {
             // First verify the rule exists (throws RuleNotFoundException if not found or not a Rule)
@@ -105,12 +103,7 @@ final class RuleController extends AbstractController
             // Then publish it
             $this->commandBus->execute(new Publish\Input($id));
 
-            // Fetch the updated rule
-            $output = $this->queryBus->fetch(new Get\Input($id));
-
-            Assert::isInstanceOf($output, Get\Output::class);
-
-            return $this->json(RuleResponse::fromRule($output->rule));
+            return new Response(null, Response::HTTP_NO_CONTENT);
         } catch (RuleNotFoundException $e) {
             throw new NotFoundHttpException($e->getMessage(), $e);
         } catch (InvalidArgumentException $e) {
@@ -118,8 +111,8 @@ final class RuleController extends AbstractController
         }
     }
 
-    #[Route('/{id}/archive', name: 'archive', requirements: ['id' => '^[a-z0-9-]+$'], methods: ['POST'])]
-    public function archive(string $id): JsonResponse
+    #[Route('/{id}/archive', name: 'archive', requirements: ['id' => '^[a-z0-9-]+$'], methods: ['PUT'])]
+    public function archive(string $id): Response
     {
         try {
             // First verify the rule exists (throws RuleNotFoundException if not found or not a Rule)
@@ -128,12 +121,7 @@ final class RuleController extends AbstractController
             // Then archive it
             $this->commandBus->execute(new Archive\Input($id));
 
-            // Fetch the updated rule
-            $output = $this->queryBus->fetch(new Get\Input($id));
-
-            Assert::isInstanceOf($output, Get\Output::class);
-
-            return $this->json(RuleResponse::fromRule($output->rule));
+            return new Response(null, Response::HTTP_NO_CONTENT);
         } catch (RuleNotFoundException $e) {
             throw new NotFoundHttpException($e->getMessage(), $e);
         } catch (InvalidArgumentException $e) {
@@ -142,7 +130,7 @@ final class RuleController extends AbstractController
     }
 
     #[Route('/{id}/examples', name: 'add_example', requirements: ['id' => '^[a-z0-9-]+$'], methods: ['POST'])]
-    public function addExample(string $id, #[MapRequestPayload] AddRuleExamplePayload $payload): JsonResponse
+    public function addExample(string $id, #[MapRequestPayload] AddRuleExamplePayload $payload): Response
     {
         try {
             $output = $this->commandBus->execute(new AddExample\Input(
@@ -161,8 +149,8 @@ final class RuleController extends AbstractController
                 UrlGeneratorInterface::ABSOLUTE_URL,
             );
 
-            return $this->json(
-                ExampleResponse::fromExample($output->example),
+            return new Response(
+                null,
                 Response::HTTP_CREATED,
                 ['Location' => \sprintf('%s/examples/%s', $ruleUrl, $exampleId)],
             );
@@ -178,7 +166,7 @@ final class RuleController extends AbstractController
         string $id,
         string $exampleId,
         #[MapRequestPayload] UpdateRuleExamplePayload $payload,
-    ): JsonResponse {
+    ): Response {
         try {
             $this->commandBus->execute(new UpdateExample\Input(
                 $id,
@@ -188,18 +176,7 @@ final class RuleController extends AbstractController
                 $payload->explanation,
             ));
 
-            $output = $this->queryBus->fetch(new Get\Input($id));
-
-            Assert::isInstanceOf($output, Get\Output::class);
-
-            $targetExampleId = ExampleId::fromString($exampleId);
-            $example = $output->rule->examples->filter(
-                static fn ($e) => $e->id->equals($targetExampleId),
-            )->first();
-
-            Assert::notFalse($example, \sprintf('Example with ID "%s" not found.', $exampleId));
-
-            return $this->json(ExampleResponse::fromExample($example));
+            return new Response(null, Response::HTTP_NO_CONTENT);
         } catch (RuleNotFoundException $e) {
             throw new NotFoundHttpException($e->getMessage(), $e);
         } catch (InvalidArgumentException $e) {

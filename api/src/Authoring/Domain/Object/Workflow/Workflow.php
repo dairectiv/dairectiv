@@ -23,13 +23,13 @@ class Workflow extends Directive
     /**
      * @var Collection<int, Example>
      */
-    #[ORM\OneToMany(targetEntity: Example::class, mappedBy: 'workflow', cascade: ['persist'], orphanRemoval: true)]
+    #[ORM\OneToMany(targetEntity: Example::class, mappedBy: 'workflow', cascade: ['persist'], orphanRemoval: true, fetch: 'EAGER')]
     public private(set) Collection $examples;
 
     /**
      * @var Collection<int, Step>
      */
-    #[ORM\OneToMany(targetEntity: Step::class, mappedBy: 'workflow', cascade: ['persist'], orphanRemoval: true)]
+    #[ORM\OneToMany(targetEntity: Step::class, mappedBy: 'workflow', cascade: ['persist'], orphanRemoval: true, fetch: 'EAGER')]
     #[ORM\OrderBy(['order' => 'ASC'])]
     public private(set) Collection $steps;
 

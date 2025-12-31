@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Dairectiv\Tests\Integration\Authoring\UserInterface\Http\Api\Workflow;
 
-use Cake\Chronos\Chronos;
 use Dairectiv\Authoring\Domain\Object\Directive\Event\DirectiveUpdated;
 use Dairectiv\Authoring\Domain\Object\Workflow\Step\Step;
 use Dairectiv\SharedKernel\Domain\Object\Event\DomainEventQueue;
@@ -29,15 +28,6 @@ final class AddWorkflowStepTest extends IntegrationTestCase
 
         self::assertResponseIsSuccessful();
         self::assertResponseStatusCodeSame(Response::HTTP_CREATED);
-
-        self::assertResponseReturnsJson([
-            'id'        => '@uuid@',
-            'createdAt' => Chronos::now()->toIso8601String(),
-            'updatedAt' => Chronos::now()->toIso8601String(),
-            'order'     => 1,
-            'content'   => 'First, analyze the requirements',
-        ]);
-
         self::assertDomainEventHasBeenDispatched(DirectiveUpdated::class);
 
         $response = $this->client->getResponse();
@@ -61,15 +51,6 @@ final class AddWorkflowStepTest extends IntegrationTestCase
 
         self::assertResponseIsSuccessful();
         self::assertResponseStatusCodeSame(Response::HTTP_CREATED);
-
-        self::assertResponseReturnsJson([
-            'id'        => '@uuid@',
-            'createdAt' => Chronos::now()->toIso8601String(),
-            'updatedAt' => Chronos::now()->toIso8601String(),
-            'order'     => 2,
-            'content'   => 'Inserted Step',
-        ]);
-
         self::assertDomainEventHasBeenDispatched(DirectiveUpdated::class);
     }
 

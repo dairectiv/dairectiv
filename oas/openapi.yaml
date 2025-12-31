@@ -125,7 +125,7 @@ paths:
                                 $ref: "#/components/schemas/ValidationErrorResponse"
 
     /authoring/rules/{id}/publish:
-        post:
+        put:
             tags:
                 - Rules
             summary: Publish a rule
@@ -142,12 +142,8 @@ paths:
                       examples:
                           - "my-rule-id"
             responses:
-                "200":
+                "204":
                     description: Rule published successfully
-                    content:
-                        application/json:
-                            schema:
-                                $ref: "#/components/schemas/RuleResponse"
                 "404":
                     description: Rule not found
                     content:
@@ -162,7 +158,7 @@ paths:
                                 $ref: "#/components/schemas/ErrorResponse"
 
     /authoring/rules/{id}/archive:
-        post:
+        put:
             tags:
                 - Rules
             summary: Archive a rule
@@ -179,12 +175,8 @@ paths:
                       examples:
                           - "my-rule-id"
             responses:
-                "200":
+                "204":
                     description: Rule archived successfully
-                    content:
-                        application/json:
-                            schema:
-                                $ref: "#/components/schemas/RuleResponse"
                 "404":
                     description: Rule not found
                     content:
@@ -232,10 +224,6 @@ paths:
                                 format: uri
                                 examples:
                                     - "http://127.0.0.1/api/authoring/rules/my-rule-id/examples/019b7460-798e-77f8-af01-bc6ab6e25f84"
-                    content:
-                        application/json:
-                            schema:
-                                $ref: "#/components/schemas/RuleExampleResponse"
                 "400":
                     description: Bad request (rule is archived)
                     content:
@@ -288,12 +276,8 @@ paths:
                         schema:
                             $ref: "#/components/schemas/UpdateRuleExamplePayload"
             responses:
-                "200":
+                "204":
                     description: Example updated successfully
-                    content:
-                        application/json:
-                            schema:
-                                $ref: "#/components/schemas/RuleExampleResponse"
                 "400":
                     description: Bad request (no fields provided or rule is archived)
                     content:
@@ -453,7 +437,7 @@ paths:
                                 $ref: "#/components/schemas/ValidationErrorResponse"
 
     /authoring/workflows/{id}/publish:
-        post:
+        put:
             tags:
                 - Workflows
             summary: Publish a workflow
@@ -470,12 +454,8 @@ paths:
                       examples:
                           - "my-workflow-id"
             responses:
-                "200":
+                "204":
                     description: Workflow published successfully
-                    content:
-                        application/json:
-                            schema:
-                                $ref: "#/components/schemas/WorkflowResponse"
                 "404":
                     description: Workflow not found
                     content:
@@ -490,7 +470,7 @@ paths:
                                 $ref: "#/components/schemas/ErrorResponse"
 
     /authoring/workflows/{id}/archive:
-        post:
+        put:
             tags:
                 - Workflows
             summary: Archive a workflow
@@ -507,12 +487,8 @@ paths:
                       examples:
                           - "my-workflow-id"
             responses:
-                "200":
+                "204":
                     description: Workflow archived successfully
-                    content:
-                        application/json:
-                            schema:
-                                $ref: "#/components/schemas/WorkflowResponse"
                 "404":
                     description: Workflow not found
                     content:
@@ -560,10 +536,6 @@ paths:
                                 format: uri
                                 examples:
                                     - "http://127.0.0.1/api/authoring/workflows/my-workflow-id/examples/019b7460-798e-77f8-af01-bc6ab6e25f84"
-                    content:
-                        application/json:
-                            schema:
-                                $ref: "#/components/schemas/WorkflowExampleResponse"
                 "400":
                     description: Bad request (workflow is archived)
                     content:
@@ -616,12 +588,8 @@ paths:
                         schema:
                             $ref: "#/components/schemas/UpdateWorkflowExamplePayload"
             responses:
-                "200":
+                "204":
                     description: Example updated successfully
-                    content:
-                        application/json:
-                            schema:
-                                $ref: "#/components/schemas/WorkflowExampleResponse"
                 "400":
                     description: Bad request (no fields provided or workflow is archived)
                     content:
@@ -703,10 +671,6 @@ paths:
                                 format: uri
                                 examples:
                                     - "http://127.0.0.1/api/authoring/workflows/my-workflow-id/steps/019b7460-798e-77f8-af01-bc6ab6e25f84"
-                    content:
-                        application/json:
-                            schema:
-                                $ref: "#/components/schemas/StepResponse"
                 "400":
                     description: Bad request (workflow is archived or afterStepId not found)
                     content:
@@ -759,12 +723,8 @@ paths:
                         schema:
                             $ref: "#/components/schemas/UpdateWorkflowStepPayload"
             responses:
-                "200":
+                "204":
                     description: Step updated successfully
-                    content:
-                        application/json:
-                            schema:
-                                $ref: "#/components/schemas/StepResponse"
                 "400":
                     description: Bad request (no fields provided or workflow is archived)
                     content:
@@ -813,11 +773,11 @@ paths:
                                 $ref: "#/components/schemas/ErrorResponse"
 
     /authoring/workflows/{id}/steps/{stepId}/move:
-        post:
+        put:
             tags:
                 - Workflows
             summary: Move a workflow step
-            description: Moves a step to a new position in the workflow. Position is 1-based.
+            description: Moves a step to a new position in the workflow. Use afterStepId to place the step after a specific step, or omit/null to place it first.
             operationId: moveWorkflowStep
             parameters:
                 - name: id
@@ -845,14 +805,10 @@ paths:
                         schema:
                             $ref: "#/components/schemas/MoveWorkflowStepPayload"
             responses:
-                "200":
+                "204":
                     description: Step moved successfully
-                    content:
-                        application/json:
-                            schema:
-                                $ref: "#/components/schemas/WorkflowResponse"
                 "400":
-                    description: Bad request (invalid position or workflow is archived)
+                    description: Bad request (afterStepId not found or workflow is archived)
                     content:
                         application/json:
                             schema:
@@ -863,12 +819,6 @@ paths:
                         application/json:
                             schema:
                                 $ref: "#/components/schemas/ErrorResponse"
-                "422":
-                    description: Validation error
-                    content:
-                        application/json:
-                            schema:
-                                $ref: "#/components/schemas/ValidationErrorResponse"
 
 components:
     schemas:
@@ -1355,16 +1305,17 @@ components:
 
         MoveWorkflowStepPayload:
             type: object
-            description: Payload for moving a step to a new position in a workflow
-            required:
-                - position
+            description: Payload for moving a step to a new position in a workflow. Use afterStepId to place after a specific step, or null/omit to place first.
             properties:
-                position:
-                    type: integer
-                    description: The target position for the step (1-based index)
-                    minimum: 1
+                afterStepId:
+                    type:
+                        - string
+                        - "null"
+                    format: uuid
+                    description: ID of the step after which to place the moved step. If null or omitted, the step is moved to the first position.
                     examples:
-                        - 2
+                        - "019b7460-798e-77f8-af01-bc6ab6e25f84"
+                        - null
 
         ErrorResponse:
             type: object

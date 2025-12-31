@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Dairectiv\Tests\Integration\Authoring\UserInterface\Http\Api\Workflow;
 
-use Cake\Chronos\Chronos;
 use Dairectiv\Authoring\Domain\Object\Directive\Event\DirectiveUpdated;
 use Dairectiv\SharedKernel\Domain\Object\Event\DomainEventQueue;
 use Dairectiv\Tests\Framework\IntegrationTestCase;
@@ -31,17 +30,6 @@ final class AddWorkflowExampleTest extends IntegrationTestCase
 
         self::assertResponseIsSuccessful();
         self::assertResponseStatusCodeSame(Response::HTTP_CREATED);
-
-        self::assertResponseReturnsJson([
-            'id'          => '@uuid@',
-            'createdAt'   => Chronos::now()->toIso8601String(),
-            'updatedAt'   => Chronos::now()->toIso8601String(),
-            'scenario'    => 'User wants to create a new account',
-            'input'       => 'User provides email and password',
-            'output'      => 'Account is created and confirmation email is sent',
-            'explanation' => 'This demonstrates the happy path for account creation',
-        ]);
-
         self::assertDomainEventHasBeenDispatched(DirectiveUpdated::class);
 
         $response = $this->client->getResponse();
@@ -64,17 +52,6 @@ final class AddWorkflowExampleTest extends IntegrationTestCase
 
         self::assertResponseIsSuccessful();
         self::assertResponseStatusCodeSame(Response::HTTP_CREATED);
-
-        self::assertResponseReturnsJson([
-            'id'          => '@uuid@',
-            'createdAt'   => Chronos::now()->toIso8601String(),
-            'updatedAt'   => Chronos::now()->toIso8601String(),
-            'scenario'    => 'User wants to create a new account',
-            'input'       => 'User provides email and password',
-            'output'      => 'Account is created and confirmation email is sent',
-            'explanation' => null,
-        ]);
-
         self::assertDomainEventHasBeenDispatched(DirectiveUpdated::class);
     }
 

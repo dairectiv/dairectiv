@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Dairectiv\Tests\Integration\Authoring\UserInterface\Http\Api\Rule;
 
-use Cake\Chronos\Chronos;
 use Dairectiv\Authoring\Domain\Object\Directive\Event\DirectivePublished;
 use Dairectiv\Authoring\Domain\Object\Rule\Example\Example;
 use Dairectiv\SharedKernel\Domain\Object\Event\DomainEventQueue;
@@ -25,19 +24,7 @@ final class PublishRuleTest extends IntegrationTestCase
         $this->publishRule((string) $rule->id);
 
         self::assertResponseIsSuccessful();
-        self::assertResponseStatusCodeSame(Response::HTTP_OK);
-
-        self::assertResponseReturnsJson([
-            'id'          => (string) $rule->id,
-            'name'        => $rule->name,
-            'description' => $rule->description,
-            'examples'    => [],
-            'content'     => null,
-            'state'       => 'published',
-            'updatedAt'   => Chronos::now()->toIso8601String(),
-            'createdAt'   => Chronos::now()->toIso8601String(),
-        ]);
-
+        self::assertResponseStatusCodeSame(Response::HTTP_NO_CONTENT);
         self::assertDomainEventHasBeenDispatched(DirectivePublished::class);
     }
 
@@ -50,53 +37,20 @@ final class PublishRuleTest extends IntegrationTestCase
         $this->publishRule((string) $rule->id);
 
         self::assertResponseIsSuccessful();
-        self::assertResponseStatusCodeSame(Response::HTTP_OK);
-
-        self::assertResponseReturnsJson([
-            'id'          => (string) $rule->id,
-            'name'        => $rule->name,
-            'description' => $rule->description,
-            'examples'    => [],
-            'content'     => 'Some rule content',
-            'state'       => 'published',
-            'updatedAt'   => Chronos::now()->toIso8601String(),
-            'createdAt'   => Chronos::now()->toIso8601String(),
-        ]);
-
+        self::assertResponseStatusCodeSame(Response::HTTP_NO_CONTENT);
         self::assertDomainEventHasBeenDispatched(DirectivePublished::class);
     }
 
     public function testItShouldPublishRuleWithExamples(): void
     {
         $rule = self::draftRuleEntity();
-        $example = Example::create($rule, 'good code', 'bad code', 'explanation');
+        Example::create($rule, 'good code', 'bad code', 'explanation');
         $this->persistEntity($rule);
 
         $this->publishRule((string) $rule->id);
 
         self::assertResponseIsSuccessful();
-        self::assertResponseStatusCodeSame(Response::HTTP_OK);
-
-        self::assertResponseReturnsJson([
-            'id'          => (string) $rule->id,
-            'name'        => $rule->name,
-            'description' => $rule->description,
-            'examples'    => [
-                [
-                    'id'          => $example->id->toString(),
-                    'good'        => 'good code',
-                    'bad'         => 'bad code',
-                    'explanation' => 'explanation',
-                    'createdAt'   => Chronos::now()->toIso8601String(),
-                    'updatedAt'   => Chronos::now()->toIso8601String(),
-                ],
-            ],
-            'content'   => null,
-            'state'     => 'published',
-            'updatedAt' => Chronos::now()->toIso8601String(),
-            'createdAt' => Chronos::now()->toIso8601String(),
-        ]);
-
+        self::assertResponseStatusCodeSame(Response::HTTP_NO_CONTENT);
         self::assertDomainEventHasBeenDispatched(DirectivePublished::class);
     }
 
@@ -142,6 +96,6 @@ final class PublishRuleTest extends IntegrationTestCase
     private function publishRule(string $id): void
     {
         DomainEventQueue::reset();
-        $this->postJson(\sprintf('/api/authoring/rules/%s/publish', $id));
+        $this->putJson(\sprintf('/api/authoring/rules/%s/publish', $id));
     }
 }

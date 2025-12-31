@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Dairectiv\Tests\Integration\Authoring\UserInterface\Http\Api\Workflow;
 
-use Cake\Chronos\Chronos;
 use Dairectiv\Authoring\Domain\Object\Directive\Event\DirectivePublished;
 use Dairectiv\Authoring\Domain\Object\Workflow\Example\Example;
 use Dairectiv\Authoring\Domain\Object\Workflow\Step\Step;
@@ -26,20 +25,7 @@ final class PublishWorkflowTest extends IntegrationTestCase
         $this->publishWorkflow((string) $workflow->id);
 
         self::assertResponseIsSuccessful();
-        self::assertResponseStatusCodeSame(Response::HTTP_OK);
-
-        self::assertResponseReturnsJson([
-            'id'          => (string) $workflow->id,
-            'name'        => $workflow->name,
-            'description' => $workflow->description,
-            'examples'    => [],
-            'steps'       => [],
-            'content'     => null,
-            'state'       => 'published',
-            'updatedAt'   => Chronos::now()->toIso8601String(),
-            'createdAt'   => Chronos::now()->toIso8601String(),
-        ]);
-
+        self::assertResponseStatusCodeSame(Response::HTTP_NO_CONTENT);
         self::assertDomainEventHasBeenDispatched(DirectivePublished::class);
     }
 
@@ -52,56 +38,20 @@ final class PublishWorkflowTest extends IntegrationTestCase
         $this->publishWorkflow((string) $workflow->id);
 
         self::assertResponseIsSuccessful();
-        self::assertResponseStatusCodeSame(Response::HTTP_OK);
-
-        self::assertResponseReturnsJson([
-            'id'          => (string) $workflow->id,
-            'name'        => $workflow->name,
-            'description' => $workflow->description,
-            'examples'    => [],
-            'steps'       => [],
-            'content'     => 'Some workflow content',
-            'state'       => 'published',
-            'updatedAt'   => Chronos::now()->toIso8601String(),
-            'createdAt'   => Chronos::now()->toIso8601String(),
-        ]);
-
+        self::assertResponseStatusCodeSame(Response::HTTP_NO_CONTENT);
         self::assertDomainEventHasBeenDispatched(DirectivePublished::class);
     }
 
     public function testItShouldPublishWorkflowWithExamples(): void
     {
         $workflow = self::draftWorkflowEntity();
-        $example = Example::create($workflow, 'scenario', 'input', 'output', 'explanation');
+        Example::create($workflow, 'scenario', 'input', 'output', 'explanation');
         $this->persistEntity($workflow);
 
         $this->publishWorkflow((string) $workflow->id);
 
         self::assertResponseIsSuccessful();
-        self::assertResponseStatusCodeSame(Response::HTTP_OK);
-
-        self::assertResponseReturnsJson([
-            'id'          => (string) $workflow->id,
-            'name'        => $workflow->name,
-            'description' => $workflow->description,
-            'examples'    => [
-                [
-                    'id'          => $example->id->toString(),
-                    'scenario'    => 'scenario',
-                    'input'       => 'input',
-                    'output'      => 'output',
-                    'explanation' => 'explanation',
-                    'createdAt'   => Chronos::now()->toIso8601String(),
-                    'updatedAt'   => Chronos::now()->toIso8601String(),
-                ],
-            ],
-            'steps'     => [],
-            'content'   => null,
-            'state'     => 'published',
-            'updatedAt' => Chronos::now()->toIso8601String(),
-            'createdAt' => Chronos::now()->toIso8601String(),
-        ]);
-
+        self::assertResponseStatusCodeSame(Response::HTTP_NO_CONTENT);
         self::assertDomainEventHasBeenDispatched(DirectivePublished::class);
     }
 
@@ -109,41 +59,13 @@ final class PublishWorkflowTest extends IntegrationTestCase
     {
         $workflow = self::draftWorkflowEntity();
         $step1 = Step::create($workflow, 'Step 1 content');
-        $step2 = Step::create($workflow, 'Step 2 content', $step1);
+        Step::create($workflow, 'Step 2 content', $step1);
         $this->persistEntity($workflow);
 
         $this->publishWorkflow((string) $workflow->id);
 
         self::assertResponseIsSuccessful();
-        self::assertResponseStatusCodeSame(Response::HTTP_OK);
-
-        self::assertResponseReturnsJson([
-            'id'          => (string) $workflow->id,
-            'name'        => $workflow->name,
-            'description' => $workflow->description,
-            'examples'    => [],
-            'steps'       => [
-                [
-                    'id'        => $step1->id->toString(),
-                    'order'     => 1,
-                    'content'   => 'Step 1 content',
-                    'createdAt' => Chronos::now()->toIso8601String(),
-                    'updatedAt' => Chronos::now()->toIso8601String(),
-                ],
-                [
-                    'id'        => $step2->id->toString(),
-                    'order'     => 2,
-                    'content'   => 'Step 2 content',
-                    'createdAt' => Chronos::now()->toIso8601String(),
-                    'updatedAt' => Chronos::now()->toIso8601String(),
-                ],
-            ],
-            'content'   => null,
-            'state'     => 'published',
-            'updatedAt' => Chronos::now()->toIso8601String(),
-            'createdAt' => Chronos::now()->toIso8601String(),
-        ]);
-
+        self::assertResponseStatusCodeSame(Response::HTTP_NO_CONTENT);
         self::assertDomainEventHasBeenDispatched(DirectivePublished::class);
     }
 
@@ -189,6 +111,6 @@ final class PublishWorkflowTest extends IntegrationTestCase
     private function publishWorkflow(string $id): void
     {
         DomainEventQueue::reset();
-        $this->postJson(\sprintf('/api/authoring/workflows/%s/publish', $id));
+        $this->putJson(\sprintf('/api/authoring/workflows/%s/publish', $id));
     }
 }

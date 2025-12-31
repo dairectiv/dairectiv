@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Dairectiv\Authoring\Application\Workflow\MoveStep;
 
 use Dairectiv\Authoring\Domain\Object\Directive\DirectiveId;
+use Dairectiv\Authoring\Domain\Object\Workflow\Step\Step;
 use Dairectiv\Authoring\Domain\Object\Workflow\Step\StepId;
 use Dairectiv\Authoring\Domain\Repository\WorkflowRepository;
 use Dairectiv\SharedKernel\Application\Command\CommandHandler;
@@ -22,20 +23,20 @@ final readonly class Handler implements CommandHandler
         $workflow = $this->workflowRepository->getWorkflowById($workflowId);
 
         $stepId = StepId::fromString($input->stepId);
-        $step = $workflow->steps->filter(
-            static fn ($s) => $s->id->equals($stepId),
-        )->first();
+        $step = $workflow->steps->findFirst(
+            static fn (int $key, Step $s) => $s->id->equals($stepId),
+        );
 
-        Assert::notFalse($step, \sprintf('Step with ID "%s" not found.', $input->stepId));
+        Assert::notNull($step, \sprintf('Step with ID "%s" not found.', $input->stepId));
 
         $afterStep = null;
         if (null !== $input->afterStepId) {
             $afterStepId = StepId::fromString($input->afterStepId);
-            $afterStep = $workflow->steps->filter(
-                static fn ($s) => $s->id->equals($afterStepId),
-            )->first();
+            $afterStep = $workflow->steps->findFirst(
+                static fn (int $key, Step $s) => $s->id->equals($afterStepId),
+            );
 
-            Assert::notFalse($afterStep, \sprintf('Reference step with ID "%s" not found.', $input->afterStepId));
+            Assert::notNull($afterStep, \sprintf('Reference step with ID "%s" not found.', $input->afterStepId));
         }
 
         $workflow->moveStepAfter($step, $afterStep);
