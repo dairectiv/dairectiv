@@ -22,7 +22,7 @@ class Rule extends Directive
     /**
      * @var Collection<int, Example>
      */
-    #[ORM\OneToMany(targetEntity: Example::class, mappedBy: 'rule', cascade: ['persist'], orphanRemoval: true)]
+    #[ORM\OneToMany(targetEntity: Example::class, mappedBy: 'rule', cascade: ['persist'], orphanRemoval: true, fetch: 'EAGER')]
     public private(set) Collection $examples;
 
     public function __construct()

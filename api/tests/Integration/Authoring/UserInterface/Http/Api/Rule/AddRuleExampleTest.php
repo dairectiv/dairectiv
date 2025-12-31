@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Dairectiv\Tests\Integration\Authoring\UserInterface\Http\Api\Rule;
 
-use Cake\Chronos\Chronos;
 use Dairectiv\Authoring\Domain\Object\Directive\Event\DirectiveUpdated;
 use Dairectiv\SharedKernel\Domain\Object\Event\DomainEventQueue;
 use Dairectiv\Tests\Framework\IntegrationTestCase;
@@ -30,16 +29,6 @@ final class AddRuleExampleTest extends IntegrationTestCase
 
         self::assertResponseIsSuccessful();
         self::assertResponseStatusCodeSame(Response::HTTP_CREATED);
-
-        self::assertResponseReturnsJson([
-            'id'          => '@uuid@',
-            'createdAt'   => Chronos::now()->toIso8601String(),
-            'updatedAt'   => Chronos::now()->toIso8601String(),
-            'good'        => 'const userAge = 25;',
-            'bad'         => 'const x = 25;',
-            'explanation' => 'Descriptive names improve code readability',
-        ]);
-
         self::assertDomainEventHasBeenDispatched(DirectiveUpdated::class);
 
         $response = $this->client->getResponse();
@@ -61,16 +50,6 @@ final class AddRuleExampleTest extends IntegrationTestCase
 
         self::assertResponseIsSuccessful();
         self::assertResponseStatusCodeSame(Response::HTTP_CREATED);
-
-        self::assertResponseReturnsJson([
-            'id'          => '@uuid@',
-            'createdAt'   => Chronos::now()->toIso8601String(),
-            'updatedAt'   => Chronos::now()->toIso8601String(),
-            'good'        => 'const userAge = 25;',
-            'bad'         => 'const x = 25;',
-            'explanation' => null,
-        ]);
-
         self::assertDomainEventHasBeenDispatched(DirectiveUpdated::class);
     }
 

@@ -25,11 +25,11 @@ final readonly class Handler implements CommandHandler
         $afterStep = null;
         if (null !== $input->afterStepId) {
             $afterStepId = StepId::fromString($input->afterStepId);
-            $afterStep = $workflow->steps->filter(
-                static fn ($s) => $s->id->equals($afterStepId),
-            )->first();
+            $afterStep = $workflow->steps->findFirst(
+                static fn (int $key, Step $s) => $s->id->equals($afterStepId),
+            );
 
-            Assert::notFalse($afterStep, \sprintf('Step with ID "%s" not found.', $input->afterStepId));
+            Assert::notNull($afterStep, \sprintf('Step with ID "%s" not found.', $input->afterStepId));
         }
 
         $step = Step::create($workflow, $input->content, $afterStep);

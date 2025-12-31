@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Dairectiv\Tests\Integration\Authoring\UserInterface\Http\Api\Workflow;
 
-use Cake\Chronos\Chronos;
 use Dairectiv\Authoring\Domain\Object\Directive\Event\DirectiveUpdated;
 use Dairectiv\Authoring\Domain\Object\Workflow\Example\Example;
 use Dairectiv\SharedKernel\Domain\Object\Event\DomainEventQueue;
@@ -31,18 +30,7 @@ final class UpdateWorkflowExampleTest extends IntegrationTestCase
         ]);
 
         self::assertResponseIsSuccessful();
-        self::assertResponseStatusCodeSame(Response::HTTP_OK);
-
-        self::assertResponseReturnsJson([
-            'id'          => $example->id->toString(),
-            'createdAt'   => Chronos::now()->toIso8601String(),
-            'updatedAt'   => Chronos::now()->toIso8601String(),
-            'scenario'    => 'Updated scenario',
-            'input'       => 'Updated input',
-            'output'      => 'Updated output',
-            'explanation' => 'Updated explanation',
-        ]);
-
+        self::assertResponseStatusCodeSame(Response::HTTP_NO_CONTENT);
         self::assertDomainEventHasBeenDispatched(DirectiveUpdated::class);
     }
 
@@ -57,18 +45,7 @@ final class UpdateWorkflowExampleTest extends IntegrationTestCase
         ]);
 
         self::assertResponseIsSuccessful();
-        self::assertResponseStatusCodeSame(Response::HTTP_OK);
-
-        self::assertResponseReturnsJson([
-            'id'          => $example->id->toString(),
-            'createdAt'   => Chronos::now()->toIso8601String(),
-            'updatedAt'   => Chronos::now()->toIso8601String(),
-            'scenario'    => 'Updated scenario',
-            'input'       => 'Original input',
-            'output'      => 'Original output',
-            'explanation' => 'Original explanation',
-        ]);
-
+        self::assertResponseStatusCodeSame(Response::HTTP_NO_CONTENT);
         self::assertDomainEventHasBeenDispatched(DirectiveUpdated::class);
     }
 
@@ -83,18 +60,7 @@ final class UpdateWorkflowExampleTest extends IntegrationTestCase
         ]);
 
         self::assertResponseIsSuccessful();
-        self::assertResponseStatusCodeSame(Response::HTTP_OK);
-
-        self::assertResponseReturnsJson([
-            'id'          => $example->id->toString(),
-            'createdAt'   => Chronos::now()->toIso8601String(),
-            'updatedAt'   => Chronos::now()->toIso8601String(),
-            'scenario'    => 'Original scenario',
-            'input'       => 'Updated input',
-            'output'      => 'Original output',
-            'explanation' => null,
-        ]);
-
+        self::assertResponseStatusCodeSame(Response::HTTP_NO_CONTENT);
         self::assertDomainEventHasBeenDispatched(DirectiveUpdated::class);
     }
 
@@ -109,18 +75,7 @@ final class UpdateWorkflowExampleTest extends IntegrationTestCase
         ]);
 
         self::assertResponseIsSuccessful();
-        self::assertResponseStatusCodeSame(Response::HTTP_OK);
-
-        self::assertResponseReturnsJson([
-            'id'          => $example->id->toString(),
-            'createdAt'   => Chronos::now()->toIso8601String(),
-            'updatedAt'   => Chronos::now()->toIso8601String(),
-            'scenario'    => 'Original scenario',
-            'input'       => 'Original input',
-            'output'      => 'Updated output',
-            'explanation' => null,
-        ]);
-
+        self::assertResponseStatusCodeSame(Response::HTTP_NO_CONTENT);
         self::assertDomainEventHasBeenDispatched(DirectiveUpdated::class);
     }
 
@@ -135,18 +90,7 @@ final class UpdateWorkflowExampleTest extends IntegrationTestCase
         ]);
 
         self::assertResponseIsSuccessful();
-        self::assertResponseStatusCodeSame(Response::HTTP_OK);
-
-        self::assertResponseReturnsJson([
-            'id'          => $example->id->toString(),
-            'createdAt'   => Chronos::now()->toIso8601String(),
-            'updatedAt'   => Chronos::now()->toIso8601String(),
-            'scenario'    => 'Original scenario',
-            'input'       => 'Original input',
-            'output'      => 'Original output',
-            'explanation' => 'New explanation',
-        ]);
-
+        self::assertResponseStatusCodeSame(Response::HTTP_NO_CONTENT);
         self::assertDomainEventHasBeenDispatched(DirectiveUpdated::class);
     }
 

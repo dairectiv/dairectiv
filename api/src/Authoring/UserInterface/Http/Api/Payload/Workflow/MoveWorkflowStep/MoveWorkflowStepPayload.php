@@ -9,9 +9,8 @@ use Symfony\Component\Validator\Constraints;
 final readonly class MoveWorkflowStepPayload
 {
     public function __construct(
-        #[Constraints\NotBlank]
-        #[Constraints\Positive]
-        public int $position,
+        #[Constraints\Uuid]
+        public ?string $afterStepId = null,
     ) {
     }
 }

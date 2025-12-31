@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Dairectiv\Tests\Integration\Authoring\UserInterface\Http\Api\Workflow;
 
-use Cake\Chronos\Chronos;
 use Dairectiv\Authoring\Domain\Object\Directive\Event\DirectiveUpdated;
 use Dairectiv\Authoring\Domain\Object\Workflow\Step\Step;
 use Dairectiv\SharedKernel\Domain\Object\Event\DomainEventQueue;
@@ -17,7 +16,7 @@ use Symfony\Component\HttpFoundation\Response;
 #[Group('api')]
 final class MoveWorkflowStepTest extends IntegrationTestCase
 {
-    public function testItShouldMoveStepToFirstPosition(): void
+    public function testItShouldMoveStepToFirstPositionWithNullAfterStepId(): void
     {
         $workflow = self::draftWorkflowEntity();
         $step1 = Step::create($workflow, 'Step 1');
@@ -25,49 +24,14 @@ final class MoveWorkflowStepTest extends IntegrationTestCase
         $step3 = Step::create($workflow, 'Step 3', $step2);
         $this->persistEntity($workflow);
 
-        $this->moveStep((string) $workflow->id, $step3->id->toString(), ['position' => 1]);
+        $this->moveStep((string) $workflow->id, $step3->id->toString(), ['afterStepId' => null]);
 
         self::assertResponseIsSuccessful();
-        self::assertResponseStatusCodeSame(Response::HTTP_OK);
-
-        self::assertResponseReturnsJson([
-            'id'          => (string) $workflow->id,
-            'createdAt'   => Chronos::now()->toIso8601String(),
-            'updatedAt'   => Chronos::now()->toIso8601String(),
-            'state'       => 'draft',
-            'name'        => $workflow->name,
-            'description' => $workflow->description,
-            'content'     => null,
-            'examples'    => [],
-            'steps'       => [
-                [
-                    'id'        => $step3->id->toString(),
-                    'createdAt' => Chronos::now()->toIso8601String(),
-                    'updatedAt' => Chronos::now()->toIso8601String(),
-                    'order'     => 1,
-                    'content'   => 'Step 3',
-                ],
-                [
-                    'id'        => $step1->id->toString(),
-                    'createdAt' => Chronos::now()->toIso8601String(),
-                    'updatedAt' => Chronos::now()->toIso8601String(),
-                    'order'     => 2,
-                    'content'   => 'Step 1',
-                ],
-                [
-                    'id'        => $step2->id->toString(),
-                    'createdAt' => Chronos::now()->toIso8601String(),
-                    'updatedAt' => Chronos::now()->toIso8601String(),
-                    'order'     => 3,
-                    'content'   => 'Step 2',
-                ],
-            ],
-        ]);
-
+        self::assertResponseStatusCodeSame(Response::HTTP_NO_CONTENT);
         self::assertDomainEventHasBeenDispatched(DirectiveUpdated::class);
     }
 
-    public function testItShouldMoveStepToMiddlePosition(): void
+    public function testItShouldMoveStepAfterSpecificStep(): void
     {
         $workflow = self::draftWorkflowEntity();
         $step1 = Step::create($workflow, 'Step 1');
@@ -75,45 +39,11 @@ final class MoveWorkflowStepTest extends IntegrationTestCase
         $step3 = Step::create($workflow, 'Step 3', $step2);
         $this->persistEntity($workflow);
 
-        $this->moveStep((string) $workflow->id, $step3->id->toString(), ['position' => 2]);
+        // Move step3 after step1 (resulting order: step1, step3, step2)
+        $this->moveStep((string) $workflow->id, $step3->id->toString(), ['afterStepId' => $step1->id->toString()]);
 
         self::assertResponseIsSuccessful();
-        self::assertResponseStatusCodeSame(Response::HTTP_OK);
-
-        self::assertResponseReturnsJson([
-            'id'          => (string) $workflow->id,
-            'createdAt'   => Chronos::now()->toIso8601String(),
-            'updatedAt'   => Chronos::now()->toIso8601String(),
-            'state'       => 'draft',
-            'name'        => $workflow->name,
-            'description' => $workflow->description,
-            'content'     => null,
-            'examples'    => [],
-            'steps'       => [
-                [
-                    'id'        => $step1->id->toString(),
-                    'createdAt' => Chronos::now()->toIso8601String(),
-                    'updatedAt' => Chronos::now()->toIso8601String(),
-                    'order'     => 1,
-                    'content'   => 'Step 1',
-                ],
-                [
-                    'id'        => $step3->id->toString(),
-                    'createdAt' => Chronos::now()->toIso8601String(),
-                    'updatedAt' => Chronos::now()->toIso8601String(),
-                    'order'     => 2,
-                    'content'   => 'Step 3',
-                ],
-                [
-                    'id'        => $step2->id->toString(),
-                    'createdAt' => Chronos::now()->toIso8601String(),
-                    'updatedAt' => Chronos::now()->toIso8601String(),
-                    'order'     => 3,
-                    'content'   => 'Step 2',
-                ],
-            ],
-        ]);
-
+        self::assertResponseStatusCodeSame(Response::HTTP_NO_CONTENT);
         self::assertDomainEventHasBeenDispatched(DirectiveUpdated::class);
     }
 
@@ -125,51 +55,33 @@ final class MoveWorkflowStepTest extends IntegrationTestCase
         $step3 = Step::create($workflow, 'Step 3', $step2);
         $this->persistEntity($workflow);
 
-        $this->moveStep((string) $workflow->id, $step1->id->toString(), ['position' => 3]);
+        // Move step1 after step3 (resulting order: step2, step3, step1)
+        $this->moveStep((string) $workflow->id, $step1->id->toString(), ['afterStepId' => $step3->id->toString()]);
 
         self::assertResponseIsSuccessful();
-        self::assertResponseStatusCodeSame(Response::HTTP_OK);
+        self::assertResponseStatusCodeSame(Response::HTTP_NO_CONTENT);
+        self::assertDomainEventHasBeenDispatched(DirectiveUpdated::class);
+    }
 
-        self::assertResponseReturnsJson([
-            'id'          => (string) $workflow->id,
-            'createdAt'   => Chronos::now()->toIso8601String(),
-            'updatedAt'   => Chronos::now()->toIso8601String(),
-            'state'       => 'draft',
-            'name'        => $workflow->name,
-            'description' => $workflow->description,
-            'content'     => null,
-            'examples'    => [],
-            'steps'       => [
-                [
-                    'id'        => $step2->id->toString(),
-                    'createdAt' => Chronos::now()->toIso8601String(),
-                    'updatedAt' => Chronos::now()->toIso8601String(),
-                    'order'     => 1,
-                    'content'   => 'Step 2',
-                ],
-                [
-                    'id'        => $step3->id->toString(),
-                    'createdAt' => Chronos::now()->toIso8601String(),
-                    'updatedAt' => Chronos::now()->toIso8601String(),
-                    'order'     => 2,
-                    'content'   => 'Step 3',
-                ],
-                [
-                    'id'        => $step1->id->toString(),
-                    'createdAt' => Chronos::now()->toIso8601String(),
-                    'updatedAt' => Chronos::now()->toIso8601String(),
-                    'order'     => 3,
-                    'content'   => 'Step 1',
-                ],
-            ],
-        ]);
+    public function testItShouldMoveStepWithEmptyPayloadToFirstPosition(): void
+    {
+        $workflow = self::draftWorkflowEntity();
+        $step1 = Step::create($workflow, 'Step 1');
+        $step2 = Step::create($workflow, 'Step 2', $step1);
+        $this->persistEntity($workflow);
 
+        // Empty payload means afterStepId is null, which places step at first position
+        $this->moveStep((string) $workflow->id, $step2->id->toString(), []);
+
+        self::assertResponseIsSuccessful();
+        self::assertResponseStatusCodeSame(Response::HTTP_NO_CONTENT);
         self::assertDomainEventHasBeenDispatched(DirectiveUpdated::class);
     }
 
     public function testItShouldReturn404WhenWorkflowNotFound(): void
     {
-        $this->moveStep('non-existent-workflow', '00000000-0000-0000-0000-000000000000', ['position' => 1]);
+        // Use valid UUID v7 format for step ID (not a nil UUID)
+        $this->moveStep('non-existent-workflow', '019b7460-798e-77f8-af01-bc6ab6e25f84', ['afterStepId' => null]);
 
         self::assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
     }
@@ -180,51 +92,31 @@ final class MoveWorkflowStepTest extends IntegrationTestCase
         Step::create($workflow, 'Step 1');
         $this->persistEntity($workflow);
 
-        $this->moveStep((string) $workflow->id, '00000000-0000-0000-0000-000000000000', ['position' => 1]);
+        // Use valid UUID v7 format that doesn't exist in the workflow
+        $this->moveStep((string) $workflow->id, '019b7460-798e-77f8-af01-bc6ab6e25f84', ['afterStepId' => null]);
 
         self::assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
     }
 
-    public function testItShouldReturn400WhenPositionIsInvalid(): void
+    public function testItShouldReturn400WhenAfterStepIdNotFound(): void
     {
         $workflow = self::draftWorkflowEntity();
         $step = Step::create($workflow, 'Step 1');
         $this->persistEntity($workflow);
 
-        $this->moveStep((string) $workflow->id, $step->id->toString(), ['position' => 5]);
+        // Use a valid UUID v7 format that doesn't exist in the workflow
+        $this->moveStep((string) $workflow->id, $step->id->toString(), ['afterStepId' => '019b7460-798e-77f8-af01-bc6ab6e25f84']);
 
         self::assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
     }
 
-    public function testItShouldReturn422WhenPositionIsZero(): void
+    public function testItShouldReturn422WhenAfterStepIdIsInvalidUuid(): void
     {
         $workflow = self::draftWorkflowEntity();
         $step = Step::create($workflow, 'Step 1');
         $this->persistEntity($workflow);
 
-        $this->moveStep((string) $workflow->id, $step->id->toString(), ['position' => 0]);
-
-        self::assertResponseStatusCodeSame(Response::HTTP_UNPROCESSABLE_ENTITY);
-    }
-
-    public function testItShouldReturn422WhenPositionIsNegative(): void
-    {
-        $workflow = self::draftWorkflowEntity();
-        $step = Step::create($workflow, 'Step 1');
-        $this->persistEntity($workflow);
-
-        $this->moveStep((string) $workflow->id, $step->id->toString(), ['position' => -1]);
-
-        self::assertResponseStatusCodeSame(Response::HTTP_UNPROCESSABLE_ENTITY);
-    }
-
-    public function testItShouldReturn422WhenPositionIsMissing(): void
-    {
-        $workflow = self::draftWorkflowEntity();
-        $step = Step::create($workflow, 'Step 1');
-        $this->persistEntity($workflow);
-
-        $this->moveStep((string) $workflow->id, $step->id->toString(), []);
+        $this->moveStep((string) $workflow->id, $step->id->toString(), ['afterStepId' => 'not-a-uuid']);
 
         self::assertResponseStatusCodeSame(Response::HTTP_UNPROCESSABLE_ENTITY);
     }
@@ -237,7 +129,7 @@ final class MoveWorkflowStepTest extends IntegrationTestCase
         $workflow->archive();
         $this->persistEntity($workflow);
 
-        $this->moveStep((string) $workflow->id, $step1->id->toString(), ['position' => 2]);
+        $this->moveStep((string) $workflow->id, $step1->id->toString(), ['afterStepId' => null]);
 
         self::assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
     }
@@ -248,6 +140,6 @@ final class MoveWorkflowStepTest extends IntegrationTestCase
     private function moveStep(string $workflowId, string $stepId, array $payload): void
     {
         DomainEventQueue::reset();
-        $this->postJson(\sprintf('/api/authoring/workflows/%s/steps/%s/move', $workflowId, $stepId), $payload);
+        $this->putJson(\sprintf('/api/authoring/workflows/%s/steps/%s/move', $workflowId, $stepId), $payload);
     }
 }

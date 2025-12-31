@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Dairectiv\Tests\Integration\Authoring\UserInterface\Http\Api\Rule;
 
-use Cake\Chronos\Chronos;
 use Dairectiv\Authoring\Domain\Object\Directive\Event\DirectiveUpdated;
 use Dairectiv\Authoring\Domain\Object\Rule\Example\Example;
 use Dairectiv\SharedKernel\Domain\Object\Event\DomainEventQueue;
@@ -30,17 +29,7 @@ final class UpdateRuleExampleTest extends IntegrationTestCase
         ]);
 
         self::assertResponseIsSuccessful();
-        self::assertResponseStatusCodeSame(Response::HTTP_OK);
-
-        self::assertResponseReturnsJson([
-            'id'          => $example->id->toString(),
-            'createdAt'   => Chronos::now()->toIso8601String(),
-            'updatedAt'   => Chronos::now()->toIso8601String(),
-            'good'        => 'Updated good',
-            'bad'         => 'Updated bad',
-            'explanation' => 'Updated explanation',
-        ]);
-
+        self::assertResponseStatusCodeSame(Response::HTTP_NO_CONTENT);
         self::assertDomainEventHasBeenDispatched(DirectiveUpdated::class);
     }
 
@@ -55,17 +44,7 @@ final class UpdateRuleExampleTest extends IntegrationTestCase
         ]);
 
         self::assertResponseIsSuccessful();
-        self::assertResponseStatusCodeSame(Response::HTTP_OK);
-
-        self::assertResponseReturnsJson([
-            'id'          => $example->id->toString(),
-            'createdAt'   => Chronos::now()->toIso8601String(),
-            'updatedAt'   => Chronos::now()->toIso8601String(),
-            'good'        => 'Updated good',
-            'bad'         => 'Original bad',
-            'explanation' => 'Original explanation',
-        ]);
-
+        self::assertResponseStatusCodeSame(Response::HTTP_NO_CONTENT);
         self::assertDomainEventHasBeenDispatched(DirectiveUpdated::class);
     }
 
@@ -80,17 +59,7 @@ final class UpdateRuleExampleTest extends IntegrationTestCase
         ]);
 
         self::assertResponseIsSuccessful();
-        self::assertResponseStatusCodeSame(Response::HTTP_OK);
-
-        self::assertResponseReturnsJson([
-            'id'          => $example->id->toString(),
-            'createdAt'   => Chronos::now()->toIso8601String(),
-            'updatedAt'   => Chronos::now()->toIso8601String(),
-            'good'        => 'Original good',
-            'bad'         => 'Updated bad',
-            'explanation' => 'Original explanation',
-        ]);
-
+        self::assertResponseStatusCodeSame(Response::HTTP_NO_CONTENT);
         self::assertDomainEventHasBeenDispatched(DirectiveUpdated::class);
     }
 
@@ -105,17 +74,7 @@ final class UpdateRuleExampleTest extends IntegrationTestCase
         ]);
 
         self::assertResponseIsSuccessful();
-        self::assertResponseStatusCodeSame(Response::HTTP_OK);
-
-        self::assertResponseReturnsJson([
-            'id'          => $example->id->toString(),
-            'createdAt'   => Chronos::now()->toIso8601String(),
-            'updatedAt'   => Chronos::now()->toIso8601String(),
-            'good'        => 'Good',
-            'bad'         => 'Bad',
-            'explanation' => 'New explanation',
-        ]);
-
+        self::assertResponseStatusCodeSame(Response::HTTP_NO_CONTENT);
         self::assertDomainEventHasBeenDispatched(DirectiveUpdated::class);
     }
 

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Dairectiv\Tests\Integration\Authoring\UserInterface\Http\Api\Rule;
 
-use Cake\Chronos\Chronos;
 use Dairectiv\Authoring\Domain\Object\Directive\Event\DirectiveArchived;
 use Dairectiv\Authoring\Domain\Object\Rule\Example\Example;
 use Dairectiv\SharedKernel\Domain\Object\Event\DomainEventQueue;
@@ -25,19 +24,7 @@ final class ArchiveRuleTest extends IntegrationTestCase
         $this->archiveRule((string) $rule->id);
 
         self::assertResponseIsSuccessful();
-        self::assertResponseStatusCodeSame(Response::HTTP_OK);
-
-        self::assertResponseReturnsJson([
-            'id'          => (string) $rule->id,
-            'name'        => $rule->name,
-            'description' => $rule->description,
-            'examples'    => [],
-            'content'     => null,
-            'state'       => 'archived',
-            'updatedAt'   => Chronos::now()->toIso8601String(),
-            'createdAt'   => Chronos::now()->toIso8601String(),
-        ]);
-
+        self::assertResponseStatusCodeSame(Response::HTTP_NO_CONTENT);
         self::assertDomainEventHasBeenDispatched(DirectiveArchived::class);
     }
 
@@ -50,19 +37,7 @@ final class ArchiveRuleTest extends IntegrationTestCase
         $this->archiveRule((string) $rule->id);
 
         self::assertResponseIsSuccessful();
-        self::assertResponseStatusCodeSame(Response::HTTP_OK);
-
-        self::assertResponseReturnsJson([
-            'id'          => (string) $rule->id,
-            'name'        => $rule->name,
-            'description' => $rule->description,
-            'examples'    => [],
-            'content'     => null,
-            'state'       => 'archived',
-            'updatedAt'   => Chronos::now()->toIso8601String(),
-            'createdAt'   => Chronos::now()->toIso8601String(),
-        ]);
-
+        self::assertResponseStatusCodeSame(Response::HTTP_NO_CONTENT);
         self::assertDomainEventHasBeenDispatched(DirectiveArchived::class);
     }
 
@@ -75,53 +50,20 @@ final class ArchiveRuleTest extends IntegrationTestCase
         $this->archiveRule((string) $rule->id);
 
         self::assertResponseIsSuccessful();
-        self::assertResponseStatusCodeSame(Response::HTTP_OK);
-
-        self::assertResponseReturnsJson([
-            'id'          => (string) $rule->id,
-            'name'        => $rule->name,
-            'description' => $rule->description,
-            'examples'    => [],
-            'content'     => 'Some rule content',
-            'state'       => 'archived',
-            'updatedAt'   => Chronos::now()->toIso8601String(),
-            'createdAt'   => Chronos::now()->toIso8601String(),
-        ]);
-
+        self::assertResponseStatusCodeSame(Response::HTTP_NO_CONTENT);
         self::assertDomainEventHasBeenDispatched(DirectiveArchived::class);
     }
 
     public function testItShouldArchiveRuleWithExamples(): void
     {
         $rule = self::draftRuleEntity();
-        $example = Example::create($rule, 'good code', 'bad code', 'explanation');
+        Example::create($rule, 'good code', 'bad code', 'explanation');
         $this->persistEntity($rule);
 
         $this->archiveRule((string) $rule->id);
 
         self::assertResponseIsSuccessful();
-        self::assertResponseStatusCodeSame(Response::HTTP_OK);
-
-        self::assertResponseReturnsJson([
-            'id'          => (string) $rule->id,
-            'name'        => $rule->name,
-            'description' => $rule->description,
-            'examples'    => [
-                [
-                    'id'          => $example->id->toString(),
-                    'good'        => 'good code',
-                    'bad'         => 'bad code',
-                    'explanation' => 'explanation',
-                    'createdAt'   => Chronos::now()->toIso8601String(),
-                    'updatedAt'   => Chronos::now()->toIso8601String(),
-                ],
-            ],
-            'content'   => null,
-            'state'     => 'archived',
-            'updatedAt' => Chronos::now()->toIso8601String(),
-            'createdAt' => Chronos::now()->toIso8601String(),
-        ]);
-
+        self::assertResponseStatusCodeSame(Response::HTTP_NO_CONTENT);
         self::assertDomainEventHasBeenDispatched(DirectiveArchived::class);
     }
 
@@ -156,6 +98,6 @@ final class ArchiveRuleTest extends IntegrationTestCase
     private function archiveRule(string $id): void
     {
         DomainEventQueue::reset();
-        $this->postJson(\sprintf('/api/authoring/rules/%s/archive', $id));
+        $this->putJson(\sprintf('/api/authoring/rules/%s/archive', $id));
     }
 }

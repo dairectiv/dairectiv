@@ -134,6 +134,22 @@ abstract class IntegrationTestCase extends WebTestCase
         );
     }
 
+    /**
+     * @param array<array-key, mixed> $json
+     */
+    final public function putJson(string $uri, array $json = []): void
+    {
+        $this->client->request(
+            'PUT',
+            $uri,
+            server: [
+                'CONTENT_TYPE'        => 'application/json',
+                'HTTP_ACCEPT'         => 'application/json',
+            ],
+            content: \Safe\json_encode($json, \JSON_THROW_ON_ERROR),
+        );
+    }
+
     final public function deleteJson(string $uri): void
     {
         $this->client->request(
