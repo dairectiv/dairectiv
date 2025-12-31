@@ -19,20 +19,23 @@ final readonly class DirectiveId extends StringValue
     {
         Assert::maxLength($value, 200, \sprintf('Directive ID "%s" exceeds maximum length of 200 characters.', $value));
 
-        // Check if this is a suffixed ID (ends with -UUID)
+        // Strip all UUID suffixes to get the base part
         // UUID format is 36 chars: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
-        $length = \strlen($value);
-        if ($length > 37) { // At least 1 char + '-' + 36 chars UUID
-            $potentialUuid = substr($value, -36);
-            if (1 === preg_match(self::UUID_PATTERN, $potentialUuid) && '-' === $value[$length - 37]) {
-                // This is a suffixed ID, validate the base part only
-                $basePart = substr($value, 0, $length - 37);
-                if ('' !== $basePart) {
-                    Assert::kebabCase($basePart, \sprintf('Directive ID base "%s" is not in kebab-case.', $basePart));
-                }
-
-                return;
+        $basePart = $value;
+        while (\strlen($basePart) > 37) {
+            $potentialUuid = substr($basePart, -36);
+            if (1 === preg_match(self::UUID_PATTERN, $potentialUuid) && '-' === $basePart[\strlen($basePart) - 37]) {
+                $basePart = substr($basePart, 0, \strlen($basePart) - 37);
+            } else {
+                break;
             }
+        }
+
+        // If we stripped any UUIDs, just validate base is not empty
+        if ($basePart !== $value) {
+            Assert::notEmpty($basePart, 'Directive ID must have a non-empty base part.');
+
+            return;
         }
 
         // Standard ID validation

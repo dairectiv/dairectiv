@@ -77,6 +77,7 @@ final class RuleTest extends UnitTestCase
     {
         $rule = Rule::draft(DirectiveId::fromString('my-rule'), 'My Rule', 'Description');
         $rule->publish();
+        $originalId = (string) $rule->id;
         $this->resetDomainEvents();
 
         Chronos::setTestNow(Chronos::now()->addMinutes(1));
@@ -84,6 +85,12 @@ final class RuleTest extends UnitTestCase
 
         self::assertSame(DirectiveState::Archived, $rule->state);
         self::assertEquals(Chronos::now(), $rule->updatedAt);
+        self::assertStringStartsWith('my-rule-', (string) $rule->id);
+        self::assertNotSame($originalId, (string) $rule->id);
+        self::assertMatchesRegularExpression(
+            '/^my-rule-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/',
+            (string) $rule->id,
+        );
 
         $this->assertDomainEventRecorded(DirectiveArchived::class);
     }
@@ -113,12 +120,15 @@ final class RuleTest extends UnitTestCase
     {
         $rule = Rule::draft(DirectiveId::fromString('my-rule'), 'My Rule', 'Description');
         $rule->archive();
+        $archivedId = (string) $rule->id;
         $this->resetDomainEvents();
 
         Chronos::setTestNow(Chronos::now()->addMinutes(1));
         $rule->delete();
 
         self::assertSame(DirectiveState::Deleted, $rule->state);
+        // Archived ID was already suffixed, delete will suffix again
+        self::assertNotSame($archivedId, (string) $rule->id);
 
         $this->assertDomainEventRecorded(DirectiveDeleted::class);
     }
