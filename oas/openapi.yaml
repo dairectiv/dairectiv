@@ -123,6 +123,37 @@ paths:
                         application/json:
                             schema:
                                 $ref: "#/components/schemas/ValidationErrorResponse"
+        delete:
+            tags:
+                - Rules
+            summary: Delete a rule
+            description: Soft deletes a rule. The rule will no longer be visible but can be recovered by an administrator.
+            operationId: deleteRule
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  description: The unique identifier of the rule
+                  schema:
+                      type: string
+                      pattern: "^[a-z0-9-]+$"
+                      examples:
+                          - "my-rule-id"
+            responses:
+                "204":
+                    description: Rule deleted successfully
+                "404":
+                    description: Rule not found
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/ErrorResponse"
+                "409":
+                    description: Rule cannot be deleted (already deleted)
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/ErrorResponse"
 
     /authoring/rules/{id}/publish:
         put:
@@ -435,6 +466,37 @@ paths:
                         application/json:
                             schema:
                                 $ref: "#/components/schemas/ValidationErrorResponse"
+        delete:
+            tags:
+                - Workflows
+            summary: Delete a workflow
+            description: Soft deletes a workflow. The workflow will no longer be visible but can be recovered by an administrator.
+            operationId: deleteWorkflow
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  description: The unique identifier of the workflow
+                  schema:
+                      type: string
+                      pattern: "^[a-z0-9-]+$"
+                      examples:
+                          - "my-workflow-id"
+            responses:
+                "204":
+                    description: Workflow deleted successfully
+                "404":
+                    description: Workflow not found
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/ErrorResponse"
+                "409":
+                    description: Workflow cannot be deleted (already deleted)
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/ErrorResponse"
 
     /authoring/workflows/{id}/publish:
         put:
@@ -1074,6 +1136,7 @@ components:
                 - draft
                 - published
                 - archived
+                - deleted
             examples:
                 - "draft"
 
