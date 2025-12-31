@@ -103,6 +103,18 @@ abstract class IntegrationTestCase extends WebTestCase
         );
     }
 
+    final public function getJson(string $uri): void
+    {
+        $this->client->request(
+            'GET',
+            $uri,
+            server: [
+                'CONTENT_TYPE'        => 'application/json',
+                'HTTP_ACCEPT'         => 'application/json',
+            ],
+        );
+    }
+
     final public function execute(Command $command): ?object
     {
         DomainEventQueue::reset();
@@ -227,7 +239,22 @@ abstract class IntegrationTestCase extends WebTestCase
         $json = $this->client->getResponse()->getContent();
         self::assertNotFalse($json);
         self::assertJson($json);
-        self::assertEqualsCanonicalizing($expectedJson, \Safe\json_decode($json, true, 512, \JSON_THROW_ON_ERROR));
+        $decodedJson = \Safe\json_decode($json, true, 512, \JSON_THROW_ON_ERROR);
+
+        $sort = function (array &$array) use (&$sort): void {
+            foreach ($array as &$value) {
+                if (\is_array($value)) {
+                    $sort($value);
+                }
+            }
+
+            ksort($array);
+        };
+
+        self::assertIsArray($decodedJson);
+        $sort($decodedJson);
+        $sort($expectedJson);
+        self::assertEqualsCanonicalizing($expectedJson, $decodedJson);
     }
 
     /**

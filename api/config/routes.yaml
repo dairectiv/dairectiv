@@ -7,10 +7,10 @@
 # To list all registered routes, run the following command:
 #   bin/console debug:router
 
-#controllers:
-#    resource:
-#        path: ../src/Authoring/UserInterface/Http/Api
-#        namespace: Dairectiv\Authoring\UserInterface\Http\Api
-#    type: attribute
-#    name_prefix: api_authoring_
-#    prefix: /api/authoring
+controllers:
+    resource:
+        path: ../src/Authoring/UserInterface/Http/Api
+        namespace: Dairectiv\Authoring\UserInterface\Http\Api
+    type: attribute
+    name_prefix: api_authoring_
+    prefix: /api/authoring
