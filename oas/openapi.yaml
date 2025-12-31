@@ -124,6 +124,43 @@ paths:
                             schema:
                                 $ref: "#/components/schemas/ValidationErrorResponse"
 
+    /authoring/rules/{id}/publish:
+        post:
+            tags:
+                - Rules
+            summary: Publish a rule
+            description: Publishes a rule that is currently in draft state. A published rule cannot be edited but is visible to AI tools.
+            operationId: publishRule
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  description: The unique identifier of the rule
+                  schema:
+                      type: string
+                      pattern: "^[a-z0-9-]+$"
+                      examples:
+                          - "my-rule-id"
+            responses:
+                "200":
+                    description: Rule published successfully
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/RuleResponse"
+                "404":
+                    description: Rule not found
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/ErrorResponse"
+                "409":
+                    description: Rule cannot be published (already published or archived)
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/ErrorResponse"
+
     /authoring/rules/{id}/examples:
         post:
             tags:
