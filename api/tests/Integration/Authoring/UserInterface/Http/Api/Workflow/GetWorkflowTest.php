@@ -215,7 +215,8 @@ final class GetWorkflowTest extends IntegrationTestCase
         $workflow->archive();
         $this->persistEntity($workflow);
 
-        $this->getWorkflow();
+        // Archive changes the ID (suffix with UUID), use the new ID
+        $this->getWorkflow((string) $workflow->id);
 
         self::assertResponseIsSuccessful();
 

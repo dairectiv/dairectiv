@@ -158,7 +158,8 @@ final class GetRuleTest extends IntegrationTestCase
         $rule->archive();
         $this->persistEntity($rule);
 
-        $this->getRule();
+        // Archive changes the ID (suffix with UUID), use the new ID
+        $this->getRule((string) $rule->id);
 
         self::assertResponseIsSuccessful();
 

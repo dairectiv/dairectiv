@@ -96,6 +96,7 @@ abstract class Directive extends AggregateRoot
         Assert::notEq($this->state, DirectiveState::Archived, 'Directive is already archived.');
         Assert::notEq($this->state, DirectiveState::Deleted, 'Cannot archive a deleted directive.');
 
+        $this->id = $this->id->suffix();
         $this->state = DirectiveState::Archived;
         $this->updatedAt = Chronos::now();
 
