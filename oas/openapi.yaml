@@ -232,6 +232,40 @@ paths:
                         application/json:
                             schema:
                                 $ref: "#/components/schemas/ErrorResponse"
+        delete:
+            tags:
+                - Rules
+            summary: Remove an example from a rule
+            description: Removes an example from a rule. The example will be permanently deleted.
+            operationId: removeRuleExample
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  description: The unique identifier of the rule
+                  schema:
+                      type: string
+                      pattern: "^[a-z0-9-]+$"
+                      examples:
+                          - "my-rule-id"
+                - name: exampleId
+                  in: path
+                  required: true
+                  description: The unique identifier of the example to remove
+                  schema:
+                      type: string
+                      pattern: "^[a-z0-9-]+$"
+                      examples:
+                          - "019b7460-798e-77f8-af01-bc6ab6e25f84"
+            responses:
+                "204":
+                    description: Example removed successfully
+                "404":
+                    description: Rule or example not found
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/ErrorResponse"
 
     /authoring/workflows/{id}:
         get:
