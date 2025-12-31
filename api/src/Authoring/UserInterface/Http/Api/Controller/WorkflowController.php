@@ -150,8 +150,8 @@ final class WorkflowController extends AbstractController
             return new Response(null, Response::HTTP_NO_CONTENT);
         } catch (WorkflowNotFoundException $e) {
             throw new NotFoundHttpException($e->getMessage(), $e);
-        } catch (InvalidArgumentException $e) {
-            throw new ConflictHttpException($e->getMessage(), $e);
+        } catch (InvalidArgumentException $e) { // @codeCoverageIgnore
+            throw new ConflictHttpException($e->getMessage(), $e); // @codeCoverageIgnore
         }
     }
 

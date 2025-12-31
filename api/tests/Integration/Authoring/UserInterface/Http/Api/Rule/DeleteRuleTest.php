@@ -97,6 +97,18 @@ final class DeleteRuleTest extends IntegrationTestCase
         self::assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
     }
 
+    public function testItShouldReturn404WhenRuleAlreadyDeleted(): void
+    {
+        $rule = self::draftRuleEntity();
+        $rule->delete();
+        $this->persistEntity($rule);
+
+        // The soft delete filter excludes deleted directives, so we get 404
+        $this->deleteRule('rule-id');
+
+        self::assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
+    }
+
     private function deleteRule(string $id): void
     {
         DomainEventQueue::reset();
