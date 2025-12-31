@@ -23,7 +23,9 @@ services:
 
   api:
     container_name: dairectiv-api
-    image: dunglas/frankenphp:php8.4-alpine
+    build:
+      context: .
+      dockerfile: ./docker/api/Dockerfile
     ports:
       - "80:80" # HTTP
       - "443:443" # HTTPS
@@ -36,7 +38,7 @@ services:
     environment:
       SERVER_NAME: :80, :443, localhost
       DATABASE_URL: postgresql://dairectiv:0123456789@postgres:5432/dairectiv?serverVersion=16&charset=utf8
-      MESSENGER_TRANSPORT_DSN: amqp://guest:guest@localhost:5672/%2f/messages
+      MESSENGER_TRANSPORT_DSN: amqp://guest:guest@rabbitmq:5672/%2f/messages
     command: ["frankenphp", "run", "--config", "/app/Caddyfile"]
     working_dir: /app
     restart: unless-stopped
