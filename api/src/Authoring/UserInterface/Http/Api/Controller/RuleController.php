@@ -4,13 +4,16 @@ declare(strict_types=1);
 
 namespace Dairectiv\Authoring\UserInterface\Http\Api\Controller;
 
+use Dairectiv\Authoring\Application\Rule\AddExample;
 use Dairectiv\Authoring\Application\Rule\Draft;
 use Dairectiv\Authoring\Application\Rule\Get;
 use Dairectiv\Authoring\Application\Rule\Update;
 use Dairectiv\Authoring\Domain\Object\Directive\Exception\DirectiveAlreadyExistsException;
 use Dairectiv\Authoring\Domain\Object\Rule\Exception\RuleNotFoundException;
+use Dairectiv\Authoring\UserInterface\Http\Api\Payload\Rule\AddRuleExample\AddRuleExamplePayload;
 use Dairectiv\Authoring\UserInterface\Http\Api\Payload\Rule\DraftRule\DraftRulePayload;
 use Dairectiv\Authoring\UserInterface\Http\Api\Payload\Rule\UpdateRule\UpdateRulePayload;
+use Dairectiv\Authoring\UserInterface\Http\Api\Response\Rule\ExampleResponse;
 use Dairectiv\Authoring\UserInterface\Http\Api\Response\Rule\RuleResponse;
 use Dairectiv\SharedKernel\Application\Command\CommandBus;
 use Dairectiv\SharedKernel\Application\Query\QueryBus;
@@ -18,11 +21,13 @@ use Dairectiv\SharedKernel\Domain\Object\Assert;
 use Dairectiv\SharedKernel\Domain\Object\Exception\InvalidArgumentException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 #[Route('/rules', name: 'rule_')]
 final class RuleController extends AbstractController
@@ -77,6 +82,38 @@ final class RuleController extends AbstractController
             Assert::isInstanceOf($output, Get\Output::class);
 
             return $this->json(RuleResponse::fromRule($output->rule));
+        } catch (RuleNotFoundException $e) {
+            throw new NotFoundHttpException($e->getMessage(), $e);
+        } catch (InvalidArgumentException $e) {
+            throw new BadRequestHttpException($e->getMessage(), $e);
+        }
+    }
+
+    #[Route('/{id}/examples', name: 'add_example', requirements: ['id' => '^[a-z0-9-]+$'], methods: ['POST'])]
+    public function addExample(string $id, #[MapRequestPayload] AddRuleExamplePayload $payload): JsonResponse
+    {
+        try {
+            $output = $this->commandBus->execute(new AddExample\Input(
+                $id,
+                $payload->good,
+                $payload->bad,
+                $payload->explanation,
+            ));
+
+            Assert::isInstanceOf($output, AddExample\Output::class);
+
+            $exampleId = $output->example->id->toString();
+            $ruleUrl = $this->generateUrl(
+                'api_authoring_rule_get',
+                ['id' => $id],
+                UrlGeneratorInterface::ABSOLUTE_URL,
+            );
+
+            return $this->json(
+                ExampleResponse::fromExample($output->example),
+                Response::HTTP_CREATED,
+                ['Location' => \sprintf('%s/examples/%s', $ruleUrl, $exampleId)],
+            );
         } catch (RuleNotFoundException $e) {
             throw new NotFoundHttpException($e->getMessage(), $e);
         } catch (InvalidArgumentException $e) {
