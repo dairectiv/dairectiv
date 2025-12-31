@@ -509,6 +509,58 @@ paths:
                             schema:
                                 $ref: "#/components/schemas/ValidationErrorResponse"
 
+    /authoring/workflows/{id}/examples/{exampleId}:
+        patch:
+            tags:
+                - Workflows
+            summary: Update a workflow example
+            description: Partially updates an example on a workflow. Only provided fields will be updated.
+            operationId: updateWorkflowExample
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  description: The unique identifier of the workflow
+                  schema:
+                      type: string
+                      pattern: "^[a-z0-9-]+$"
+                      examples:
+                          - "my-workflow-id"
+                - name: exampleId
+                  in: path
+                  required: true
+                  description: The unique identifier of the example
+                  schema:
+                      type: string
+                      pattern: "^[a-z0-9-]+$"
+                      examples:
+                          - "019b7460-798e-77f8-af01-bc6ab6e25f84"
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/UpdateWorkflowExamplePayload"
+            responses:
+                "200":
+                    description: Example updated successfully
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/WorkflowExampleResponse"
+                "400":
+                    description: Bad request (no fields provided or workflow is archived)
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/ErrorResponse"
+                "404":
+                    description: Workflow or example not found
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/ErrorResponse"
+
 components:
     schemas:
         RuleResponse:
@@ -934,6 +986,33 @@ components:
                     description: Optional additional explanation of the example
                     examples:
                         - "This demonstrates the happy path for account creation"
+
+        UpdateWorkflowExamplePayload:
+            type: object
+            description: Payload for updating an example on a workflow. All fields are optional, but at least one must be provided.
+            properties:
+                scenario:
+                    type: string
+                    description: Description of the scenario
+                    examples:
+                        - "User wants to update their profile"
+                input:
+                    type: string
+                    description: Input for the scenario
+                    examples:
+                        - "User provides new email address"
+                output:
+                    type: string
+                    description: Expected output for the scenario
+                    examples:
+                        - "Profile is updated and confirmation email is sent"
+                explanation:
+                    type:
+                        - string
+                        - "null"
+                    description: Additional explanation of the example
+                    examples:
+                        - "This demonstrates the profile update flow"
 
         ErrorResponse:
             type: object
