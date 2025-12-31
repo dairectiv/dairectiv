@@ -20,7 +20,7 @@ final class RemoveExampleTest extends IntegrationTestCase
 {
     public function testItShouldRemoveExampleFromWorkflow(): void
     {
-        $workflow = self::draftWorkflow();
+        $workflow = self::draftWorkflowEntity();
         $example = Example::create($workflow, 'Scenario', 'Input', 'Output', 'Explanation');
         $this->persistEntity($workflow);
 
@@ -37,7 +37,7 @@ final class RemoveExampleTest extends IntegrationTestCase
 
     public function testItShouldRemoveOneExampleFromMultiple(): void
     {
-        $workflow = self::draftWorkflow();
+        $workflow = self::draftWorkflowEntity();
         Example::create($workflow, 'Scenario 1', 'Input 1', 'Output 1');
         $example2 = Example::create($workflow, 'Scenario 2', 'Input 2', 'Output 2');
         Example::create($workflow, 'Scenario 3', 'Input 3', 'Output 3');
@@ -68,7 +68,7 @@ final class RemoveExampleTest extends IntegrationTestCase
 
     public function testItShouldThrowExceptionWhenExampleNotFound(): void
     {
-        $workflow = self::draftWorkflow();
+        $workflow = self::draftWorkflowEntity();
         $this->persistEntity($workflow);
 
         $nonExistentId = '00000000-0000-0000-0000-000000000000';
@@ -81,7 +81,7 @@ final class RemoveExampleTest extends IntegrationTestCase
 
     public function testItShouldThrowExceptionWhenWorkflowIsArchived(): void
     {
-        $workflow = self::draftWorkflow();
+        $workflow = self::draftWorkflowEntity();
         $example = Example::create($workflow, 'Scenario', 'Input', 'Output');
         $workflow->archive();
         $this->persistEntity($workflow);

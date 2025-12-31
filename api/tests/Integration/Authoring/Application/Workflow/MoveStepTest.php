@@ -20,7 +20,7 @@ final class MoveStepTest extends IntegrationTestCase
 {
     public function testItShouldMoveStepToBeginning(): void
     {
-        $workflow = self::draftWorkflow();
+        $workflow = self::draftWorkflowEntity();
         $step1 = Step::create($workflow, 'Step 1');
         $step2 = Step::create($workflow, 'Step 2', $step1);
         $step3 = Step::create($workflow, 'Step 3', $step2);
@@ -43,7 +43,7 @@ final class MoveStepTest extends IntegrationTestCase
 
     public function testItShouldMoveStepAfterAnotherStep(): void
     {
-        $workflow = self::draftWorkflow();
+        $workflow = self::draftWorkflowEntity();
         $step1 = Step::create($workflow, 'Step 1');
         $step2 = Step::create($workflow, 'Step 2', $step1);
         $step3 = Step::create($workflow, 'Step 3', $step2);
@@ -66,7 +66,7 @@ final class MoveStepTest extends IntegrationTestCase
 
     public function testItShouldMoveFirstStepToEnd(): void
     {
-        $workflow = self::draftWorkflow();
+        $workflow = self::draftWorkflowEntity();
         $step1 = Step::create($workflow, 'Step 1');
         $step2 = Step::create($workflow, 'Step 2', $step1);
         $step3 = Step::create($workflow, 'Step 3', $step2);
@@ -89,7 +89,7 @@ final class MoveStepTest extends IntegrationTestCase
 
     public function testItShouldDoNothingWhenMovingAfterItself(): void
     {
-        $workflow = self::draftWorkflow();
+        $workflow = self::draftWorkflowEntity();
         $step1 = Step::create($workflow, 'Step 1');
         $step2 = Step::create($workflow, 'Step 2', $step1);
         Step::create($workflow, 'Step 3', $step2);
@@ -111,7 +111,7 @@ final class MoveStepTest extends IntegrationTestCase
 
     public function testItShouldDoNothingWhenStepAlreadyInPosition(): void
     {
-        $workflow = self::draftWorkflow();
+        $workflow = self::draftWorkflowEntity();
         $step1 = Step::create($workflow, 'Step 1');
         $step2 = Step::create($workflow, 'Step 2', $step1);
         Step::create($workflow, 'Step 3', $step2);
@@ -144,7 +144,7 @@ final class MoveStepTest extends IntegrationTestCase
 
     public function testItShouldThrowExceptionWhenStepNotFound(): void
     {
-        $workflow = self::draftWorkflow();
+        $workflow = self::draftWorkflowEntity();
         $this->persistEntity($workflow);
 
         $nonExistentId = '00000000-0000-0000-0000-000000000000';
@@ -157,7 +157,7 @@ final class MoveStepTest extends IntegrationTestCase
 
     public function testItShouldThrowExceptionWhenReferenceStepNotFound(): void
     {
-        $workflow = self::draftWorkflow();
+        $workflow = self::draftWorkflowEntity();
         $step = Step::create($workflow, 'Step');
         $this->persistEntity($workflow);
 
@@ -171,7 +171,7 @@ final class MoveStepTest extends IntegrationTestCase
 
     public function testItShouldThrowExceptionWhenWorkflowIsArchived(): void
     {
-        $workflow = self::draftWorkflow();
+        $workflow = self::draftWorkflowEntity();
         $step1 = Step::create($workflow, 'Step 1');
         $step2 = Step::create($workflow, 'Step 2', $step1);
         $workflow->archive();
@@ -185,7 +185,7 @@ final class MoveStepTest extends IntegrationTestCase
 
     public function testItShouldMoveMiddleStepForward(): void
     {
-        $workflow = self::draftWorkflow();
+        $workflow = self::draftWorkflowEntity();
         $step1 = Step::create($workflow, 'Step 1');
         $step2 = Step::create($workflow, 'Step 2', $step1);
         $step3 = Step::create($workflow, 'Step 3', $step2);
@@ -211,7 +211,7 @@ final class MoveStepTest extends IntegrationTestCase
 
     public function testItShouldMoveMiddleStepBackward(): void
     {
-        $workflow = self::draftWorkflow();
+        $workflow = self::draftWorkflowEntity();
         $step1 = Step::create($workflow, 'Step 1');
         $step2 = Step::create($workflow, 'Step 2', $step1);
         $step3 = Step::create($workflow, 'Step 3', $step2);

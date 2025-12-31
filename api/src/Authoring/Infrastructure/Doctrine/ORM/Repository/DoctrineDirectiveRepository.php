@@ -34,6 +34,8 @@ final class DoctrineDirectiveRepository extends ServiceEntityRepository implemen
 
     public function findDirectiveById(DirectiveId $id): ?Directive
     {
+        $this->findAll();
+
         return $this->find($id);
     }
 }

@@ -20,7 +20,7 @@ final class RemoveExampleTest extends IntegrationTestCase
 {
     public function testItShouldRemoveExampleFromRule(): void
     {
-        $rule = self::draftRule();
+        $rule = self::draftRuleEntity();
         $example = Example::create($rule, 'Good', 'Bad', 'Explanation');
         $this->persistEntity($rule);
 
@@ -37,7 +37,7 @@ final class RemoveExampleTest extends IntegrationTestCase
 
     public function testItShouldRemoveOneExampleFromMultiple(): void
     {
-        $rule = self::draftRule();
+        $rule = self::draftRuleEntity();
         Example::create($rule, 'Good 1', 'Bad 1');
         $example2 = Example::create($rule, 'Good 2', 'Bad 2');
         Example::create($rule, 'Good 3', 'Bad 3');
@@ -68,7 +68,7 @@ final class RemoveExampleTest extends IntegrationTestCase
 
     public function testItShouldThrowExceptionWhenExampleNotFound(): void
     {
-        $rule = self::draftRule();
+        $rule = self::draftRuleEntity();
         $this->persistEntity($rule);
 
         $nonExistentId = '00000000-0000-0000-0000-000000000000';
@@ -81,7 +81,7 @@ final class RemoveExampleTest extends IntegrationTestCase
 
     public function testItShouldThrowExceptionWhenRuleIsArchived(): void
     {
-        $rule = self::draftRule();
+        $rule = self::draftRuleEntity();
         $example = Example::create($rule, 'Good', 'Bad');
         $rule->archive();
         $this->persistEntity($rule);

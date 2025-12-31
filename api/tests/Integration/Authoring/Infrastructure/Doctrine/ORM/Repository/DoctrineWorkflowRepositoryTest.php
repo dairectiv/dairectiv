@@ -26,7 +26,7 @@ final class DoctrineWorkflowRepositoryTest extends IntegrationTestCase
 
     public function testItShouldSaveAndFindWorkflowById(): void
     {
-        $workflow = self::draftWorkflow();
+        $workflow = self::draftWorkflowEntity();
 
         $this->repository->save($workflow);
         $this->getEntityManager()->flush();
@@ -40,7 +40,7 @@ final class DoctrineWorkflowRepositoryTest extends IntegrationTestCase
 
     public function testItShouldSaveAndGetWorkflowById(): void
     {
-        $workflow = self::draftWorkflow();
+        $workflow = self::draftWorkflowEntity();
 
         $this->repository->save($workflow);
         $this->getEntityManager()->flush();

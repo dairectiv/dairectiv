@@ -21,7 +21,7 @@ final class UpdateStepTest extends IntegrationTestCase
 {
     public function testItShouldUpdateStepContent(): void
     {
-        $workflow = self::draftWorkflow();
+        $workflow = self::draftWorkflowEntity();
         $step = Step::create($workflow, 'Original content');
         $this->persistEntity($workflow);
 
@@ -45,7 +45,7 @@ final class UpdateStepTest extends IntegrationTestCase
 
     public function testItShouldUpdateStepTimestamp(): void
     {
-        $workflow = self::draftWorkflow();
+        $workflow = self::draftWorkflowEntity();
         $step = Step::create($workflow, 'Content');
         $this->persistEntity($workflow);
 
@@ -68,7 +68,7 @@ final class UpdateStepTest extends IntegrationTestCase
 
     public function testItShouldPreserveStepOrder(): void
     {
-        $workflow = self::draftWorkflow();
+        $workflow = self::draftWorkflowEntity();
         $step1 = Step::create($workflow, 'Step 1');
         $step2 = Step::create($workflow, 'Step 2', $step1);
         Step::create($workflow, 'Step 3', $step2);
@@ -106,7 +106,7 @@ final class UpdateStepTest extends IntegrationTestCase
 
     public function testItShouldThrowExceptionWhenStepNotFound(): void
     {
-        $workflow = self::draftWorkflow();
+        $workflow = self::draftWorkflowEntity();
         $this->persistEntity($workflow);
 
         $nonExistentId = '00000000-0000-0000-0000-000000000000';
@@ -119,7 +119,7 @@ final class UpdateStepTest extends IntegrationTestCase
 
     public function testItShouldThrowExceptionWhenWorkflowIsArchived(): void
     {
-        $workflow = self::draftWorkflow();
+        $workflow = self::draftWorkflowEntity();
         $step = Step::create($workflow, 'Content');
         $workflow->archive();
         $this->persistEntity($workflow);
@@ -132,7 +132,7 @@ final class UpdateStepTest extends IntegrationTestCase
 
     public function testItShouldUpdateOnlySpecifiedStep(): void
     {
-        $workflow = self::draftWorkflow();
+        $workflow = self::draftWorkflowEntity();
         $step1 = Step::create($workflow, 'Original Step 1');
         Step::create($workflow, 'Original Step 2', $step1);
         $this->persistEntity($workflow);

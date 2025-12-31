@@ -20,7 +20,7 @@ final class UpdateExampleTest extends IntegrationTestCase
 {
     public function testItShouldUpdateAllExampleFields(): void
     {
-        $workflow = self::draftWorkflow();
+        $workflow = self::draftWorkflowEntity();
         $example = Example::create($workflow, 'Original scenario', 'Original input', 'Original output', 'Original explanation');
         $this->persistEntity($workflow);
 
@@ -47,7 +47,7 @@ final class UpdateExampleTest extends IntegrationTestCase
 
     public function testItShouldUpdateScenarioOnly(): void
     {
-        $workflow = self::draftWorkflow();
+        $workflow = self::draftWorkflowEntity();
         $example = Example::create($workflow, 'Original scenario', 'Original input', 'Original output', 'Original explanation');
         $this->persistEntity($workflow);
 
@@ -71,7 +71,7 @@ final class UpdateExampleTest extends IntegrationTestCase
 
     public function testItShouldUpdateInputOnly(): void
     {
-        $workflow = self::draftWorkflow();
+        $workflow = self::draftWorkflowEntity();
         $example = Example::create($workflow, 'Original scenario', 'Original input', 'Original output');
         $this->persistEntity($workflow);
 
@@ -93,7 +93,7 @@ final class UpdateExampleTest extends IntegrationTestCase
 
     public function testItShouldUpdateOutputOnly(): void
     {
-        $workflow = self::draftWorkflow();
+        $workflow = self::draftWorkflowEntity();
         $example = Example::create($workflow, 'Original scenario', 'Original input', 'Original output');
         $this->persistEntity($workflow);
 
@@ -115,7 +115,7 @@ final class UpdateExampleTest extends IntegrationTestCase
 
     public function testItShouldUpdateExplanationOnly(): void
     {
-        $workflow = self::draftWorkflow();
+        $workflow = self::draftWorkflowEntity();
         $example = Example::create($workflow, 'Original scenario', 'Original input', 'Original output');
         $this->persistEntity($workflow);
 
@@ -147,7 +147,7 @@ final class UpdateExampleTest extends IntegrationTestCase
 
     public function testItShouldThrowExceptionWhenExampleNotFound(): void
     {
-        $workflow = self::draftWorkflow();
+        $workflow = self::draftWorkflowEntity();
         $this->persistEntity($workflow);
 
         $nonExistentId = '00000000-0000-0000-0000-000000000000';
@@ -164,7 +164,7 @@ final class UpdateExampleTest extends IntegrationTestCase
 
     public function testItShouldThrowExceptionWhenNoFieldsProvided(): void
     {
-        $workflow = self::draftWorkflow();
+        $workflow = self::draftWorkflowEntity();
         $example = Example::create($workflow, 'Scenario', 'Input', 'Output');
         $this->persistEntity($workflow);
 
@@ -176,7 +176,7 @@ final class UpdateExampleTest extends IntegrationTestCase
 
     public function testItShouldThrowExceptionWhenWorkflowIsArchived(): void
     {
-        $workflow = self::draftWorkflow();
+        $workflow = self::draftWorkflowEntity();
         $example = Example::create($workflow, 'Scenario', 'Input', 'Output');
         $workflow->archive();
         $this->persistEntity($workflow);

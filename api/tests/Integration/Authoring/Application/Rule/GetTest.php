@@ -19,7 +19,7 @@ final class GetTest extends IntegrationTestCase
 {
     public function testItShouldGetRule(): void
     {
-        $rule = self::draftRule(id: 'my-rule', name: 'My Rule', description: 'A description');
+        $rule = self::draftRuleEntity(id: 'my-rule', name: 'My Rule', description: 'A description');
         $rule->updateContent('Some content');
         $this->persistEntity($rule);
 
@@ -34,7 +34,7 @@ final class GetTest extends IntegrationTestCase
 
     public function testItShouldGetRuleWithExamples(): void
     {
-        $rule = self::draftRule(id: 'rule-with-examples');
+        $rule = self::draftRuleEntity(id: 'rule-with-examples');
         Example::create($rule, 'good1', 'bad1', 'explanation1');
         Example::create($rule, 'good2', 'bad2', 'explanation2');
         $this->persistEntity($rule);

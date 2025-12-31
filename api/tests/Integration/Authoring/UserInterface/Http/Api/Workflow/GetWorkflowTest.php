@@ -18,14 +18,14 @@ final class GetWorkflowTest extends IntegrationTestCase
 {
     public function testItShouldGetWorkflowWithoutContentExamplesAndSteps(): void
     {
-        $workflow = self::draftWorkflow();
+        $workflow = self::draftWorkflowEntity();
         $this->persistEntity($workflow);
 
         $this->getWorkflow();
 
         self::assertResponseIsSuccessful();
 
-        self::assertResponseReturnsJson([
+        IntegrationTestCase::assertResponseReturnsJson([
             'id'          => (string) $workflow->id,
             'name'        => $workflow->name,
             'description' => $workflow->description,
@@ -40,7 +40,7 @@ final class GetWorkflowTest extends IntegrationTestCase
 
     public function testItShouldGetWorkflowWithContent(): void
     {
-        $workflow = self::draftWorkflow();
+        $workflow = self::draftWorkflowEntity();
         $workflow->updateContent('Some workflow content');
         $this->persistEntity($workflow);
 
@@ -48,7 +48,7 @@ final class GetWorkflowTest extends IntegrationTestCase
 
         self::assertResponseIsSuccessful();
 
-        self::assertResponseReturnsJson([
+        IntegrationTestCase::assertResponseReturnsJson([
             'id'          => (string) $workflow->id,
             'name'        => $workflow->name,
             'description' => $workflow->description,
@@ -63,7 +63,7 @@ final class GetWorkflowTest extends IntegrationTestCase
 
     public function testItShouldGetWorkflowWithExamples(): void
     {
-        $workflow = self::draftWorkflow();
+        $workflow = self::draftWorkflowEntity();
         $example1 = Example::create($workflow, 'scenario1', 'input1', 'output1', 'explanation1');
         $example2 = Example::create($workflow, 'scenario2', 'input2', 'output2');
         $this->persistEntity($workflow);
@@ -72,7 +72,7 @@ final class GetWorkflowTest extends IntegrationTestCase
 
         self::assertResponseIsSuccessful();
 
-        self::assertResponseReturnsJson([
+        IntegrationTestCase::assertResponseReturnsJson([
             'id'          => (string) $workflow->id,
             'name'        => $workflow->name,
             'description' => $workflow->description,
@@ -106,7 +106,7 @@ final class GetWorkflowTest extends IntegrationTestCase
 
     public function testItShouldGetWorkflowWithSteps(): void
     {
-        $workflow = self::draftWorkflow();
+        $workflow = self::draftWorkflowEntity();
         $step1 = Step::create($workflow, 'Step 1 content');
         $step2 = Step::create($workflow, 'Step 2 content', $step1);
         $this->persistEntity($workflow);
@@ -115,7 +115,7 @@ final class GetWorkflowTest extends IntegrationTestCase
 
         self::assertResponseIsSuccessful();
 
-        self::assertResponseReturnsJson([
+        IntegrationTestCase::assertResponseReturnsJson([
             'id'          => (string) $workflow->id,
             'name'        => $workflow->name,
             'description' => $workflow->description,
@@ -145,7 +145,7 @@ final class GetWorkflowTest extends IntegrationTestCase
 
     public function testItShouldGetWorkflowWithContentExamplesAndSteps(): void
     {
-        $workflow = self::draftWorkflow();
+        $workflow = self::draftWorkflowEntity();
         $workflow->updateContent('Complete workflow content');
         $example = Example::create($workflow, 'scenario', 'input', 'output', 'explanation');
         $step = Step::create($workflow, 'Step content');
@@ -155,7 +155,7 @@ final class GetWorkflowTest extends IntegrationTestCase
 
         self::assertResponseIsSuccessful();
 
-        self::assertResponseReturnsJson([
+        IntegrationTestCase::assertResponseReturnsJson([
             'id'          => (string) $workflow->id,
             'name'        => $workflow->name,
             'description' => $workflow->description,
@@ -188,7 +188,7 @@ final class GetWorkflowTest extends IntegrationTestCase
 
     public function testItShouldGetPublishedWorkflow(): void
     {
-        $workflow = self::draftWorkflow();
+        $workflow = self::draftWorkflowEntity();
         $workflow->publish();
         $this->persistEntity($workflow);
 
@@ -196,7 +196,7 @@ final class GetWorkflowTest extends IntegrationTestCase
 
         self::assertResponseIsSuccessful();
 
-        self::assertResponseReturnsJson([
+        IntegrationTestCase::assertResponseReturnsJson([
             'id'          => (string) $workflow->id,
             'name'        => $workflow->name,
             'description' => $workflow->description,
@@ -211,7 +211,7 @@ final class GetWorkflowTest extends IntegrationTestCase
 
     public function testItShouldGetArchivedWorkflow(): void
     {
-        $workflow = self::draftWorkflow();
+        $workflow = self::draftWorkflowEntity();
         $workflow->archive();
         $this->persistEntity($workflow);
 
@@ -219,7 +219,7 @@ final class GetWorkflowTest extends IntegrationTestCase
 
         self::assertResponseIsSuccessful();
 
-        self::assertResponseReturnsJson([
+        IntegrationTestCase::assertResponseReturnsJson([
             'id'          => (string) $workflow->id,
             'name'        => $workflow->name,
             'description' => $workflow->description,

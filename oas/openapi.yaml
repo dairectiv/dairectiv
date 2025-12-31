@@ -13,6 +13,39 @@ tags:
       description: Workflow management endpoints
 
 paths:
+    /authoring/rules:
+        post:
+            tags:
+                - Rules
+            summary: Draft a new rule
+            description: Creates a new rule in draft state with the provided name and description
+            operationId: draftRule
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/DraftRulePayload"
+            responses:
+                "201":
+                    description: Rule drafted successfully
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/RuleResponse"
+                "409":
+                    description: Directive with this name already exists
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/ErrorResponse"
+                "422":
+                    description: Validation error
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/ValidationErrorResponse"
+
     /authoring/rules/{id}:
         get:
             tags:
@@ -332,6 +365,27 @@ components:
             examples:
                 - "draft"
 
+        DraftRulePayload:
+            type: object
+            required:
+                - name
+                - description
+            properties:
+                name:
+                    type: string
+                    description: Name of the rule
+                    minLength: 1
+                    maxLength: 255
+                    examples:
+                        - "My Rule"
+                description:
+                    type: string
+                    description: Description of the rule
+                    minLength: 1
+                    maxLength: 500
+                    examples:
+                        - "A detailed description of what this rule does"
+
         ErrorResponse:
             type: object
             required:
@@ -359,3 +413,68 @@ components:
                     description: Detailed error message
                     examples:
                         - "Rule with ID non-existent-rule not found."
+
+        ValidationErrorResponse:
+            type: object
+            required:
+                - type
+                - title
+                - status
+                - violations
+            properties:
+                type:
+                    type: string
+                    description: URI reference identifying the error type
+                    examples:
+                        - "https://symfony.com/errors/validation"
+                title:
+                    type: string
+                    description: Short summary of the error
+                    examples:
+                        - "Validation Failed"
+                status:
+                    type: integer
+                    description: HTTP status code
+                    examples:
+                        - 422
+                detail:
+                    type: string
+                    description: Detailed error message
+                    examples:
+                        - "name: This value should not be blank."
+                violations:
+                    type: array
+                    description: List of validation violations
+                    items:
+                        $ref: "#/components/schemas/ValidationViolation"
+
+        ValidationViolation:
+            type: object
+            required:
+                - propertyPath
+                - title
+            properties:
+                propertyPath:
+                    type: string
+                    description: The property that failed validation
+                    examples:
+                        - "name"
+                title:
+                    type: string
+                    description: The validation error message
+                    examples:
+                        - "This value should not be blank."
+                template:
+                    type: string
+                    description: The validation error message template
+                    examples:
+                        - "This value should not be blank."
+                parameters:
+                    type: object
+                    description: Parameters for the validation error message
+                    additionalProperties: true
+                type:
+                    type: string
+                    description: The validation constraint type that failed
+                    examples:
+                        - "urn:uuid:c1051bb4-d103-4f74-8988-acbcafc7fdc3"

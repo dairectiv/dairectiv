@@ -17,14 +17,14 @@ final class GetRuleTest extends IntegrationTestCase
 {
     public function testItShouldGetRuleWithoutContentAndExamples(): void
     {
-        $rule = self::draftRule();
+        $rule = self::draftRuleEntity();
         $this->persistEntity($rule);
 
         $this->getRule();
 
         self::assertResponseIsSuccessful();
 
-        self::assertResponseReturnsJson([
+        IntegrationTestCase::assertResponseReturnsJson([
             'id'          => (string) $rule->id,
             'name'        => $rule->name,
             'description' => $rule->description,
@@ -38,7 +38,7 @@ final class GetRuleTest extends IntegrationTestCase
 
     public function testItShouldGetRuleWithContent(): void
     {
-        $rule = self::draftRule();
+        $rule = self::draftRuleEntity();
         $rule->updateContent('Some rule content');
         $this->persistEntity($rule);
 
@@ -46,7 +46,7 @@ final class GetRuleTest extends IntegrationTestCase
 
         self::assertResponseIsSuccessful();
 
-        self::assertResponseReturnsJson([
+        IntegrationTestCase::assertResponseReturnsJson([
             'id'          => (string) $rule->id,
             'name'        => $rule->name,
             'description' => $rule->description,
@@ -60,7 +60,7 @@ final class GetRuleTest extends IntegrationTestCase
 
     public function testItShouldGetRuleWithExamples(): void
     {
-        $rule = self::draftRule();
+        $rule = self::draftRuleEntity();
         $example1 = Example::create($rule, 'good1', 'bad1', 'explanation1');
         $example2 = Example::create($rule, 'good2', 'bad2', 'explanation2');
         $this->persistEntity($rule);
@@ -69,7 +69,7 @@ final class GetRuleTest extends IntegrationTestCase
 
         self::assertResponseIsSuccessful();
 
-        self::assertResponseReturnsJson([
+        IntegrationTestCase::assertResponseReturnsJson([
             'id'          => (string) $rule->id,
             'name'        => $rule->name,
             'description' => $rule->description,
@@ -100,7 +100,7 @@ final class GetRuleTest extends IntegrationTestCase
 
     public function testItShouldGetRuleWithContentAndExamples(): void
     {
-        $rule = self::draftRule();
+        $rule = self::draftRuleEntity();
         $rule->updateContent('Complete rule content');
         $example = Example::create($rule, 'good', 'bad', 'explanation');
         $this->persistEntity($rule);
@@ -109,7 +109,7 @@ final class GetRuleTest extends IntegrationTestCase
 
         self::assertResponseIsSuccessful();
 
-        self::assertResponseReturnsJson([
+        IntegrationTestCase::assertResponseReturnsJson([
             'id'          => (string) $rule->id,
             'name'        => $rule->name,
             'description' => $rule->description,
@@ -132,7 +132,7 @@ final class GetRuleTest extends IntegrationTestCase
 
     public function testItShouldGetPublishedRule(): void
     {
-        $rule = self::draftRule();
+        $rule = self::draftRuleEntity();
         $rule->publish();
         $this->persistEntity($rule);
 
@@ -140,7 +140,7 @@ final class GetRuleTest extends IntegrationTestCase
 
         self::assertResponseIsSuccessful();
 
-        self::assertResponseReturnsJson([
+        IntegrationTestCase::assertResponseReturnsJson([
             'id'          => (string) $rule->id,
             'name'        => $rule->name,
             'description' => $rule->description,
@@ -154,7 +154,7 @@ final class GetRuleTest extends IntegrationTestCase
 
     public function testItShouldGetArchivedRule(): void
     {
-        $rule = self::draftRule();
+        $rule = self::draftRuleEntity();
         $rule->archive();
         $this->persistEntity($rule);
 
@@ -162,7 +162,7 @@ final class GetRuleTest extends IntegrationTestCase
 
         self::assertResponseIsSuccessful();
 
-        self::assertResponseReturnsJson([
+        IntegrationTestCase::assertResponseReturnsJson([
             'id'          => (string) $rule->id,
             'name'        => $rule->name,
             'description' => $rule->description,

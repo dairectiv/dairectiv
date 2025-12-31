@@ -20,7 +20,7 @@ final class UpdateTest extends IntegrationTestCase
 {
     public function testItShouldUpdateRuleName(): void
     {
-        $rule = self::draftRule(name: 'Original Name', description: 'Original description');
+        $rule = self::draftRuleEntity(name: 'Original Name', description: 'Original description');
         $this->persistEntity($rule);
 
         $this->execute(new Input((string) $rule->id, name: 'Updated Name'));
@@ -35,7 +35,7 @@ final class UpdateTest extends IntegrationTestCase
 
     public function testItShouldUpdateRuleDescription(): void
     {
-        $rule = self::draftRule(description: 'Original description');
+        $rule = self::draftRuleEntity(description: 'Original description');
         $this->persistEntity($rule);
 
         $this->execute(new Input((string) $rule->id, description: 'Updated description'));
@@ -49,7 +49,7 @@ final class UpdateTest extends IntegrationTestCase
 
     public function testItShouldUpdateRuleContent(): void
     {
-        $rule = self::draftRule();
+        $rule = self::draftRuleEntity();
         $this->persistEntity($rule);
 
         self::assertNull($rule->content);
@@ -65,7 +65,7 @@ final class UpdateTest extends IntegrationTestCase
 
     public function testItShouldUpdateAllFields(): void
     {
-        $rule = self::draftRule();
+        $rule = self::draftRuleEntity();
         $this->persistEntity($rule);
 
         $this->execute(new Input(
@@ -87,7 +87,7 @@ final class UpdateTest extends IntegrationTestCase
 
     public function testItShouldThrowExceptionWhenNoFieldsProvided(): void
     {
-        $rule = self::draftRule();
+        $rule = self::draftRuleEntity();
         $this->persistEntity($rule);
 
         $this->expectException(InvalidArgumentException::class);
@@ -105,7 +105,7 @@ final class UpdateTest extends IntegrationTestCase
 
     public function testItShouldThrowExceptionWhenRuleIsArchived(): void
     {
-        $rule = self::draftRule();
+        $rule = self::draftRuleEntity();
         $rule->archive();
         $this->persistEntity($rule);
 
@@ -117,7 +117,7 @@ final class UpdateTest extends IntegrationTestCase
 
     public function testItShouldUpdateRuleTimestamp(): void
     {
-        $rule = self::draftRule();
+        $rule = self::draftRuleEntity();
         $this->persistEntity($rule);
 
         Chronos::setTestNow(Chronos::now()->addDays(1));

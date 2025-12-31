@@ -20,7 +20,7 @@ final class ArchiveTest extends IntegrationTestCase
 {
     public function testItShouldArchiveRule(): void
     {
-        $rule = self::draftRule();
+        $rule = self::draftRuleEntity();
         $this->persistEntity($rule);
 
         $this->execute(new Input((string) $rule->id));
@@ -33,7 +33,7 @@ final class ArchiveTest extends IntegrationTestCase
 
     public function testItShouldArchiveWorkflow(): void
     {
-        $workflow = self::draftWorkflow();
+        $workflow = self::draftWorkflowEntity();
         $this->persistEntity($workflow);
 
         $this->execute(new Input((string) $workflow->id));

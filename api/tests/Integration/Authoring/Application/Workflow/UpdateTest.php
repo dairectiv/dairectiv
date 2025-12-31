@@ -20,7 +20,7 @@ final class UpdateTest extends IntegrationTestCase
 {
     public function testItShouldUpdateWorkflowMetadata(): void
     {
-        $workflow = self::draftWorkflow();
+        $workflow = self::draftWorkflowEntity();
         $this->persistEntity($workflow);
 
         $this->execute(new Input(
@@ -40,7 +40,7 @@ final class UpdateTest extends IntegrationTestCase
 
     public function testItShouldUpdateWorkflowNameOnly(): void
     {
-        $workflow = self::draftWorkflow(name: 'Original Name', description: 'Original Description');
+        $workflow = self::draftWorkflowEntity(name: 'Original Name', description: 'Original Description');
         $this->persistEntity($workflow);
 
         $this->execute(new Input(
@@ -58,7 +58,7 @@ final class UpdateTest extends IntegrationTestCase
 
     public function testItShouldUpdateWorkflowDescriptionOnly(): void
     {
-        $workflow = self::draftWorkflow(name: 'Original Name', description: 'Original Description');
+        $workflow = self::draftWorkflowEntity(name: 'Original Name', description: 'Original Description');
         $this->persistEntity($workflow);
 
         $this->execute(new Input(
@@ -76,7 +76,7 @@ final class UpdateTest extends IntegrationTestCase
 
     public function testItShouldUpdateWorkflowContentOnly(): void
     {
-        $workflow = self::draftWorkflow();
+        $workflow = self::draftWorkflowEntity();
         $this->persistEntity($workflow);
 
         $this->execute(new Input(
@@ -93,7 +93,7 @@ final class UpdateTest extends IntegrationTestCase
 
     public function testItShouldUpdateAllFields(): void
     {
-        $workflow = self::draftWorkflow(name: 'Original Name', description: 'Original Description');
+        $workflow = self::draftWorkflowEntity(name: 'Original Name', description: 'Original Description');
         $this->persistEntity($workflow);
 
         $this->execute(new Input(
@@ -125,7 +125,7 @@ final class UpdateTest extends IntegrationTestCase
 
     public function testItShouldThrowExceptionWhenWorkflowIsArchived(): void
     {
-        $workflow = self::draftWorkflow();
+        $workflow = self::draftWorkflowEntity();
         $workflow->archive();
         $this->persistEntity($workflow);
 
@@ -140,7 +140,7 @@ final class UpdateTest extends IntegrationTestCase
 
     public function testItShouldThrowExceptionWhenNoFieldsProvided(): void
     {
-        $workflow = self::draftWorkflow();
+        $workflow = self::draftWorkflowEntity();
         $this->persistEntity($workflow);
 
         $this->expectException(InvalidArgumentException::class);
@@ -151,7 +151,7 @@ final class UpdateTest extends IntegrationTestCase
 
     public function testItShouldUpdatePublishedWorkflow(): void
     {
-        $workflow = self::draftWorkflow();
+        $workflow = self::draftWorkflowEntity();
         $workflow->publish();
         $this->persistEntity($workflow);
 
