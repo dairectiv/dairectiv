@@ -134,6 +134,18 @@ abstract class IntegrationTestCase extends WebTestCase
         );
     }
 
+    final public function deleteJson(string $uri): void
+    {
+        $this->client->request(
+            'DELETE',
+            $uri,
+            server: [
+                'CONTENT_TYPE'        => 'application/json',
+                'HTTP_ACCEPT'         => 'application/json',
+            ],
+        );
+    }
+
     final public function execute(Command $command): ?object
     {
         DomainEventQueue::reset();
