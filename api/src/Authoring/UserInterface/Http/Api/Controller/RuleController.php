@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Dairectiv\Authoring\UserInterface\Http\Api\Controller;
 
 use Dairectiv\Authoring\Application\Directive\Archive;
+use Dairectiv\Authoring\Application\Directive\Delete;
 use Dairectiv\Authoring\Application\Directive\Publish;
 use Dairectiv\Authoring\Application\Rule\AddExample;
 use Dairectiv\Authoring\Application\Rule\Draft;
@@ -120,6 +121,24 @@ final class RuleController extends AbstractController
 
             // Then archive it
             $this->commandBus->execute(new Archive\Input($id));
+
+            return new Response(null, Response::HTTP_NO_CONTENT);
+        } catch (RuleNotFoundException $e) {
+            throw new NotFoundHttpException($e->getMessage(), $e);
+        } catch (InvalidArgumentException $e) {
+            throw new ConflictHttpException($e->getMessage(), $e);
+        }
+    }
+
+    #[Route('/{id}', name: 'delete', requirements: ['id' => '^[a-z0-9-]+$'], methods: ['DELETE'])]
+    public function delete(string $id): Response
+    {
+        try {
+            // First verify the rule exists (throws RuleNotFoundException if not found or not a Rule)
+            $this->queryBus->fetch(new Get\Input($id));
+
+            // Then delete it (soft delete)
+            $this->commandBus->execute(new Delete\Input($id));
 
             return new Response(null, Response::HTTP_NO_CONTENT);
         } catch (RuleNotFoundException $e) {
