@@ -7,6 +7,7 @@ namespace Dairectiv\Authoring\UserInterface\Http\Api\Controller;
 use Dairectiv\Authoring\Application\Workflow\AddExample;
 use Dairectiv\Authoring\Application\Workflow\Draft;
 use Dairectiv\Authoring\Application\Workflow\Get;
+use Dairectiv\Authoring\Application\Workflow\RemoveExample;
 use Dairectiv\Authoring\Application\Workflow\Update;
 use Dairectiv\Authoring\Application\Workflow\UpdateExample;
 use Dairectiv\Authoring\Domain\Object\Directive\Exception\DirectiveAlreadyExistsException;
@@ -157,6 +158,20 @@ final class WorkflowController extends AbstractController
             throw new NotFoundHttpException($e->getMessage(), $e);
         } catch (InvalidArgumentException $e) {
             throw new BadRequestHttpException($e->getMessage(), $e);
+        }
+    }
+
+    #[Route('/{id}/examples/{exampleId}', name: 'remove_example', requirements: ['id' => '^[a-z0-9-]+$', 'exampleId' => '^[a-z0-9-]+$'], methods: ['DELETE'])]
+    public function removeExample(string $id, string $exampleId): Response
+    {
+        try {
+            $this->commandBus->execute(new RemoveExample\Input($id, $exampleId));
+
+            return new Response(null, Response::HTTP_NO_CONTENT);
+        } catch (WorkflowNotFoundException $e) {
+            throw new NotFoundHttpException($e->getMessage(), $e);
+        } catch (InvalidArgumentException $e) {
+            throw new NotFoundHttpException($e->getMessage(), $e);
         }
     }
 }
