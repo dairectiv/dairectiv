@@ -404,6 +404,53 @@ paths:
                         application/json:
                             schema:
                                 $ref: "#/components/schemas/ErrorResponse"
+        patch:
+            tags:
+                - Workflows
+            summary: Update a workflow
+            description: Partially updates a workflow. Only provided fields will be updated.
+            operationId: updateWorkflow
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  description: The unique identifier of the workflow
+                  schema:
+                      type: string
+                      pattern: "^[a-z0-9-]+$"
+                      examples:
+                          - "my-workflow-id"
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/UpdateWorkflowPayload"
+            responses:
+                "200":
+                    description: Workflow updated successfully
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/WorkflowResponse"
+                "400":
+                    description: Bad request (no fields provided or workflow is archived)
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/ErrorResponse"
+                "404":
+                    description: Workflow not found
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/ErrorResponse"
+                "422":
+                    description: Validation error
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/ValidationErrorResponse"
 
 components:
     schemas:
@@ -725,6 +772,28 @@ components:
                     description: The actual content/body of the rule
                     examples:
                         - "Always use descriptive variable names"
+
+        UpdateWorkflowPayload:
+            type: object
+            description: Payload for updating a workflow. All fields are optional, but at least one must be provided.
+            properties:
+                name:
+                    type: string
+                    description: Name of the workflow
+                    maxLength: 255
+                    examples:
+                        - "Updated Workflow Name"
+                description:
+                    type: string
+                    description: Description of the workflow
+                    maxLength: 500
+                    examples:
+                        - "An updated description of what this workflow does"
+                content:
+                    type: string
+                    description: The actual content/body of the workflow
+                    examples:
+                        - "This workflow guides you through the updated process"
 
         AddRuleExamplePayload:
             type: object
