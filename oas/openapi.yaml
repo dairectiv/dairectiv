@@ -1,0 +1,10 @@
+openapi: 3.1.0
+info:
+    title: Dairectiv
+    version: 1.0.0
+servers:
+    - url: http://localhost/api
+tags:
+    - name: authoring
+      description: Authoring
+paths:
