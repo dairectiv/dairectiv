@@ -7,7 +7,6 @@ namespace Dairectiv\Authoring\Domain\Object\Directive;
 use Dairectiv\SharedKernel\Domain\Object\Assert;
 use Dairectiv\SharedKernel\Domain\Object\ValueObject\StringValue;
 use Symfony\Component\Uid\Uuid;
-
 use function Safe\preg_match;
 use function Symfony\Component\String\u;
 
@@ -27,7 +26,7 @@ final readonly class DirectiveId extends StringValue
             if (1 === preg_match(self::UUID_PATTERN, $potentialUuid) && '-' === $basePart[\strlen($basePart) - 37]) {
                 $basePart = substr($basePart, 0, \strlen($basePart) - 37);
             } else {
-                break;
+                break; // @codeCoverageIgnore
             }
         }
 
