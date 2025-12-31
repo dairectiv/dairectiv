@@ -452,6 +452,63 @@ paths:
                             schema:
                                 $ref: "#/components/schemas/ValidationErrorResponse"
 
+    /authoring/workflows/{id}/examples:
+        post:
+            tags:
+                - Workflows
+            summary: Add an example to a workflow
+            description: Adds a new example to an existing workflow with scenario, input, and output
+            operationId: addWorkflowExample
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  description: The unique identifier of the workflow
+                  schema:
+                      type: string
+                      pattern: "^[a-z0-9-]+$"
+                      examples:
+                          - "my-workflow-id"
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/AddWorkflowExamplePayload"
+            responses:
+                "201":
+                    description: Example added successfully
+                    headers:
+                        Location:
+                            description: URL of the created example resource
+                            schema:
+                                type: string
+                                format: uri
+                                examples:
+                                    - "http://127.0.0.1/api/authoring/workflows/my-workflow-id/examples/019b7460-798e-77f8-af01-bc6ab6e25f84"
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/WorkflowExampleResponse"
+                "400":
+                    description: Bad request (workflow is archived)
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/ErrorResponse"
+                "404":
+                    description: Workflow not found
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/ErrorResponse"
+                "422":
+                    description: Validation error
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/ValidationErrorResponse"
+
 components:
     schemas:
         RuleResponse:
@@ -843,6 +900,40 @@ components:
                     description: Explanation of why the good example is better
                     examples:
                         - "Descriptive names improve code readability"
+
+        AddWorkflowExamplePayload:
+            type: object
+            description: Payload for adding an example to a workflow
+            required:
+                - scenario
+                - input
+                - output
+            properties:
+                scenario:
+                    type: string
+                    description: Description of the scenario
+                    minLength: 1
+                    examples:
+                        - "User wants to create a new account"
+                input:
+                    type: string
+                    description: Input for the scenario
+                    minLength: 1
+                    examples:
+                        - "User provides email and password"
+                output:
+                    type: string
+                    description: Expected output for the scenario
+                    minLength: 1
+                    examples:
+                        - "Account is created and confirmation email is sent"
+                explanation:
+                    type:
+                        - string
+                        - "null"
+                    description: Optional additional explanation of the example
+                    examples:
+                        - "This demonstrates the happy path for account creation"
 
         ErrorResponse:
             type: object
