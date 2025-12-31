@@ -76,6 +76,53 @@ paths:
                         application/json:
                             schema:
                                 $ref: "#/components/schemas/ErrorResponse"
+        patch:
+            tags:
+                - Rules
+            summary: Update a rule
+            description: Partially updates a rule. Only provided fields will be updated.
+            operationId: updateRule
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  description: The unique identifier of the rule
+                  schema:
+                      type: string
+                      pattern: "^[a-z0-9-]+$"
+                      examples:
+                          - "my-rule-id"
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/UpdateRulePayload"
+            responses:
+                "200":
+                    description: Rule updated successfully
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/RuleResponse"
+                "400":
+                    description: Bad request (no fields provided or rule is archived)
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/ErrorResponse"
+                "404":
+                    description: Rule not found
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/ErrorResponse"
+                "422":
+                    description: Validation error
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/ValidationErrorResponse"
 
     /authoring/workflows/{id}:
         get:
@@ -385,6 +432,28 @@ components:
                     maxLength: 500
                     examples:
                         - "A detailed description of what this rule does"
+
+        UpdateRulePayload:
+            type: object
+            description: Payload for updating a rule. All fields are optional, but at least one must be provided.
+            properties:
+                name:
+                    type: string
+                    description: Name of the rule
+                    maxLength: 255
+                    examples:
+                        - "Updated Rule Name"
+                description:
+                    type: string
+                    description: Description of the rule
+                    maxLength: 500
+                    examples:
+                        - "An updated description of what this rule does"
+                content:
+                    type: string
+                    description: The actual content/body of the rule
+                    examples:
+                        - "Always use descriptive variable names"
 
         ErrorResponse:
             type: object
