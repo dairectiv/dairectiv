@@ -8,6 +8,7 @@ use Dairectiv\Authoring\Application\Workflow\AddExample;
 use Dairectiv\Authoring\Application\Workflow\AddStep;
 use Dairectiv\Authoring\Application\Workflow\Draft;
 use Dairectiv\Authoring\Application\Workflow\Get;
+use Dairectiv\Authoring\Application\Workflow\MoveStep;
 use Dairectiv\Authoring\Application\Workflow\RemoveExample;
 use Dairectiv\Authoring\Application\Workflow\Update;
 use Dairectiv\Authoring\Application\Workflow\UpdateExample;
@@ -19,6 +20,7 @@ use Dairectiv\Authoring\Domain\Object\Workflow\Step\StepId;
 use Dairectiv\Authoring\UserInterface\Http\Api\Payload\Workflow\AddWorkflowExample\AddWorkflowExamplePayload;
 use Dairectiv\Authoring\UserInterface\Http\Api\Payload\Workflow\AddWorkflowStep\AddWorkflowStepPayload;
 use Dairectiv\Authoring\UserInterface\Http\Api\Payload\Workflow\DraftWorkflow\DraftWorkflowPayload;
+use Dairectiv\Authoring\UserInterface\Http\Api\Payload\Workflow\MoveWorkflowStep\MoveWorkflowStepPayload;
 use Dairectiv\Authoring\UserInterface\Http\Api\Payload\Workflow\UpdateWorkflow\UpdateWorkflowPayload;
 use Dairectiv\Authoring\UserInterface\Http\Api\Payload\Workflow\UpdateWorkflowExample\UpdateWorkflowExamplePayload;
 use Dairectiv\Authoring\UserInterface\Http\Api\Payload\Workflow\UpdateWorkflowStep\UpdateWorkflowStepPayload;
@@ -237,6 +239,50 @@ final class WorkflowController extends AbstractController
             Assert::notFalse($step, \sprintf('Step with ID "%s" not found.', $stepId));
 
             return $this->json(StepResponse::fromStep($step));
+        } catch (WorkflowNotFoundException $e) {
+            throw new NotFoundHttpException($e->getMessage(), $e);
+        } catch (InvalidArgumentException $e) {
+            throw new BadRequestHttpException($e->getMessage(), $e);
+        }
+    }
+
+    #[Route('/{id}/steps/{stepId}/move', name: 'move_step', requirements: ['id' => '^[a-z0-9-]+$', 'stepId' => '^[a-z0-9-]+$'], methods: ['POST'])]
+    public function moveStep(
+        string $id,
+        string $stepId,
+        #[MapRequestPayload] MoveWorkflowStepPayload $payload,
+    ): JsonResponse {
+        try {
+            $output = $this->queryBus->fetch(new Get\Input($id));
+
+            Assert::isInstanceOf($output, Get\Output::class);
+
+            $steps = $output->workflow->steps->toArray();
+            $totalSteps = \count($steps);
+
+            if ($payload->position > $totalSteps) {
+                throw new BadRequestHttpException(\sprintf('Invalid position %d. Workflow has only %d steps.', $payload->position, $totalSteps));
+            }
+
+            $stepIdValue = StepId::fromString($stepId);
+            $otherSteps = array_values(array_filter($steps, static fn ($s) => !$s->id->equals($stepIdValue)));
+
+            $afterStepId = null;
+            if ($payload->position > 1) {
+                $afterStepId = $otherSteps[$payload->position - 2]->id->toString();
+            }
+
+            $this->commandBus->execute(new MoveStep\Input(
+                $id,
+                $stepId,
+                $afterStepId,
+            ));
+
+            $output = $this->queryBus->fetch(new Get\Input($id));
+
+            Assert::isInstanceOf($output, Get\Output::class);
+
+            return $this->json(WorkflowResponse::fromWorkflow($output->workflow));
         } catch (WorkflowNotFoundException $e) {
             throw new NotFoundHttpException($e->getMessage(), $e);
         } catch (InvalidArgumentException $e) {
