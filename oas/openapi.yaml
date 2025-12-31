@@ -181,6 +181,58 @@ paths:
                             schema:
                                 $ref: "#/components/schemas/ValidationErrorResponse"
 
+    /authoring/rules/{id}/examples/{exampleId}:
+        patch:
+            tags:
+                - Rules
+            summary: Update a rule example
+            description: Partially updates an example on a rule. Only provided fields will be updated.
+            operationId: updateRuleExample
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  description: The unique identifier of the rule
+                  schema:
+                      type: string
+                      pattern: "^[a-z0-9-]+$"
+                      examples:
+                          - "my-rule-id"
+                - name: exampleId
+                  in: path
+                  required: true
+                  description: The unique identifier of the example
+                  schema:
+                      type: string
+                      pattern: "^[a-z0-9-]+$"
+                      examples:
+                          - "019b7460-798e-77f8-af01-bc6ab6e25f84"
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/UpdateRuleExamplePayload"
+            responses:
+                "200":
+                    description: Example updated successfully
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/RuleExampleResponse"
+                "400":
+                    description: Bad request (no fields provided or rule is archived)
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/ErrorResponse"
+                "404":
+                    description: Rule or example not found
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/ErrorResponse"
+
     /authoring/workflows/{id}:
         get:
             tags:
@@ -536,6 +588,28 @@ components:
                         - string
                         - "null"
                     description: Optional explanation of why the good example is better
+                    examples:
+                        - "Descriptive names improve code readability"
+
+        UpdateRuleExamplePayload:
+            type: object
+            description: Payload for updating an example on a rule. All fields are optional, but at least one must be provided.
+            properties:
+                good:
+                    type: string
+                    description: Example of correct/good usage
+                    examples:
+                        - "const userAge = 25;"
+                bad:
+                    type: string
+                    description: Example of incorrect/bad usage
+                    examples:
+                        - "const x = 25;"
+                explanation:
+                    type:
+                        - string
+                        - "null"
+                    description: Explanation of why the good example is better
                     examples:
                         - "Descriptive names improve code readability"
 
