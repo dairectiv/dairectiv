@@ -49,7 +49,7 @@ final class DraftTest extends IntegrationTestCase
 
     public function testItShouldThrowExceptionWhenWorkflowAlreadyExists(): void
     {
-        $workflow = self::draftWorkflow(id: 'my-workflow');
+        $workflow = self::draftWorkflowEntity(id: 'my-workflow');
         $this->persistEntity($workflow);
 
         $this->expectException(DirectiveAlreadyExistsException::class);

@@ -20,7 +20,7 @@ final class GetTest extends IntegrationTestCase
 {
     public function testItShouldGetWorkflow(): void
     {
-        $workflow = self::draftWorkflow(id: 'my-workflow', name: 'My Workflow', description: 'A description');
+        $workflow = self::draftWorkflowEntity(id: 'my-workflow', name: 'My Workflow', description: 'A description');
         $workflow->updateContent('Some content');
         $this->persistEntity($workflow);
 
@@ -35,7 +35,7 @@ final class GetTest extends IntegrationTestCase
 
     public function testItShouldGetWorkflowWithExamples(): void
     {
-        $workflow = self::draftWorkflow(id: 'workflow-with-examples');
+        $workflow = self::draftWorkflowEntity(id: 'workflow-with-examples');
         Example::create($workflow, 'Scenario 1', 'Input 1', 'Output 1', 'Explanation 1');
         Example::create($workflow, 'Scenario 2', 'Input 2', 'Output 2', 'Explanation 2');
         $this->persistEntity($workflow);
@@ -47,7 +47,7 @@ final class GetTest extends IntegrationTestCase
 
     public function testItShouldGetWorkflowWithSteps(): void
     {
-        $workflow = self::draftWorkflow(id: 'workflow-with-steps');
+        $workflow = self::draftWorkflowEntity(id: 'workflow-with-steps');
         Step::create($workflow, 'Step 1 content');
         Step::create($workflow, 'Step 2 content');
         Step::create($workflow, 'Step 3 content');

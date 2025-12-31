@@ -46,7 +46,7 @@ final class DraftTest extends IntegrationTestCase
 
     public function testItShouldThrowExceptionWhenRuleAlreadyExists(): void
     {
-        $rule = self::draftRule(id: 'my-rule');
+        $rule = self::draftRuleEntity(id: 'my-rule');
         $this->persistEntity($rule);
 
         $this->expectException(DirectiveAlreadyExistsException::class);

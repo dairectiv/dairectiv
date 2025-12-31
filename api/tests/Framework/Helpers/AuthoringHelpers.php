@@ -15,7 +15,7 @@ trait AuthoringHelpers
         return DirectiveId::fromString($directiveId);
     }
 
-    public static function draftRule(
+    public static function draftRuleEntity(
         string $id = 'rule-id',
         string $name = 'My Rule',
         string $description = 'Description',
@@ -23,7 +23,7 @@ trait AuthoringHelpers
         return Rule::draft(self::getDirectiveId($id), $name, $description);
     }
 
-    public static function draftWorkflow(
+    public static function draftWorkflowEntity(
         string $id = 'workflow-id',
         string $name = 'My Workflow',
         string $description = 'Description',

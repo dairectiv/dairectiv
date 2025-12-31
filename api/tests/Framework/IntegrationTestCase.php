@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Dairectiv\Tests\Framework;
 
 use Cake\Chronos\Chronos;
+use Coduo\PHPMatcher\PHPUnit\PHPMatcherConstraint;
 use Dairectiv\SharedKernel\Application\Command\Command;
 use Dairectiv\SharedKernel\Application\Command\CommandBus;
 use Dairectiv\SharedKernel\Application\Query\Query;
@@ -16,8 +17,10 @@ use Dairectiv\Tests\Framework\Helpers\AuthoringHelpers;
 use Doctrine\ORM\EntityManagerInterface;
 use Faker\Factory;
 use Faker\Generator;
+use PHPUnit\Framework\Constraint\Constraint;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Messenger\Envelope;
 
 abstract class IntegrationTestCase extends WebTestCase
@@ -232,63 +235,6 @@ abstract class IntegrationTestCase extends WebTestCase
     }
 
     /**
-     * @param array<array-key, mixed> $expectedJson
-     */
-    public function assertResponseReturnsJson(array $expectedJson): void
-    {
-        $json = $this->client->getResponse()->getContent();
-        self::assertNotFalse($json);
-        self::assertJson($json);
-        $decodedJson = \Safe\json_decode($json, true, 512, \JSON_THROW_ON_ERROR);
-
-        $sort = function (array &$array) use (&$sort): void {
-            foreach ($array as &$value) {
-                if (\is_array($value)) {
-                    $sort($value);
-                }
-            }
-
-            ksort($array);
-        };
-
-        self::assertIsArray($decodedJson);
-        $sort($decodedJson);
-        $sort($expectedJson);
-        self::assertEqualsCanonicalizing($expectedJson, $decodedJson);
-    }
-
-    /**
-     * @param array<array{propertyPath: string, title: string}> $expectedViolations
-     */
-    public function assertResponseReturnsUnprocessableEntity(array $expectedViolations): void
-    {
-        $json = $this->client->getResponse()->getContent();
-        self::assertNotFalse($json);
-        self::assertJson($json);
-        $decodedJson = \Safe\json_decode($json, true, 512, \JSON_THROW_ON_ERROR);
-        self::assertIsArray($decodedJson);
-        self::assertArrayHasKey('violations', $decodedJson);
-        $violations = $decodedJson['violations'];
-        self::assertIsArray($violations);
-
-        $mapViolation = static function (mixed $violation): array {
-            self::assertIsArray($violation);
-            self::assertArrayHasKey('propertyPath', $violation);
-            self::assertIsString($violation['propertyPath']);
-            self::assertArrayHasKey('title', $violation);
-            self::assertIsString($violation['title']);
-
-            return [
-                'propertyPath' => $violation['propertyPath'],
-                'title'        => $violation['title'],
-            ];
-        };
-
-        $violations = array_map($mapViolation, $violations);
-        self::assertEqualsCanonicalizing($expectedViolations, $violations);
-    }
-
-    /**
      * @param array<array-key, mixed> $base
      * @param array<array-key, mixed> $overrides
      * @return array<array-key, mixed>
@@ -313,5 +259,49 @@ abstract class IntegrationTestCase extends WebTestCase
     public static function faker(): Generator
     {
         return self::$faker ??= Factory::create();
+    }
+
+    public static function assertThatForResponseContent(Constraint $constraint, string $message = ''): void
+    {
+        $response = self::getClient()?->getResponse();
+
+        self::assertInstanceOf(Response::class, $response);
+
+        $content = $response->getContent();
+
+        self::assertNotFalse($content);
+
+        self::assertThat($content, $constraint, $message);
+    }
+
+    /**
+     * @param array<array{propertyPath: string, title: string}> $expectedViolations
+     */
+    public static function assertUnprocessableResponse(array $expectedViolations): void
+    {
+        self::assertResponseIsUnprocessable();
+
+        $pattern = [
+            'detail'     => '@string@',
+            'status'     => 422,
+            'title'      => 'Validation Failed',
+            'type'       => '@string@',
+            'class'      => '@string@',
+            'trace'      => '@array@',
+            'violations' => array_map(
+                static fn (array $violation): array => ['parameters' => '@array@', 'template' => '@string@', 'type' => '@string@.optional()', ...$violation],
+                $expectedViolations,
+            ),
+        ];
+
+        self::assertResponseReturnsJson($pattern);
+    }
+
+    /**
+     * @param array<array-key, mixed> $expectedJson
+     */
+    public static function assertResponseReturnsJson(array $expectedJson): void
+    {
+        self::assertThatForResponseContent(new PHPMatcherConstraint(\Safe\json_encode($expectedJson, \JSON_THROW_ON_ERROR)));
     }
 }

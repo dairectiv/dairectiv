@@ -22,7 +22,7 @@ final class AddExampleTest extends IntegrationTestCase
 {
     public function testItShouldAddExampleToRule(): void
     {
-        $rule = self::draftRule();
+        $rule = self::draftRuleEntity();
         $this->persistEntity($rule);
 
         self::assertTrue($rule->examples->isEmpty());
@@ -53,7 +53,7 @@ final class AddExampleTest extends IntegrationTestCase
 
     public function testItShouldAddExampleWithOnlyGood(): void
     {
-        $rule = self::draftRule();
+        $rule = self::draftRuleEntity();
         $this->persistEntity($rule);
 
         $output = $this->execute(new Input(
@@ -71,7 +71,7 @@ final class AddExampleTest extends IntegrationTestCase
 
     public function testItShouldAddExampleWithOnlyBad(): void
     {
-        $rule = self::draftRule();
+        $rule = self::draftRuleEntity();
         $this->persistEntity($rule);
 
         $output = $this->execute(new Input(
@@ -89,7 +89,7 @@ final class AddExampleTest extends IntegrationTestCase
 
     public function testItShouldAddMultipleExamples(): void
     {
-        $rule = self::draftRule();
+        $rule = self::draftRuleEntity();
         $this->persistEntity($rule);
 
         $this->execute(new Input((string) $rule->id, good: 'Good 1'));
@@ -115,7 +115,7 @@ final class AddExampleTest extends IntegrationTestCase
 
     public function testItShouldThrowExceptionWhenRuleIsArchived(): void
     {
-        $rule = self::draftRule();
+        $rule = self::draftRuleEntity();
         $rule->archive();
         $this->persistEntity($rule);
 
@@ -127,7 +127,7 @@ final class AddExampleTest extends IntegrationTestCase
 
     public function testItShouldGenerateUniqueExampleId(): void
     {
-        $rule = self::draftRule();
+        $rule = self::draftRuleEntity();
         $this->persistEntity($rule);
 
         $output1 = $this->execute(new Input((string) $rule->id, good: 'Good 1'));
@@ -143,7 +143,7 @@ final class AddExampleTest extends IntegrationTestCase
 
     public function testItShouldLinkExampleToCorrectRule(): void
     {
-        $rule = self::draftRule();
+        $rule = self::draftRuleEntity();
         $this->persistEntity($rule);
 
         $output = $this->execute(new Input((string) $rule->id, good: 'Good'));
@@ -156,7 +156,7 @@ final class AddExampleTest extends IntegrationTestCase
 
     public function testItShouldPersistExampleWithCorrectTimestamps(): void
     {
-        $rule = self::draftRule();
+        $rule = self::draftRuleEntity();
         $this->persistEntity($rule);
 
         Chronos::setTestNow(Chronos::now()->addDays(1));

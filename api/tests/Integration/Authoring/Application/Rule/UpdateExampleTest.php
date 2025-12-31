@@ -20,7 +20,7 @@ final class UpdateExampleTest extends IntegrationTestCase
 {
     public function testItShouldUpdateAllExampleFields(): void
     {
-        $rule = self::draftRule();
+        $rule = self::draftRuleEntity();
         $example = Example::create($rule, 'Original good', 'Original bad', 'Original explanation');
         $this->persistEntity($rule);
 
@@ -45,7 +45,7 @@ final class UpdateExampleTest extends IntegrationTestCase
 
     public function testItShouldUpdateGoodOnly(): void
     {
-        $rule = self::draftRule();
+        $rule = self::draftRuleEntity();
         $example = Example::create($rule, 'Original good', 'Original bad', 'Original explanation');
         $this->persistEntity($rule);
 
@@ -68,7 +68,7 @@ final class UpdateExampleTest extends IntegrationTestCase
 
     public function testItShouldUpdateBadOnly(): void
     {
-        $rule = self::draftRule();
+        $rule = self::draftRuleEntity();
         $example = Example::create($rule, 'Original good', 'Original bad');
         $this->persistEntity($rule);
 
@@ -90,7 +90,7 @@ final class UpdateExampleTest extends IntegrationTestCase
 
     public function testItShouldUpdateExplanationOnly(): void
     {
-        $rule = self::draftRule();
+        $rule = self::draftRuleEntity();
         $example = Example::create($rule, 'Good', 'Bad');
         $this->persistEntity($rule);
 
@@ -122,7 +122,7 @@ final class UpdateExampleTest extends IntegrationTestCase
 
     public function testItShouldThrowExceptionWhenExampleNotFound(): void
     {
-        $rule = self::draftRule();
+        $rule = self::draftRuleEntity();
         $this->persistEntity($rule);
 
         $nonExistentId = '00000000-0000-0000-0000-000000000000';
@@ -139,7 +139,7 @@ final class UpdateExampleTest extends IntegrationTestCase
 
     public function testItShouldThrowExceptionWhenNoFieldsProvided(): void
     {
-        $rule = self::draftRule();
+        $rule = self::draftRuleEntity();
         $example = Example::create($rule, 'Good', 'Bad');
         $this->persistEntity($rule);
 
@@ -151,7 +151,7 @@ final class UpdateExampleTest extends IntegrationTestCase
 
     public function testItShouldThrowExceptionWhenRuleIsArchived(): void
     {
-        $rule = self::draftRule();
+        $rule = self::draftRuleEntity();
         $example = Example::create($rule, 'Good', 'Bad');
         $rule->archive();
         $this->persistEntity($rule);

@@ -21,7 +21,7 @@ final class AddExampleTest extends IntegrationTestCase
 {
     public function testItShouldAddExampleToWorkflow(): void
     {
-        $workflow = self::draftWorkflow();
+        $workflow = self::draftWorkflowEntity();
         $this->persistEntity($workflow);
 
         $output = $this->executeAddExample(
@@ -57,7 +57,7 @@ final class AddExampleTest extends IntegrationTestCase
 
     public function testItShouldAddExampleWithoutExplanation(): void
     {
-        $workflow = self::draftWorkflow();
+        $workflow = self::draftWorkflowEntity();
         $this->persistEntity($workflow);
 
         $output = $this->executeAddExample(
@@ -80,7 +80,7 @@ final class AddExampleTest extends IntegrationTestCase
 
     public function testItShouldAddMultipleExamplesToWorkflow(): void
     {
-        $workflow = self::draftWorkflow();
+        $workflow = self::draftWorkflowEntity();
         $this->persistEntity($workflow);
 
         $this->executeAddExample((string) $workflow->id, 'Scenario 1', 'Input 1', 'Output 1');
@@ -103,7 +103,7 @@ final class AddExampleTest extends IntegrationTestCase
 
     public function testItShouldThrowExceptionWhenWorkflowIsArchived(): void
     {
-        $workflow = self::draftWorkflow();
+        $workflow = self::draftWorkflowEntity();
         $workflow->archive();
         $this->persistEntity($workflow);
 
@@ -115,7 +115,7 @@ final class AddExampleTest extends IntegrationTestCase
 
     public function testItShouldAddExampleToPublishedWorkflow(): void
     {
-        $workflow = self::draftWorkflow();
+        $workflow = self::draftWorkflowEntity();
         $workflow->publish();
         $this->persistEntity($workflow);
 

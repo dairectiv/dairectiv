@@ -20,7 +20,7 @@ final class RemoveStepTest extends IntegrationTestCase
 {
     public function testItShouldRemoveStepFromWorkflow(): void
     {
-        $workflow = self::draftWorkflow();
+        $workflow = self::draftWorkflowEntity();
         $step = Step::create($workflow, 'Step content');
         $this->persistEntity($workflow);
 
@@ -37,7 +37,7 @@ final class RemoveStepTest extends IntegrationTestCase
 
     public function testItShouldRemoveOneStepFromMultiple(): void
     {
-        $workflow = self::draftWorkflow();
+        $workflow = self::draftWorkflowEntity();
         $step1 = Step::create($workflow, 'Step 1');
         $step2 = Step::create($workflow, 'Step 2', $step1);
         Step::create($workflow, 'Step 3', $step2);
@@ -60,7 +60,7 @@ final class RemoveStepTest extends IntegrationTestCase
 
     public function testItShouldReorderRemainingSteps(): void
     {
-        $workflow = self::draftWorkflow();
+        $workflow = self::draftWorkflowEntity();
         $step1 = Step::create($workflow, 'Step 1');
         $step2 = Step::create($workflow, 'Step 2', $step1);
         Step::create($workflow, 'Step 3', $step2);
@@ -79,7 +79,7 @@ final class RemoveStepTest extends IntegrationTestCase
 
     public function testItShouldRemoveFirstStep(): void
     {
-        $workflow = self::draftWorkflow();
+        $workflow = self::draftWorkflowEntity();
         $step1 = Step::create($workflow, 'Step 1');
         $step2 = Step::create($workflow, 'Step 2', $step1);
         Step::create($workflow, 'Step 3', $step2);
@@ -102,7 +102,7 @@ final class RemoveStepTest extends IntegrationTestCase
 
     public function testItShouldRemoveLastStep(): void
     {
-        $workflow = self::draftWorkflow();
+        $workflow = self::draftWorkflowEntity();
         $step1 = Step::create($workflow, 'Step 1');
         $step2 = Step::create($workflow, 'Step 2', $step1);
         $step3 = Step::create($workflow, 'Step 3', $step2);
@@ -132,7 +132,7 @@ final class RemoveStepTest extends IntegrationTestCase
 
     public function testItShouldThrowExceptionWhenStepNotFound(): void
     {
-        $workflow = self::draftWorkflow();
+        $workflow = self::draftWorkflowEntity();
         $this->persistEntity($workflow);
 
         $nonExistentId = '00000000-0000-0000-0000-000000000000';
@@ -145,7 +145,7 @@ final class RemoveStepTest extends IntegrationTestCase
 
     public function testItShouldThrowExceptionWhenWorkflowIsArchived(): void
     {
-        $workflow = self::draftWorkflow();
+        $workflow = self::draftWorkflowEntity();
         $step = Step::create($workflow, 'Step content');
         $workflow->archive();
         $this->persistEntity($workflow);

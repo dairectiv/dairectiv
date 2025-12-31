@@ -26,7 +26,7 @@ final class DoctrineRuleRepositoryTest extends IntegrationTestCase
 
     public function testItShouldSaveAndFindRuleById(): void
     {
-        $rule = self::draftRule();
+        $rule = self::draftRuleEntity();
 
         $this->repository->save($rule);
         $this->getEntityManager()->flush();
@@ -40,7 +40,7 @@ final class DoctrineRuleRepositoryTest extends IntegrationTestCase
 
     public function testItShouldSaveAndGetRuleById(): void
     {
-        $rule = self::draftRule();
+        $rule = self::draftRuleEntity();
 
         $this->repository->save($rule);
         $this->getEntityManager()->flush();

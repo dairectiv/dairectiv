@@ -22,7 +22,7 @@ final class AddStepTest extends IntegrationTestCase
 {
     public function testItShouldAddFirstStepToWorkflow(): void
     {
-        $workflow = self::draftWorkflow();
+        $workflow = self::draftWorkflowEntity();
         $this->persistEntity($workflow);
 
         self::assertCount(0, $workflow->steps);
@@ -46,7 +46,7 @@ final class AddStepTest extends IntegrationTestCase
 
     public function testItShouldAddMultipleStepsInOrder(): void
     {
-        $workflow = self::draftWorkflow();
+        $workflow = self::draftWorkflowEntity();
         $this->persistEntity($workflow);
 
         $output1 = $this->execute(new Input((string) $workflow->id, 'Step 1'));
@@ -82,7 +82,7 @@ final class AddStepTest extends IntegrationTestCase
 
     public function testItShouldInsertStepAfterSpecificStep(): void
     {
-        $workflow = self::draftWorkflow();
+        $workflow = self::draftWorkflowEntity();
         $step1 = Step::create($workflow, 'Step 1');
         Step::create($workflow, 'Step 2', $step1);
         $this->persistEntity($workflow);
@@ -112,7 +112,7 @@ final class AddStepTest extends IntegrationTestCase
 
     public function testItShouldInsertStepAtEnd(): void
     {
-        $workflow = self::draftWorkflow();
+        $workflow = self::draftWorkflowEntity();
         $step1 = Step::create($workflow, 'Step 1');
         $step2 = Step::create($workflow, 'Step 2', $step1);
         $this->persistEntity($workflow);
@@ -147,7 +147,7 @@ final class AddStepTest extends IntegrationTestCase
 
     public function testItShouldThrowExceptionWhenAfterStepNotFound(): void
     {
-        $workflow = self::draftWorkflow();
+        $workflow = self::draftWorkflowEntity();
         $this->persistEntity($workflow);
 
         $nonExistentId = '00000000-0000-0000-0000-000000000000';
@@ -160,7 +160,7 @@ final class AddStepTest extends IntegrationTestCase
 
     public function testItShouldThrowExceptionWhenWorkflowIsArchived(): void
     {
-        $workflow = self::draftWorkflow();
+        $workflow = self::draftWorkflowEntity();
         $workflow->archive();
         $this->persistEntity($workflow);
 
@@ -172,7 +172,7 @@ final class AddStepTest extends IntegrationTestCase
 
     public function testItShouldPersistStepWithCorrectTimestamps(): void
     {
-        $workflow = self::draftWorkflow();
+        $workflow = self::draftWorkflowEntity();
         $this->persistEntity($workflow);
 
         Chronos::setTestNow(Chronos::now()->addDays(1));
@@ -195,7 +195,7 @@ final class AddStepTest extends IntegrationTestCase
 
     public function testItShouldGenerateUniqueStepId(): void
     {
-        $workflow = self::draftWorkflow();
+        $workflow = self::draftWorkflowEntity();
         $this->persistEntity($workflow);
 
         $output1 = $this->execute(new Input((string) $workflow->id, 'Step 1'));
@@ -211,7 +211,7 @@ final class AddStepTest extends IntegrationTestCase
 
     public function testItShouldLinkStepToCorrectWorkflow(): void
     {
-        $workflow = self::draftWorkflow();
+        $workflow = self::draftWorkflowEntity();
         $this->persistEntity($workflow);
 
         $output = $this->execute(new Input((string) $workflow->id, 'Step content'));
