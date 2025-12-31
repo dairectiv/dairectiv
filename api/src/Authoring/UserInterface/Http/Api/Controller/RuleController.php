@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Dairectiv\Authoring\UserInterface\Http\Api\Controller;
 
+use Dairectiv\Authoring\Application\Directive\Archive;
 use Dairectiv\Authoring\Application\Directive\Publish;
 use Dairectiv\Authoring\Application\Rule\AddExample;
 use Dairectiv\Authoring\Application\Rule\Draft;
@@ -103,6 +104,29 @@ final class RuleController extends AbstractController
 
             // Then publish it
             $this->commandBus->execute(new Publish\Input($id));
+
+            // Fetch the updated rule
+            $output = $this->queryBus->fetch(new Get\Input($id));
+
+            Assert::isInstanceOf($output, Get\Output::class);
+
+            return $this->json(RuleResponse::fromRule($output->rule));
+        } catch (RuleNotFoundException $e) {
+            throw new NotFoundHttpException($e->getMessage(), $e);
+        } catch (InvalidArgumentException $e) {
+            throw new ConflictHttpException($e->getMessage(), $e);
+        }
+    }
+
+    #[Route('/{id}/archive', name: 'archive', requirements: ['id' => '^[a-z0-9-]+$'], methods: ['POST'])]
+    public function archive(string $id): JsonResponse
+    {
+        try {
+            // First verify the rule exists (throws RuleNotFoundException if not found or not a Rule)
+            $this->queryBus->fetch(new Get\Input($id));
+
+            // Then archive it
+            $this->commandBus->execute(new Archive\Input($id));
 
             // Fetch the updated rule
             $output = $this->queryBus->fetch(new Get\Input($id));
