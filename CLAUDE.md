@@ -629,6 +629,17 @@ To use: Simply ask Claude to "commit these changes" or "create a commit message"
 
 To use: Reference when implementing new aggregates. Follow the directory structure `src/{BoundedContext}/Domain/{Aggregate}/` and use the provided class signatures.
 
+**[api-endpoint](`.claude/skills/api-endpoint/`)**
+- Generates REST API endpoints following project conventions
+- Covers: Controller, Payload (validation), Response classes
+- Includes integration test templates with data providers for validation
+- Documents OpenAPI 3.1.0 specification patterns
+- Supports all HTTP methods: GET, POST, PUT, PATCH, DELETE
+- Maps domain exceptions to HTTP status codes (404, 409, 422)
+- Triggered when creating new API endpoints or routes
+
+To use: Ask Claude to "create an endpoint for [resource/action]" and the Skill will guide through implementing controller, tests, and OpenAPI spec.
+
 ### Creating New Skills
 
 When adding a new Skill:

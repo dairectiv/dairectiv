@@ -24,7 +24,7 @@ final class GetRuleTest extends IntegrationTestCase
 
         self::assertResponseIsSuccessful();
 
-        IntegrationTestCase::assertResponseReturnsJson([
+        self::assertResponseReturnsJson([
             'id'          => (string) $rule->id,
             'name'        => $rule->name,
             'description' => $rule->description,
@@ -46,7 +46,7 @@ final class GetRuleTest extends IntegrationTestCase
 
         self::assertResponseIsSuccessful();
 
-        IntegrationTestCase::assertResponseReturnsJson([
+        self::assertResponseReturnsJson([
             'id'          => (string) $rule->id,
             'name'        => $rule->name,
             'description' => $rule->description,
@@ -69,7 +69,7 @@ final class GetRuleTest extends IntegrationTestCase
 
         self::assertResponseIsSuccessful();
 
-        IntegrationTestCase::assertResponseReturnsJson([
+        self::assertResponseReturnsJson([
             'id'          => (string) $rule->id,
             'name'        => $rule->name,
             'description' => $rule->description,
@@ -109,7 +109,7 @@ final class GetRuleTest extends IntegrationTestCase
 
         self::assertResponseIsSuccessful();
 
-        IntegrationTestCase::assertResponseReturnsJson([
+        self::assertResponseReturnsJson([
             'id'          => (string) $rule->id,
             'name'        => $rule->name,
             'description' => $rule->description,
@@ -140,7 +140,7 @@ final class GetRuleTest extends IntegrationTestCase
 
         self::assertResponseIsSuccessful();
 
-        IntegrationTestCase::assertResponseReturnsJson([
+        self::assertResponseReturnsJson([
             'id'          => (string) $rule->id,
             'name'        => $rule->name,
             'description' => $rule->description,
@@ -162,7 +162,7 @@ final class GetRuleTest extends IntegrationTestCase
 
         self::assertResponseIsSuccessful();
 
-        IntegrationTestCase::assertResponseReturnsJson([
+        self::assertResponseReturnsJson([
             'id'          => (string) $rule->id,
             'name'        => $rule->name,
             'description' => $rule->description,
