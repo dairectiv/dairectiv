@@ -452,6 +452,43 @@ paths:
                             schema:
                                 $ref: "#/components/schemas/ValidationErrorResponse"
 
+    /authoring/workflows/{id}/publish:
+        post:
+            tags:
+                - Workflows
+            summary: Publish a workflow
+            description: Publishes a workflow that is currently in draft state. A published workflow cannot be edited but is visible to AI tools.
+            operationId: publishWorkflow
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  description: The unique identifier of the workflow
+                  schema:
+                      type: string
+                      pattern: "^[a-z0-9-]+$"
+                      examples:
+                          - "my-workflow-id"
+            responses:
+                "200":
+                    description: Workflow published successfully
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/WorkflowResponse"
+                "404":
+                    description: Workflow not found
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/ErrorResponse"
+                "409":
+                    description: Workflow cannot be published (already published or archived)
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/ErrorResponse"
+
     /authoring/workflows/{id}/examples:
         post:
             tags:
