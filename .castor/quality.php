@@ -187,8 +187,7 @@ function dependencies(): int
 
     $commands = [
         'composer validate --check-lock --strict',
-        'composer outdated --direct --strict --minor-only --locked',
-        'composer outdated --direct --strict --patch-only --locked',
+        'composer outdated --direct --strict --major-only --locked',
         'composer check-platform-reqs --lock',
         'composer audit --locked',
     ];
