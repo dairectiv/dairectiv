@@ -25,6 +25,10 @@ doctrine:
                 alias: Authoring
         controller_resolver:
             auto_mapping: false
+        filters:
+            soft_deleted_directive:
+                class: Dairectiv\Authoring\Infrastructure\Doctrine\ORM\Filter\SoftDeletedDirectiveFilter
+                enabled: true
 
 when@test:
     doctrine:

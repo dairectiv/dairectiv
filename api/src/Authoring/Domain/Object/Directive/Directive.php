@@ -6,6 +6,7 @@ namespace Dairectiv\Authoring\Domain\Object\Directive;
 
 use Cake\Chronos\Chronos;
 use Dairectiv\Authoring\Domain\Object\Directive\Event\DirectiveArchived;
+use Dairectiv\Authoring\Domain\Object\Directive\Event\DirectiveDeleted;
 use Dairectiv\Authoring\Domain\Object\Directive\Event\DirectiveDrafted;
 use Dairectiv\Authoring\Domain\Object\Directive\Event\DirectivePublished;
 use Dairectiv\Authoring\Domain\Object\Directive\Event\DirectiveUpdated;
@@ -93,6 +94,7 @@ abstract class Directive extends AggregateRoot
     final public function archive(): void
     {
         Assert::notEq($this->state, DirectiveState::Archived, 'Directive is already archived.');
+        Assert::notEq($this->state, DirectiveState::Deleted, 'Cannot archive a deleted directive.');
 
         $this->state = DirectiveState::Archived;
         $this->updatedAt = Chronos::now();
@@ -100,8 +102,20 @@ abstract class Directive extends AggregateRoot
         $this->recordEvent(new DirectiveArchived($this->id));
     }
 
+    final public function delete(): void
+    {
+        Assert::notEq($this->state, DirectiveState::Deleted, 'Directive is already deleted.');
+
+        $this->id = $this->id->suffix();
+        $this->state = DirectiveState::Deleted;
+        $this->updatedAt = Chronos::now();
+
+        $this->recordEvent(new DirectiveDeleted($this->id));
+    }
+
     final protected function assertNotArchived(): void
     {
         Assert::notEq($this->state, DirectiveState::Archived, 'Cannot perform this action on an archived directive.');
+        Assert::notEq($this->state, DirectiveState::Deleted, 'Cannot perform this action on a deleted directive.');
     }
 }
