@@ -4,7 +4,7 @@ info:
     version: 1.0.0
     description: AI enablement hub for engineering teams - API for authoring, versioning, and governing AI guidance
 servers:
-    - url: http://localhost/api
+    - url: http://127.0.0.1/api
       description: Local development server
 tags:
     - name: Rules
