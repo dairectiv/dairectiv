@@ -652,6 +652,58 @@ paths:
                             schema:
                                 $ref: "#/components/schemas/ValidationErrorResponse"
 
+    /authoring/workflows/{id}/steps/{stepId}:
+        patch:
+            tags:
+                - Workflows
+            summary: Update a workflow step
+            description: Partially updates a step on a workflow. Only provided fields will be updated.
+            operationId: updateWorkflowStep
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  description: The unique identifier of the workflow
+                  schema:
+                      type: string
+                      pattern: "^[a-z0-9-]+$"
+                      examples:
+                          - "my-workflow-id"
+                - name: stepId
+                  in: path
+                  required: true
+                  description: The unique identifier of the step
+                  schema:
+                      type: string
+                      pattern: "^[a-z0-9-]+$"
+                      examples:
+                          - "019b7460-798e-77f8-af01-bc6ab6e25f84"
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/UpdateWorkflowStepPayload"
+            responses:
+                "200":
+                    description: Step updated successfully
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/StepResponse"
+                "400":
+                    description: Bad request (no fields provided or workflow is archived)
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/ErrorResponse"
+                "404":
+                    description: Workflow or step not found
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/ErrorResponse"
+
 components:
     schemas:
         RuleResponse:
@@ -1124,6 +1176,16 @@ components:
                     description: Optional ID of the step after which to insert the new step. If not provided, the step is added at the beginning.
                     examples:
                         - "019b7460-798e-77f8-af01-bc6ab6e25f84"
+
+        UpdateWorkflowStepPayload:
+            type: object
+            description: Payload for updating a step on a workflow. All fields are optional, but at least one must be provided.
+            properties:
+                content:
+                    type: string
+                    description: The content/instructions of the step
+                    examples:
+                        - "Updated step content"
 
         ErrorResponse:
             type: object
