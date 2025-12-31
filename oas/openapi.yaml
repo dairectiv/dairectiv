@@ -124,6 +124,63 @@ paths:
                             schema:
                                 $ref: "#/components/schemas/ValidationErrorResponse"
 
+    /authoring/rules/{id}/examples:
+        post:
+            tags:
+                - Rules
+            summary: Add an example to a rule
+            description: Adds a new example to an existing rule with good and bad usage patterns
+            operationId: addRuleExample
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  description: The unique identifier of the rule
+                  schema:
+                      type: string
+                      pattern: "^[a-z0-9-]+$"
+                      examples:
+                          - "my-rule-id"
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/AddRuleExamplePayload"
+            responses:
+                "201":
+                    description: Example added successfully
+                    headers:
+                        Location:
+                            description: URL of the created example resource
+                            schema:
+                                type: string
+                                format: uri
+                                examples:
+                                    - "http://127.0.0.1/api/authoring/rules/my-rule-id/examples/019b7460-798e-77f8-af01-bc6ab6e25f84"
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/RuleExampleResponse"
+                "400":
+                    description: Bad request (rule is archived)
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/ErrorResponse"
+                "404":
+                    description: Rule not found
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/ErrorResponse"
+                "422":
+                    description: Validation error
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/ValidationErrorResponse"
+
     /authoring/workflows/{id}:
         get:
             tags:
@@ -454,6 +511,33 @@ components:
                     description: The actual content/body of the rule
                     examples:
                         - "Always use descriptive variable names"
+
+        AddRuleExamplePayload:
+            type: object
+            description: Payload for adding an example to a rule
+            required:
+                - good
+                - bad
+            properties:
+                good:
+                    type: string
+                    description: Example of correct/good usage
+                    minLength: 1
+                    examples:
+                        - "const userAge = 25;"
+                bad:
+                    type: string
+                    description: Example of incorrect/bad usage
+                    minLength: 1
+                    examples:
+                        - "const x = 25;"
+                explanation:
+                    type:
+                        - string
+                        - "null"
+                    description: Optional explanation of why the good example is better
+                    examples:
+                        - "Descriptive names improve code readability"
 
         ErrorResponse:
             type: object
