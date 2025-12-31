@@ -66,6 +66,17 @@ final class GetTest extends IntegrationTestCase
         $this->executeGetWorkflow('non-existent-workflow');
     }
 
+    public function testItShouldThrowExceptionWhenWorkflowIsDeleted(): void
+    {
+        $workflow = self::draftWorkflowEntity(id: 'deleted-workflow');
+        $workflow->delete();
+        $this->persistEntity($workflow);
+
+        $this->expectException(WorkflowNotFoundException::class);
+
+        $this->executeGetWorkflow('deleted-workflow');
+    }
+
     private function executeGetWorkflow(string $id): Output
     {
         $output = $this->fetch(new Input($id));

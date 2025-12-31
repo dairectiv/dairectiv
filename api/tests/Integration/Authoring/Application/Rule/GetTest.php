@@ -52,6 +52,17 @@ final class GetTest extends IntegrationTestCase
         $this->executeGetRule('non-existent-rule');
     }
 
+    public function testItShouldThrowExceptionWhenRuleIsDeleted(): void
+    {
+        $rule = self::draftRuleEntity(id: 'deleted-rule');
+        $rule->delete();
+        $this->persistEntity($rule);
+
+        $this->expectException(RuleNotFoundException::class);
+
+        $this->executeGetRule('deleted-rule');
+    }
+
     private function executeGetRule(string $id): Output
     {
         $output = $this->fetch(new Input($id));
