@@ -489,6 +489,43 @@ paths:
                             schema:
                                 $ref: "#/components/schemas/ErrorResponse"
 
+    /authoring/workflows/{id}/archive:
+        post:
+            tags:
+                - Workflows
+            summary: Archive a workflow
+            description: Archives a workflow that is in draft or published state. An archived workflow is no longer visible to AI tools and cannot be edited.
+            operationId: archiveWorkflow
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  description: The unique identifier of the workflow
+                  schema:
+                      type: string
+                      pattern: "^[a-z0-9-]+$"
+                      examples:
+                          - "my-workflow-id"
+            responses:
+                "200":
+                    description: Workflow archived successfully
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/WorkflowResponse"
+                "404":
+                    description: Workflow not found
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/ErrorResponse"
+                "409":
+                    description: Workflow cannot be archived (already archived)
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/ErrorResponse"
+
     /authoring/workflows/{id}/examples:
         post:
             tags:
