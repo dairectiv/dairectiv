@@ -161,6 +161,43 @@ paths:
                             schema:
                                 $ref: "#/components/schemas/ErrorResponse"
 
+    /authoring/rules/{id}/archive:
+        post:
+            tags:
+                - Rules
+            summary: Archive a rule
+            description: Archives a rule that is in draft or published state. An archived rule is no longer visible to AI tools and cannot be edited.
+            operationId: archiveRule
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  description: The unique identifier of the rule
+                  schema:
+                      type: string
+                      pattern: "^[a-z0-9-]+$"
+                      examples:
+                          - "my-rule-id"
+            responses:
+                "200":
+                    description: Rule archived successfully
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/RuleResponse"
+                "404":
+                    description: Rule not found
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/ErrorResponse"
+                "409":
+                    description: Rule cannot be archived (already archived)
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/ErrorResponse"
+
     /authoring/rules/{id}/examples:
         post:
             tags:
