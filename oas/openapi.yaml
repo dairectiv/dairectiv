@@ -560,6 +560,40 @@ paths:
                         application/json:
                             schema:
                                 $ref: "#/components/schemas/ErrorResponse"
+        delete:
+            tags:
+                - Workflows
+            summary: Remove an example from a workflow
+            description: Removes an example from a workflow. The example will be permanently deleted.
+            operationId: removeWorkflowExample
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  description: The unique identifier of the workflow
+                  schema:
+                      type: string
+                      pattern: "^[a-z0-9-]+$"
+                      examples:
+                          - "my-workflow-id"
+                - name: exampleId
+                  in: path
+                  required: true
+                  description: The unique identifier of the example to remove
+                  schema:
+                      type: string
+                      pattern: "^[a-z0-9-]+$"
+                      examples:
+                          - "019b7460-798e-77f8-af01-bc6ab6e25f84"
+            responses:
+                "204":
+                    description: Example removed successfully
+                "404":
+                    description: Workflow or example not found
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/ErrorResponse"
 
 components:
     schemas:
