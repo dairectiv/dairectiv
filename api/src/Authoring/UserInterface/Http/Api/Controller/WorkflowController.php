@@ -8,11 +8,14 @@ use Dairectiv\Authoring\Application\Workflow\AddExample;
 use Dairectiv\Authoring\Application\Workflow\Draft;
 use Dairectiv\Authoring\Application\Workflow\Get;
 use Dairectiv\Authoring\Application\Workflow\Update;
+use Dairectiv\Authoring\Application\Workflow\UpdateExample;
 use Dairectiv\Authoring\Domain\Object\Directive\Exception\DirectiveAlreadyExistsException;
+use Dairectiv\Authoring\Domain\Object\Workflow\Example\ExampleId;
 use Dairectiv\Authoring\Domain\Object\Workflow\Exception\WorkflowNotFoundException;
 use Dairectiv\Authoring\UserInterface\Http\Api\Payload\Workflow\AddWorkflowExample\AddWorkflowExamplePayload;
 use Dairectiv\Authoring\UserInterface\Http\Api\Payload\Workflow\DraftWorkflow\DraftWorkflowPayload;
 use Dairectiv\Authoring\UserInterface\Http\Api\Payload\Workflow\UpdateWorkflow\UpdateWorkflowPayload;
+use Dairectiv\Authoring\UserInterface\Http\Api\Payload\Workflow\UpdateWorkflowExample\UpdateWorkflowExamplePayload;
 use Dairectiv\Authoring\UserInterface\Http\Api\Response\Workflow\ExampleResponse;
 use Dairectiv\Authoring\UserInterface\Http\Api\Response\Workflow\WorkflowResponse;
 use Dairectiv\SharedKernel\Application\Command\CommandBus;
@@ -115,6 +118,41 @@ final class WorkflowController extends AbstractController
                 Response::HTTP_CREATED,
                 ['Location' => \sprintf('%s/examples/%s', $workflowUrl, $exampleId)],
             );
+        } catch (WorkflowNotFoundException $e) {
+            throw new NotFoundHttpException($e->getMessage(), $e);
+        } catch (InvalidArgumentException $e) {
+            throw new BadRequestHttpException($e->getMessage(), $e);
+        }
+    }
+
+    #[Route('/{id}/examples/{exampleId}', name: 'update_example', requirements: ['id' => '^[a-z0-9-]+$', 'exampleId' => '^[a-z0-9-]+$'], methods: ['PATCH'])]
+    public function updateExample(
+        string $id,
+        string $exampleId,
+        #[MapRequestPayload] UpdateWorkflowExamplePayload $payload,
+    ): JsonResponse {
+        try {
+            $this->commandBus->execute(new UpdateExample\Input(
+                $id,
+                $exampleId,
+                $payload->scenario,
+                $payload->input,
+                $payload->output,
+                $payload->explanation,
+            ));
+
+            $output = $this->queryBus->fetch(new Get\Input($id));
+
+            Assert::isInstanceOf($output, Get\Output::class);
+
+            $exampleIdValue = ExampleId::fromString($exampleId);
+            $example = $output->workflow->examples->filter(
+                static fn ($e) => $e->id->equals($exampleIdValue),
+            )->first();
+
+            Assert::notFalse($example, \sprintf('Example with ID "%s" not found.', $exampleId));
+
+            return $this->json(ExampleResponse::fromExample($example));
         } catch (WorkflowNotFoundException $e) {
             throw new NotFoundHttpException($e->getMessage(), $e);
         } catch (InvalidArgumentException $e) {
