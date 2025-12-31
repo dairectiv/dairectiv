@@ -10,6 +10,7 @@ use Dairectiv\Authoring\Application\Workflow\Draft;
 use Dairectiv\Authoring\Application\Workflow\Get;
 use Dairectiv\Authoring\Application\Workflow\MoveStep;
 use Dairectiv\Authoring\Application\Workflow\RemoveExample;
+use Dairectiv\Authoring\Application\Workflow\RemoveStep;
 use Dairectiv\Authoring\Application\Workflow\Update;
 use Dairectiv\Authoring\Application\Workflow\UpdateExample;
 use Dairectiv\Authoring\Application\Workflow\UpdateStep;
@@ -287,6 +288,20 @@ final class WorkflowController extends AbstractController
             throw new NotFoundHttpException($e->getMessage(), $e);
         } catch (InvalidArgumentException $e) {
             throw new BadRequestHttpException($e->getMessage(), $e);
+        }
+    }
+
+    #[Route('/{id}/steps/{stepId}', name: 'remove_step', requirements: ['id' => '^[a-z0-9-]+$', 'stepId' => '^[a-z0-9-]+$'], methods: ['DELETE'])]
+    public function removeStep(string $id, string $stepId): Response
+    {
+        try {
+            $this->commandBus->execute(new RemoveStep\Input($id, $stepId));
+
+            return new Response(null, Response::HTTP_NO_CONTENT);
+        } catch (WorkflowNotFoundException $e) {
+            throw new NotFoundHttpException($e->getMessage(), $e);
+        } catch (InvalidArgumentException $e) {
+            throw new NotFoundHttpException($e->getMessage(), $e);
         }
     }
 }
