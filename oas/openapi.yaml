@@ -2,9 +2,181 @@ openapi: 3.1.0
 info:
     title: Dairectiv
     version: 1.0.0
+    description: AI enablement hub for engineering teams - API for authoring, versioning, and governing AI guidance
 servers:
     - url: http://localhost/api
+      description: Local development server
 tags:
-    - name: authoring
-      description: Authoring
+    - name: Rules
+      description: Rule management endpoints
+
 paths:
+    /authoring/rules/{id}:
+        get:
+            tags:
+                - Rules
+            summary: Get a rule by ID
+            description: Retrieves a single rule with all its details including examples
+            operationId: getRule
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  description: The unique identifier of the rule
+                  schema:
+                      type: string
+                      pattern: "^[a-z0-9-]+$"
+                      examples:
+                          - "my-rule-id"
+            responses:
+                "200":
+                    description: Rule found and returned successfully
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/RuleResponse"
+                "404":
+                    description: Rule not found
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/ErrorResponse"
+
+components:
+    schemas:
+        RuleResponse:
+            type: object
+            required:
+                - id
+                - createdAt
+                - updatedAt
+                - state
+                - name
+                - description
+                - examples
+            properties:
+                id:
+                    type: string
+                    description: Unique identifier of the rule
+                    examples:
+                        - "my-rule-id"
+                createdAt:
+                    type: string
+                    format: date-time
+                    description: Timestamp when the rule was created
+                    examples:
+                        - "2025-12-31T12:00:00+00:00"
+                updatedAt:
+                    type: string
+                    format: date-time
+                    description: Timestamp when the rule was last updated
+                    examples:
+                        - "2025-12-31T12:00:00+00:00"
+                state:
+                    $ref: "#/components/schemas/DirectiveState"
+                name:
+                    type: string
+                    description: Name of the rule
+                    examples:
+                        - "My Rule"
+                description:
+                    type: string
+                    description: Description of the rule
+                    examples:
+                        - "A detailed description of what this rule does"
+                content:
+                    type:
+                        - string
+                        - "null"
+                    description: The actual content/body of the rule
+                    examples:
+                        - "Always use descriptive variable names"
+                examples:
+                    type: array
+                    description: List of examples demonstrating the rule
+                    items:
+                        $ref: "#/components/schemas/ExampleResponse"
+
+        ExampleResponse:
+            type: object
+            required:
+                - id
+                - createdAt
+                - updatedAt
+            properties:
+                id:
+                    type: string
+                    description: Unique identifier of the example
+                    examples:
+                        - "019b7460-798e-77f8-af01-bc6ab6e25f84"
+                createdAt:
+                    type: string
+                    format: date-time
+                    description: Timestamp when the example was created
+                    examples:
+                        - "2025-12-31T12:00:00+00:00"
+                updatedAt:
+                    type: string
+                    format: date-time
+                    description: Timestamp when the example was last updated
+                    examples:
+                        - "2025-12-31T12:00:00+00:00"
+                good:
+                    type:
+                        - string
+                        - "null"
+                    description: Example of correct/good usage
+                    examples:
+                        - "const userAge = 25;"
+                bad:
+                    type:
+                        - string
+                        - "null"
+                    description: Example of incorrect/bad usage
+                    examples:
+                        - "const x = 25;"
+                explanation:
+                    type:
+                        - string
+                        - "null"
+                    description: Explanation of why the good example is better
+                    examples:
+                        - "Descriptive names improve code readability"
+
+        DirectiveState:
+            type: string
+            description: The current state of a directive (rule or workflow)
+            enum:
+                - draft
+                - published
+                - archived
+            examples:
+                - "draft"
+
+        ErrorResponse:
+            type: object
+            required:
+                - type
+                - title
+                - status
+            properties:
+                type:
+                    type: string
+                    description: URI reference identifying the error type
+                    examples:
+                        - "https://tools.ietf.org/html/rfc2616#section-10"
+                title:
+                    type: string
+                    description: Short summary of the error
+                    examples:
+                        - "An error occurred"
+                status:
+                    type: integer
+                    description: HTTP status code
+                    examples:
+                        - 404
+                detail:
+                    type: string
+                    description: Detailed error message
+                    examples:
+                        - "Rule with ID non-existent-rule not found."
