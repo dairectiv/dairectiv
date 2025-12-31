@@ -341,6 +341,39 @@ paths:
                             schema:
                                 $ref: "#/components/schemas/ErrorResponse"
 
+    /authoring/workflows:
+        post:
+            tags:
+                - Workflows
+            summary: Draft a new workflow
+            description: Creates a new workflow in draft state with the provided name and description
+            operationId: draftWorkflow
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/DraftWorkflowPayload"
+            responses:
+                "201":
+                    description: Workflow drafted successfully
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/WorkflowResponse"
+                "409":
+                    description: Directive with this name already exists
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/ErrorResponse"
+                "422":
+                    description: Validation error
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/ValidationErrorResponse"
+
     /authoring/workflows/{id}:
         get:
             tags:
@@ -649,6 +682,27 @@ components:
                     maxLength: 500
                     examples:
                         - "A detailed description of what this rule does"
+
+        DraftWorkflowPayload:
+            type: object
+            required:
+                - name
+                - description
+            properties:
+                name:
+                    type: string
+                    description: Name of the workflow
+                    minLength: 1
+                    maxLength: 255
+                    examples:
+                        - "My Workflow"
+                description:
+                    type: string
+                    description: Description of the workflow
+                    minLength: 1
+                    maxLength: 500
+                    examples:
+                        - "A detailed description of what this workflow does"
 
         UpdateRulePayload:
             type: object
