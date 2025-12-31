@@ -11,7 +11,7 @@ final readonly class Input implements Command
     public function __construct(
         public string $workflowId,
         public string $stepId,
-        public string $content,
+        public ?string $content = null,
     ) {
     }
 }

@@ -6,6 +6,7 @@ namespace Dairectiv\Authoring\Domain\Object\Workflow\Step;
 
 use Cake\Chronos\Chronos;
 use Dairectiv\Authoring\Domain\Object\Workflow\Workflow;
+use Dairectiv\SharedKernel\Domain\Object\Assert;
 use Dairectiv\SharedKernel\Domain\Object\StringNormalizer;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
@@ -54,8 +55,13 @@ class Step
         return $step;
     }
 
-    public function update(string $content): void
+    public function update(?string $content): void
     {
+        Assert::true(
+            null !== $content,
+            'At least one field must be provided.',
+        );
+
         $this->content = self::trim($content);
         $this->updatedAt = Chronos::now();
         $this->workflow->markAsUpdated();
