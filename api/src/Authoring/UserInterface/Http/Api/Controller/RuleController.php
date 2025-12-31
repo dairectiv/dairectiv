@@ -8,11 +8,14 @@ use Dairectiv\Authoring\Application\Rule\AddExample;
 use Dairectiv\Authoring\Application\Rule\Draft;
 use Dairectiv\Authoring\Application\Rule\Get;
 use Dairectiv\Authoring\Application\Rule\Update;
+use Dairectiv\Authoring\Application\Rule\UpdateExample;
 use Dairectiv\Authoring\Domain\Object\Directive\Exception\DirectiveAlreadyExistsException;
+use Dairectiv\Authoring\Domain\Object\Rule\Example\ExampleId;
 use Dairectiv\Authoring\Domain\Object\Rule\Exception\RuleNotFoundException;
 use Dairectiv\Authoring\UserInterface\Http\Api\Payload\Rule\AddRuleExample\AddRuleExamplePayload;
 use Dairectiv\Authoring\UserInterface\Http\Api\Payload\Rule\DraftRule\DraftRulePayload;
 use Dairectiv\Authoring\UserInterface\Http\Api\Payload\Rule\UpdateRule\UpdateRulePayload;
+use Dairectiv\Authoring\UserInterface\Http\Api\Payload\Rule\UpdateRuleExample\UpdateRuleExamplePayload;
 use Dairectiv\Authoring\UserInterface\Http\Api\Response\Rule\ExampleResponse;
 use Dairectiv\Authoring\UserInterface\Http\Api\Response\Rule\RuleResponse;
 use Dairectiv\SharedKernel\Application\Command\CommandBus;
@@ -114,6 +117,40 @@ final class RuleController extends AbstractController
                 Response::HTTP_CREATED,
                 ['Location' => \sprintf('%s/examples/%s', $ruleUrl, $exampleId)],
             );
+        } catch (RuleNotFoundException $e) {
+            throw new NotFoundHttpException($e->getMessage(), $e);
+        } catch (InvalidArgumentException $e) {
+            throw new BadRequestHttpException($e->getMessage(), $e);
+        }
+    }
+
+    #[Route('/{id}/examples/{exampleId}', name: 'update_example', requirements: ['id' => '^[a-z0-9-]+$', 'exampleId' => '^[a-z0-9-]+$'], methods: ['PATCH'])]
+    public function updateExample(
+        string $id,
+        string $exampleId,
+        #[MapRequestPayload] UpdateRuleExamplePayload $payload,
+    ): JsonResponse {
+        try {
+            $this->commandBus->execute(new UpdateExample\Input(
+                $id,
+                $exampleId,
+                $payload->good,
+                $payload->bad,
+                $payload->explanation,
+            ));
+
+            $output = $this->queryBus->fetch(new Get\Input($id));
+
+            Assert::isInstanceOf($output, Get\Output::class);
+
+            $targetExampleId = ExampleId::fromString($exampleId);
+            $example = $output->rule->examples->filter(
+                static fn ($e) => $e->id->equals($targetExampleId),
+            )->first();
+
+            Assert::notFalse($example, \sprintf('Example with ID "%s" not found.', $exampleId));
+
+            return $this->json(ExampleResponse::fromExample($example));
         } catch (RuleNotFoundException $e) {
             throw new NotFoundHttpException($e->getMessage(), $e);
         } catch (InvalidArgumentException $e) {
