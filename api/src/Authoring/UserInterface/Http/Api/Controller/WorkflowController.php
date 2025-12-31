@@ -11,14 +11,17 @@ use Dairectiv\Authoring\Application\Workflow\Get;
 use Dairectiv\Authoring\Application\Workflow\RemoveExample;
 use Dairectiv\Authoring\Application\Workflow\Update;
 use Dairectiv\Authoring\Application\Workflow\UpdateExample;
+use Dairectiv\Authoring\Application\Workflow\UpdateStep;
 use Dairectiv\Authoring\Domain\Object\Directive\Exception\DirectiveAlreadyExistsException;
 use Dairectiv\Authoring\Domain\Object\Workflow\Example\ExampleId;
 use Dairectiv\Authoring\Domain\Object\Workflow\Exception\WorkflowNotFoundException;
+use Dairectiv\Authoring\Domain\Object\Workflow\Step\StepId;
 use Dairectiv\Authoring\UserInterface\Http\Api\Payload\Workflow\AddWorkflowExample\AddWorkflowExamplePayload;
 use Dairectiv\Authoring\UserInterface\Http\Api\Payload\Workflow\AddWorkflowStep\AddWorkflowStepPayload;
 use Dairectiv\Authoring\UserInterface\Http\Api\Payload\Workflow\DraftWorkflow\DraftWorkflowPayload;
 use Dairectiv\Authoring\UserInterface\Http\Api\Payload\Workflow\UpdateWorkflow\UpdateWorkflowPayload;
 use Dairectiv\Authoring\UserInterface\Http\Api\Payload\Workflow\UpdateWorkflowExample\UpdateWorkflowExamplePayload;
+use Dairectiv\Authoring\UserInterface\Http\Api\Payload\Workflow\UpdateWorkflowStep\UpdateWorkflowStepPayload;
 use Dairectiv\Authoring\UserInterface\Http\Api\Response\Workflow\ExampleResponse;
 use Dairectiv\Authoring\UserInterface\Http\Api\Response\Workflow\StepResponse;
 use Dairectiv\Authoring\UserInterface\Http\Api\Response\Workflow\WorkflowResponse;
@@ -202,6 +205,38 @@ final class WorkflowController extends AbstractController
                 Response::HTTP_CREATED,
                 ['Location' => \sprintf('%s/steps/%s', $workflowUrl, $stepId)],
             );
+        } catch (WorkflowNotFoundException $e) {
+            throw new NotFoundHttpException($e->getMessage(), $e);
+        } catch (InvalidArgumentException $e) {
+            throw new BadRequestHttpException($e->getMessage(), $e);
+        }
+    }
+
+    #[Route('/{id}/steps/{stepId}', name: 'update_step', requirements: ['id' => '^[a-z0-9-]+$', 'stepId' => '^[a-z0-9-]+$'], methods: ['PATCH'])]
+    public function updateStep(
+        string $id,
+        string $stepId,
+        #[MapRequestPayload] UpdateWorkflowStepPayload $payload,
+    ): JsonResponse {
+        try {
+            $this->commandBus->execute(new UpdateStep\Input(
+                $id,
+                $stepId,
+                $payload->content,
+            ));
+
+            $output = $this->queryBus->fetch(new Get\Input($id));
+
+            Assert::isInstanceOf($output, Get\Output::class);
+
+            $stepIdValue = StepId::fromString($stepId);
+            $step = $output->workflow->steps->filter(
+                static fn ($s) => $s->id->equals($stepIdValue),
+            )->first();
+
+            Assert::notFalse($step, \sprintf('Step with ID "%s" not found.', $stepId));
+
+            return $this->json(StepResponse::fromStep($step));
         } catch (WorkflowNotFoundException $e) {
             throw new NotFoundHttpException($e->getMessage(), $e);
         } catch (InvalidArgumentException $e) {
