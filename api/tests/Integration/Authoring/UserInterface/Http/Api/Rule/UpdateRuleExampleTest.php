@@ -33,14 +33,16 @@ final class UpdateRuleExampleTest extends IntegrationTestCase
         self::assertDomainEventHasBeenDispatched(DirectiveUpdated::class);
     }
 
-    public function testItShouldUpdateGoodOnly(): void
+    public function testItShouldClearGoodField(): void
     {
         $rule = self::draftRuleEntity();
         $example = Example::create($rule, 'Original good', 'Original bad', 'Original explanation');
         $this->persistEntity($rule);
 
         $this->updateExample((string) $rule->id, $example->id->toString(), [
-            'good' => 'Updated good',
+            'good'        => null,
+            'bad'         => 'Updated bad',
+            'explanation' => 'Updated explanation',
         ]);
 
         self::assertResponseIsSuccessful();
@@ -48,29 +50,16 @@ final class UpdateRuleExampleTest extends IntegrationTestCase
         self::assertDomainEventHasBeenDispatched(DirectiveUpdated::class);
     }
 
-    public function testItShouldUpdateBadOnly(): void
+    public function testItShouldClearAllOptionalFields(): void
     {
         $rule = self::draftRuleEntity();
         $example = Example::create($rule, 'Original good', 'Original bad', 'Original explanation');
         $this->persistEntity($rule);
 
         $this->updateExample((string) $rule->id, $example->id->toString(), [
-            'bad' => 'Updated bad',
-        ]);
-
-        self::assertResponseIsSuccessful();
-        self::assertResponseStatusCodeSame(Response::HTTP_NO_CONTENT);
-        self::assertDomainEventHasBeenDispatched(DirectiveUpdated::class);
-    }
-
-    public function testItShouldUpdateExplanationOnly(): void
-    {
-        $rule = self::draftRuleEntity();
-        $example = Example::create($rule, 'Good', 'Bad');
-        $this->persistEntity($rule);
-
-        $this->updateExample((string) $rule->id, $example->id->toString(), [
-            'explanation' => 'New explanation',
+            'good'        => null,
+            'bad'         => null,
+            'explanation' => null,
         ]);
 
         self::assertResponseIsSuccessful();
@@ -81,7 +70,9 @@ final class UpdateRuleExampleTest extends IntegrationTestCase
     public function testItShouldReturn404WhenRuleNotFound(): void
     {
         $this->updateExample('non-existent-rule', '00000000-0000-0000-0000-000000000000', [
-            'good' => 'Updated',
+            'good'        => 'Updated',
+            'bad'         => null,
+            'explanation' => null,
         ]);
 
         self::assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
@@ -93,19 +84,10 @@ final class UpdateRuleExampleTest extends IntegrationTestCase
         $this->persistEntity($rule);
 
         $this->updateExample((string) $rule->id, '00000000-0000-0000-0000-000000000000', [
-            'good' => 'Updated',
+            'good'        => 'Updated',
+            'bad'         => null,
+            'explanation' => null,
         ]);
-
-        self::assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
-    }
-
-    public function testItShouldReturn400WhenNoFieldsProvided(): void
-    {
-        $rule = self::draftRuleEntity();
-        $example = Example::create($rule, 'Good', 'Bad');
-        $this->persistEntity($rule);
-
-        $this->updateExample((string) $rule->id, $example->id->toString(), []);
 
         self::assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
     }
@@ -118,7 +100,9 @@ final class UpdateRuleExampleTest extends IntegrationTestCase
         $this->persistEntity($rule);
 
         $this->updateExample((string) $rule->id, $example->id->toString(), [
-            'good' => 'Updated',
+            'good'        => 'Updated',
+            'bad'         => null,
+            'explanation' => null,
         ]);
 
         self::assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
@@ -130,6 +114,6 @@ final class UpdateRuleExampleTest extends IntegrationTestCase
     private function updateExample(string $ruleId, string $exampleId, array $payload): void
     {
         DomainEventQueue::reset();
-        $this->patchJson(\sprintf('/api/authoring/rules/%s/examples/%s', $ruleId, $exampleId), $payload);
+        $this->putJson(\sprintf('/api/authoring/rules/%s/examples/%s', $ruleId, $exampleId), $payload);
     }
 }

@@ -34,59 +34,17 @@ final class UpdateWorkflowExampleTest extends IntegrationTestCase
         self::assertDomainEventHasBeenDispatched(DirectiveUpdated::class);
     }
 
-    public function testItShouldUpdateScenarioOnly(): void
+    public function testItShouldClearExplanation(): void
     {
         $workflow = self::draftWorkflowEntity();
         $example = Example::create($workflow, 'Original scenario', 'Original input', 'Original output', 'Original explanation');
         $this->persistEntity($workflow);
 
         $this->updateExample((string) $workflow->id, $example->id->toString(), [
-            'scenario' => 'Updated scenario',
-        ]);
-
-        self::assertResponseIsSuccessful();
-        self::assertResponseStatusCodeSame(Response::HTTP_NO_CONTENT);
-        self::assertDomainEventHasBeenDispatched(DirectiveUpdated::class);
-    }
-
-    public function testItShouldUpdateInputOnly(): void
-    {
-        $workflow = self::draftWorkflowEntity();
-        $example = Example::create($workflow, 'Original scenario', 'Original input', 'Original output');
-        $this->persistEntity($workflow);
-
-        $this->updateExample((string) $workflow->id, $example->id->toString(), [
-            'input' => 'Updated input',
-        ]);
-
-        self::assertResponseIsSuccessful();
-        self::assertResponseStatusCodeSame(Response::HTTP_NO_CONTENT);
-        self::assertDomainEventHasBeenDispatched(DirectiveUpdated::class);
-    }
-
-    public function testItShouldUpdateOutputOnly(): void
-    {
-        $workflow = self::draftWorkflowEntity();
-        $example = Example::create($workflow, 'Original scenario', 'Original input', 'Original output');
-        $this->persistEntity($workflow);
-
-        $this->updateExample((string) $workflow->id, $example->id->toString(), [
-            'output' => 'Updated output',
-        ]);
-
-        self::assertResponseIsSuccessful();
-        self::assertResponseStatusCodeSame(Response::HTTP_NO_CONTENT);
-        self::assertDomainEventHasBeenDispatched(DirectiveUpdated::class);
-    }
-
-    public function testItShouldUpdateExplanationOnly(): void
-    {
-        $workflow = self::draftWorkflowEntity();
-        $example = Example::create($workflow, 'Original scenario', 'Original input', 'Original output');
-        $this->persistEntity($workflow);
-
-        $this->updateExample((string) $workflow->id, $example->id->toString(), [
-            'explanation' => 'New explanation',
+            'scenario'    => 'Updated scenario',
+            'input'       => 'Updated input',
+            'output'      => 'Updated output',
+            'explanation' => null,
         ]);
 
         self::assertResponseIsSuccessful();
@@ -98,6 +56,8 @@ final class UpdateWorkflowExampleTest extends IntegrationTestCase
     {
         $this->updateExample('non-existent-workflow', '00000000-0000-0000-0000-000000000000', [
             'scenario' => 'Updated scenario',
+            'input'    => 'Updated input',
+            'output'   => 'Updated output',
         ]);
 
         self::assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
@@ -110,12 +70,14 @@ final class UpdateWorkflowExampleTest extends IntegrationTestCase
 
         $this->updateExample((string) $workflow->id, '00000000-0000-0000-0000-000000000000', [
             'scenario' => 'Updated scenario',
+            'input'    => 'Updated input',
+            'output'   => 'Updated output',
         ]);
 
         self::assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
     }
 
-    public function testItShouldReturn400WhenNoFieldsProvided(): void
+    public function testItShouldReturn422WhenMissingRequiredFields(): void
     {
         $workflow = self::draftWorkflowEntity();
         $example = Example::create($workflow, 'Scenario', 'Input', 'Output');
@@ -123,7 +85,7 @@ final class UpdateWorkflowExampleTest extends IntegrationTestCase
 
         $this->updateExample((string) $workflow->id, $example->id->toString(), []);
 
-        self::assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
+        self::assertResponseStatusCodeSame(Response::HTTP_UNPROCESSABLE_ENTITY);
     }
 
     public function testItShouldReturn400WhenWorkflowIsArchived(): void
@@ -135,6 +97,8 @@ final class UpdateWorkflowExampleTest extends IntegrationTestCase
 
         $this->updateExample((string) $workflow->id, $example->id->toString(), [
             'scenario' => 'Updated scenario',
+            'input'    => 'Updated input',
+            'output'   => 'Updated output',
         ]);
 
         self::assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
@@ -146,6 +110,6 @@ final class UpdateWorkflowExampleTest extends IntegrationTestCase
     private function updateExample(string $workflowId, string $exampleId, array $payload): void
     {
         DomainEventQueue::reset();
-        $this->patchJson(\sprintf('/api/authoring/workflows/%s/examples/%s', $workflowId, $exampleId), $payload);
+        $this->putJson(\sprintf('/api/authoring/workflows/%s/examples/%s', $workflowId, $exampleId), $payload);
     }
 }

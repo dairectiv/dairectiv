@@ -7,9 +7,9 @@ namespace Dairectiv\Authoring\UserInterface\Http\Api\Payload\Workflow\UpdateWork
 final readonly class UpdateWorkflowExamplePayload
 {
     public function __construct(
-        public ?string $scenario = null,
-        public ?string $input = null,
-        public ?string $output = null,
+        public string $scenario,
+        public string $input,
+        public string $output,
         public ?string $explanation = null,
     ) {
     }

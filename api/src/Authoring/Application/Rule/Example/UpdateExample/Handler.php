@@ -19,11 +19,6 @@ final readonly class Handler implements CommandHandler
 
     public function __invoke(Input $input): void
     {
-        Assert::true(
-            null !== $input->good || null !== $input->bad || null !== $input->explanation,
-            'At least one field must be provided.',
-        );
-
         $ruleId = DirectiveId::fromString($input->ruleId);
         $rule = $this->ruleRepository->getRuleById($ruleId);
 

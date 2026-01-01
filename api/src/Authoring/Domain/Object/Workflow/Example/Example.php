@@ -6,7 +6,6 @@ namespace Dairectiv\Authoring\Domain\Object\Workflow\Example;
 
 use Cake\Chronos\Chronos;
 use Dairectiv\Authoring\Domain\Object\Workflow\Workflow;
-use Dairectiv\SharedKernel\Domain\Object\Assert;
 use Dairectiv\SharedKernel\Domain\Object\StringNormalizer;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
@@ -70,20 +69,15 @@ class Example
     }
 
     public function update(
-        ?string $scenario = null,
-        ?string $input = null,
-        ?string $output = null,
-        ?string $explanation = null,
+        string $scenario,
+        string $input,
+        string $output,
+        ?string $explanation,
     ): void {
-        Assert::true(
-            null !== $scenario || null !== $input || null !== $output || null !== $explanation,
-            'At least one field must be provided.',
-        );
-
-        $this->scenario = self::trimOrNull($scenario) ?? $this->scenario;
-        $this->input = self::trimOrNull($input) ?? $this->input;
-        $this->output = self::trimOrNull($output) ?? $this->output;
-        $this->explanation = self::trimOrNull($explanation) ?? $this->explanation;
+        $this->scenario = self::trim($scenario);
+        $this->input = self::trim($input);
+        $this->output = self::trim($output);
+        $this->explanation = self::trimOrNull($explanation);
         $this->updatedAt = Chronos::now();
 
         $this->workflow->markAsUpdated();

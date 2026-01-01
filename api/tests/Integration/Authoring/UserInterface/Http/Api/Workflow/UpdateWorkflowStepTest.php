@@ -52,7 +52,7 @@ final class UpdateWorkflowStepTest extends IntegrationTestCase
         self::assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
     }
 
-    public function testItShouldReturn400WhenNoFieldsProvided(): void
+    public function testItShouldReturn422WhenMissingRequiredFields(): void
     {
         $workflow = self::draftWorkflowEntity();
         $step = Step::create($workflow, 'Original content');
@@ -60,7 +60,7 @@ final class UpdateWorkflowStepTest extends IntegrationTestCase
 
         $this->updateStep((string) $workflow->id, $step->id->toString(), []);
 
-        self::assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
+        self::assertResponseStatusCodeSame(Response::HTTP_UNPROCESSABLE_ENTITY);
     }
 
     public function testItShouldReturn400WhenWorkflowIsArchived(): void
@@ -83,6 +83,6 @@ final class UpdateWorkflowStepTest extends IntegrationTestCase
     private function updateStep(string $workflowId, string $stepId, array $payload): void
     {
         DomainEventQueue::reset();
-        $this->patchJson(\sprintf('/api/authoring/workflows/%s/steps/%s', $workflowId, $stepId), $payload);
+        $this->putJson(\sprintf('/api/authoring/workflows/%s/steps/%s', $workflowId, $stepId), $payload);
     }
 }

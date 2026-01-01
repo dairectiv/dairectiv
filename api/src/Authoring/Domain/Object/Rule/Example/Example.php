@@ -64,13 +64,13 @@ class Example
     }
 
     public function update(
-        ?string $good = null,
-        ?string $bad = null,
-        ?string $explanation = null,
+        ?string $good,
+        ?string $bad,
+        ?string $explanation,
     ): void {
-        $this->good = self::trimOrNull($good) ?? $this->good;
-        $this->bad = self::trimOrNull($bad) ?? $this->bad;
-        $this->explanation = self::trimOrNull($explanation) ?? $this->explanation;
+        $this->good = self::trimOrNull($good);
+        $this->bad = self::trimOrNull($bad);
+        $this->explanation = self::trimOrNull($explanation);
         $this->updatedAt = Chronos::now();
 
         $this->rule->markAsUpdated();
