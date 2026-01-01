@@ -642,6 +642,16 @@ To use: Reference when implementing new aggregates. Follow the directory structu
 
 To use: Ask Claude to "create an endpoint for [resource/action]" and the Skill will guide through implementing controller, tests, and OpenAPI spec.
 
+**[pr-review](`.claude/skills/pr-review/`)**
+- Handles PR review comments and applies requested fixes
+- Fetches comments via `gh pr view` and `gh api` for inline comments
+- Analyzes comment types: fix, improvement, question, nitpick, praise
+- Filters already processed comments to avoid duplicate fixes
+- Provides a summary of addressed, resolved, and pending comments
+- Triggered when you say "I commented on the PR" or mention PR feedback
+
+To use: Simply tell Claude "I commented on the PR" or "check the PR comments" and the Skill will fetch, analyze, and apply the requested fixes.
+
 ### Creating New Skills
 
 When adding a new Skill:
