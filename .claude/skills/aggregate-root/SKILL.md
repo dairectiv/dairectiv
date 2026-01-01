@@ -1,360 +1,235 @@
 ---
 name: aggregate-root
-description: Guide for implementing DDD Aggregate Roots with value objects, domain events, and tests. Use when creating new aggregates or extending existing ones.
+description: Guide for implementing DDD Aggregate Roots with rich domain models, validation, domain events, and exhaustive tests. Use when creating or modifying aggregates.
 allowed-tools: Read, Write, Edit, Glob, Grep
 ---
 
 # Aggregate Root Implementation Guide
 
-This Skill provides patterns for implementing DDD Aggregate Roots in the dairectiv codebase.
+This Skill provides best practices for implementing DDD Aggregate Roots with rich domain models.
 
 ## When to Use
 
-Use this Skill when:
 - Creating a new Aggregate Root
-- Adding value objects to a domain
-- Implementing domain events
-- Writing tests for aggregates
+- Adding behavior to an existing aggregate
+- Implementing state transitions
+- Writing exhaustive unit tests for domain logic
+
+## Core Principles
+
+### 1. Rich Domain Model (Not Anemic)
+
+Aggregates must encapsulate business logic, not just hold data:
+
+```php
+// BAD: Anemic model with public setters
+$rule->setContent($content);
+$rule->setState(DirectiveState::Published);
+
+// GOOD: Rich model with behavior
+$rule->updateContent($content);
+$rule->publish();
+```
+
+### 2. Business Intent Through Method Names
+
+Methods should express what happens in business terms:
+
+| Bad             | Good                                 |
+|-----------------|--------------------------------------|
+| `setState()`    | `publish()`, `archive()`, `delete()` |
+| `setContent()`  | `updateContent()`                    |
+| `setExamples()` | `addExample()`, `removeExample()`    |
+
+### 3. Protect Invariants
+
+Validate state transitions and business rules:
+
+```php
+public function publish(): void
+{
+    Assert::eq($this->state, DirectiveState::Draft, 'Only draft directives can be published.');
+
+    $this->state = DirectiveState::Published;
+    $this->recordEvent(new DirectivePublished($this->id));
+}
+```
+
+### 4. Domain Events for State Changes
+
+Record events for significant business actions:
+
+```php
+protected function initialize(DirectiveId $id, string $name): void
+{
+    $this->id = $id;
+    $this->name = $name;
+    $this->state = DirectiveState::Draft;
+
+    $this->recordEvent(new DirectiveDrafted($this->id));
+}
+
+public function archive(): void
+{
+    Assert::notEq($this->state, DirectiveState::Archived, 'Already archived.');
+
+    $this->state = DirectiveState::Archived;
+    $this->recordEvent(new DirectiveArchived($this->id));
+}
+```
 
 ## Directory Structure
 
 ```
-src/{BoundedContext}/Domain/
-├── {Aggregate}/
-│   ├── {Aggregate}.php           # Aggregate root class
-│   ├── {Aggregate}Id.php         # Identity value object
-│   ├── {Aggregate}Change.php     # Change value object (for mutations)
-│   └── Event/
-│       ├── {Aggregate}Created.php
-│       └── {Aggregate}Updated.php
+src/{BoundedContext}/Domain/Object/{Aggregate}/
+├── {Aggregate}.php           # Aggregate root
+├── {Aggregate}Id.php         # Identity value object (optional)
+├── Event/
+│   ├── {Aggregate}Created.php
+│   ├── {Aggregate}Updated.php
+│   └── {Aggregate}Archived.php
 └── Exception/
-    └── {Aggregate}ConflictException.php
+    └── {Aggregate}NotFoundException.php
 ```
 
-## Class Signatures
+## Implementation Patterns
 
-### Aggregate Root (Abstract)
+### Factory Method (Named Constructor)
 
 ```php
-<?php
-
-declare(strict_types=1);
-
-namespace Dairectiv\{Context}\Domain\{Aggregate};
-
-use Cake\Chronos\Chronos;
-
-/**
- * @template T of Change
- */
-abstract class {Aggregate} extends AggregateRoot
+public static function draft(DirectiveId $id, string $name, string $description): static
 {
-    private(set) {Aggregate}Id $value;
-    private(set) {Aggregate}State $state;
-    private(set) {Aggregate}Version $version;
-    private(set) Chronos $createdAt;
-    private(set) Chronos $updatedAt;
-
-    /**
-     * @param T $change
-     */
-    abstract protected function doApplyChanges(Change $change): void;
-
-    public static function create({Aggregate}Id $value, /* other params */): static
-    {
-        $aggregate = new static();
-        $aggregate->id = $value;
-        $aggregate->version = {Aggregate}Version::initial();
-        $aggregate->state = {Aggregate}State::Draft;
-        $aggregate->createdAt = Chronos::now();
-        $aggregate->updatedAt = Chronos::now();
-
-        $aggregate->recordEvent(new {Aggregate}Created($aggregate->id));
-
-        return $aggregate;
-    }
-
-    /**
-     * @param T $change
-     */
-    final public function applyChanges(Change $change, {Aggregate}Version $expectedVersion): void
-    {
-        if (!$this->version->equals($expectedVersion)) {
-            throw new {Aggregate}ConflictException($expectedVersion, $this);
-        }
-
-        $this->doApplyChanges($change);
-        $this->updatedAt = Chronos::now();
-        $this->version = $this->version->increment();
-
-        $this->recordEvent(new {Aggregate}Updated($this->id, $this->version));
-    }
+    $entity = new self();
+    $entity->initialize($id, $name, $description);
+    return $entity;
 }
 ```
 
-### Concrete Aggregate
+### State Guard Methods
 
 ```php
-<?php
-
-declare(strict_types=1);
-
-namespace Dairectiv\{Context}\Domain\{Aggregate};
-
-/**
- * @extends {Parent}<{Aggregate}Change>
- */
-final class {Aggregate} extends {Parent}
+final protected function assertNotArchived(): void
 {
-    // Type-specific properties
-    private(set) {Aggregate}Content $content;
-
-    protected function doApplyChanges(Change $change): void
-    {
-        if ($change->content !== null) {
-            $this->content = $change->content;
-        }
-        // Apply other fields...
-    }
+    Assert::notEq($this->state, DirectiveState::Archived, 'Cannot modify archived entity.');
+    Assert::notEq($this->state, DirectiveState::Deleted, 'Cannot modify deleted entity.');
 }
 ```
 
-## Value Objects
-
-### Identity Value Object
+### Mark Updated Pattern
 
 ```php
-<?php
-
-declare(strict_types=1);
-
-namespace Dairectiv\{Context}\Domain\{Aggregate};
-
-use Dairectiv\SharedKernel\Domain\Object\Assert;
-
-final readonly class {Aggregate}Id implements \Stringable
+final public function markAsUpdated(): void
 {
-    private function __construct(public string $id)
-    {
-    }
-
-    public static function fromString(string $id): self
-    {
-        Assert::kebabCase($id, \sprintf('{Aggregate} id "%s" is not in kebab-case.', $id));
-
-        return new self($id);
-    }
-
-    public function __toString(): string
-    {
-        return $this->id;
-    }
+    $this->assertNotArchived();
+    $this->updatedAt = Chronos::now();
+    $this->recordEvent(new DirectiveUpdated($this->id));
 }
 ```
 
-### Version Value Object
+## Testing Best Practices
+
+### Use UnitTestCase with AggregateRootAssertions
 
 ```php
-<?php
+#[Group('unit')]
+#[Group('{bounded-context}')]
+final class {Aggregate}Test extends UnitTestCase
+```
 
-declare(strict_types=1);
+### Test Categories (Be Exhaustive)
 
-namespace Dairectiv\{Context}\Domain\{Aggregate};
+1. **Creation/Lifecycle**
+   - Happy path creation
+   - All state transitions (draft → published → archived)
 
-final readonly class {Aggregate}Version implements \Stringable
+2. **Invalid State Transitions**
+   - Cannot publish already published
+   - Cannot archive already archived
+   - Cannot modify deleted entity
+
+3. **Behavior Methods**
+   - Each method with valid inputs
+   - Each method with invalid inputs
+   - Edge cases (null, empty, boundary values)
+
+4. **Domain Events**
+   - Assert every event is recorded
+   - Use `resetDomainEvents()` between actions
+
+### Test Pattern
+
+```php
+public function testItShouldPublishRule(): void
 {
-    private function __construct(public int $version)
-    {
-    }
+    // Arrange
+    $rule = Rule::draft(DirectiveId::fromString('my-rule'), 'Name', 'Desc');
+    $this->resetDomainEvents();
 
-    public static function initial(): self
-    {
-        return new self(1);
-    }
+    // Act
+    $rule->publish();
 
-    public function increment(): self
-    {
-        return new self($this->version + 1);
-    }
+    // Assert state
+    self::assertSame(DirectiveState::Published, $rule->state);
 
-    public function equals(self $version): bool
-    {
-        return $this->version === $version->version;
-    }
+    // Assert event
+    $this->assertDomainEventRecorded(DirectivePublished::class);
+}
 
-    public function isOlderThan(self $version): bool
-    {
-        return $this->version < $version->version;
-    }
+public function testItShouldNotPublishAlreadyPublished(): void
+{
+    $rule = Rule::draft(DirectiveId::fromString('my-rule'), 'Name', 'Desc');
+    $rule->publish();
+    $this->resetDomainEvents();
 
-    public function isNewerThan(self $version): bool
-    {
-        return $this->version > $version->version;
-    }
+    $this->expectException(InvalidArgumentException::class);
+    $this->expectExceptionMessage('Only draft directives can be published.');
 
-    public function __toString(): string
-    {
-        return \sprintf('v%d', $this->version);
-    }
+    $rule->publish();
 }
 ```
 
-### Change Value Object
+### Domain Event Assertions
 
 ```php
-<?php
+// Assert specific event was recorded
+$this->assertDomainEventRecorded(DirectiveCreated::class);
 
-declare(strict_types=1);
+// Assert event recorded N times
+$this->assertDomainEventRecorded(DirectiveUpdated::class, 3);
 
-namespace Dairectiv\{Context}\Domain\{Aggregate};
+// Reset events mid-test
+$this->resetDomainEvents();
 
-use Dairectiv\{Context}\Domain\ChangeSet\Change;
-
-final readonly class {Aggregate}Change extends Change
-{
-    public function __construct(
-        public ?{Aggregate}Name $name = null,
-        public ?{Aggregate}Content $content = null,
-        // null = no change, value = apply change
-    ) {
-    }
-}
+// Assert no events (automatic in tearDown)
+$this->assertNoDomainEvents();
 ```
-
-## Domain Events
-
-### Event Structure
-
-```php
-<?php
-
-declare(strict_types=1);
-
-namespace Dairectiv\{Context}\Domain\{Aggregate}\Event;
-
-final readonly class {Aggregate}Created implements DomainEvent
-{
-    public function __construct(
-        public {Aggregate}Id $aggregateId,
-    ) {
-    }
-}
-```
-
-## Exceptions
-
-### Conflict Exception
-
-```php
-<?php
-
-declare(strict_types=1);
-
-namespace Dairectiv\{Context}\Domain\{Aggregate}\Exception;
-
-final class {Aggregate}ConflictException extends \RuntimeException
-{
-    public function __construct(
-        public readonly {Aggregate}Version $expectedVersion,
-        public readonly {Aggregate} $aggregate,
-    ) {
-        parent::__construct(\sprintf(
-            'Conflict: expected version %s but aggregate has version %s',
-            $expectedVersion,
-            $aggregate->version,
-        ));
-    }
-}
-```
-
-## Testing
-
-### Test Class Structure
-
-```php
-<?php
-
-declare(strict_types=1);
-
-namespace Dairectiv\Tests\Unit\{Context}\Domain\{Aggregate};
-
-use Dairectiv\Tests\Framework\AggregateRootAssertions;
-use PHPUnit\Framework\TestCase;
-
-final class {Aggregate}Test extends TestCase
-{
-    use AggregateRootAssertions;
-
-    public function testItShouldCreate{Aggregate}WithInitialState(): void
-    {
-        $aggregate = {Aggregate}::create(
-            {Aggregate}Id::fromString('my-aggregate'),
-        );
-
-        self::assertSame(1, $aggregate->version->version);
-
-        // REQUIRED: Assert all domain events
-        $this->assertDomainEventRecorded({Aggregate}Created::class);
-    }
-
-    public function testItShouldApplyChangesWithCorrectVersion(): void
-    {
-        $aggregate = {Aggregate}::create(
-            {Aggregate}Id::fromString('my-aggregate'),
-        );
-
-        $this->resetDomainEvents(); // Clear setup events
-
-        $aggregate->applyChanges(
-            new {Aggregate}Change(/* changes */),
-            {Aggregate}Version::initial(),
-        );
-
-        self::assertSame(2, $aggregate->version->version);
-
-        $event = $this->assertDomainEventRecorded({Aggregate}Updated::class);
-        self::assertSame(2, $event->version->version);
-    }
-
-    public function testItShouldThrowConflictOnVersionMismatch(): void
-    {
-        $aggregate = {Aggregate}::create(
-            {Aggregate}Id::fromString('my-aggregate'),
-        );
-
-        $this->assertDomainEventRecorded({Aggregate}Created::class);
-
-        $this->expectException({Aggregate}ConflictException::class);
-
-        $aggregate->applyChanges(
-            new {Aggregate}Change(),
-            {Aggregate}Version::initial()->increment(), // Wrong version
-        );
-    }
-}
-```
-
-### AggregateRootAssertions Trait
-
-The trait provides:
-- `assertDomainEventRecorded(string $class): DomainEvent` - Assert and return event
-- `assertNoDomainEvents(): void` - Assert no events recorded
-- `resetDomainEvents(): void` - Clear events mid-test
-- `assertPostConditions(): void` - Fails if unasserted events exist
-
-**IMPORTANT**: Every test MUST assert all domain events or the test will fail in `assertPostConditions()`.
 
 ## Checklist
 
-When implementing a new Aggregate Root:
+When implementing an Aggregate Root:
 
-- [ ] Create aggregate class extending `AggregateRoot`
-- [ ] Create identity value object (`{Aggregate}Id`)
-- [ ] Create version value object if needed (`{Aggregate}Version`)
-- [ ] Create state enum if needed (`{Aggregate}State`)
-- [ ] Create change value object (`{Aggregate}Change`)
-- [ ] Create domain events (`{Aggregate}Created`, `{Aggregate}Updated`, etc.)
-- [ ] Create conflict exception (`{Aggregate}ConflictException`)
-- [ ] Write tests using `AggregateRootAssertions` trait
-- [ ] Ensure 100% test coverage
-- [ ] All events asserted in tests
+- [ ] Uses factory method (`draft()`, `create()`) not public constructor
+- [ ] Method names reflect business intent
+- [ ] State transitions are guarded with Assert
+- [ ] Domain events recorded for significant changes
+- [ ] No public setters, only behavior methods
+- [ ] `markAsUpdated()` called for modifications
+- [ ] Extends `AggregateRoot` base class
+
+When testing:
+
+- [ ] Test all creation paths
+- [ ] Test all valid state transitions
+- [ ] Test all **invalid** state transitions
+- [ ] Test each behavior method
+- [ ] Assert all domain events
+- [ ] Use `resetDomainEvents()` to isolate assertions
+- [ ] Use `#[Group('unit')]` and bounded context group
+
+## Reference Files
+
+- `api/src/Authoring/Domain/Object/Directive/Directive.php` - Base aggregate
+- `api/src/Authoring/Domain/Object/Rule/Rule.php` - Concrete aggregate
+- `api/tests/Unit/Authoring/Domain/Object/Rule/RuleTest.php` - Exhaustive tests
+- `api/tests/Framework/UnitTestCase.php` - Base test class
+- `api/tests/Framework/Assertions/AggregateRootAssertions.php` - Event assertions
