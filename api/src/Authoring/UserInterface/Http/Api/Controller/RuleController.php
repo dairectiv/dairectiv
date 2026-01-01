@@ -4,16 +4,16 @@ declare(strict_types=1);
 
 namespace Dairectiv\Authoring\UserInterface\Http\Api\Controller;
 
-use Dairectiv\Authoring\Application\Directive\Archive;
-use Dairectiv\Authoring\Application\Directive\Delete;
-use Dairectiv\Authoring\Application\Directive\Publish;
-use Dairectiv\Authoring\Application\Rule\AddExample;
-use Dairectiv\Authoring\Application\Rule\Draft;
-use Dairectiv\Authoring\Application\Rule\Get;
+use Dairectiv\Authoring\Application\Directive\ArchiveDirective;
+use Dairectiv\Authoring\Application\Directive\DeleteDirective;
+use Dairectiv\Authoring\Application\Directive\PublishDirective;
+use Dairectiv\Authoring\Application\Rule\DraftRule;
+use Dairectiv\Authoring\Application\Rule\Example\AddExample;
+use Dairectiv\Authoring\Application\Rule\Example\RemoveExample;
+use Dairectiv\Authoring\Application\Rule\Example\UpdateExample;
+use Dairectiv\Authoring\Application\Rule\GetRule;
 use Dairectiv\Authoring\Application\Rule\ListRules;
-use Dairectiv\Authoring\Application\Rule\RemoveExample;
-use Dairectiv\Authoring\Application\Rule\Update;
-use Dairectiv\Authoring\Application\Rule\UpdateExample;
+use Dairectiv\Authoring\Application\Rule\UpdateRule;
 use Dairectiv\Authoring\Domain\Object\Directive\Exception\DirectiveAlreadyExistsException;
 use Dairectiv\Authoring\Domain\Object\Rule\Exception\RuleNotFoundException;
 use Dairectiv\Authoring\UserInterface\Http\Api\Payload\Rule\AddRuleExample\AddRuleExamplePayload;
@@ -67,9 +67,9 @@ final class RuleController extends AbstractController
     public function get(string $id): JsonResponse
     {
         try {
-            $output = $this->queryBus->fetch(new Get\Input($id));
+            $output = $this->queryBus->fetch(new GetRule\Input($id));
 
-            Assert::isInstanceOf($output, Get\Output::class);
+            Assert::isInstanceOf($output, GetRule\Output::class);
 
             return $this->json(RuleResponse::fromRule($output->rule));
         } catch (RuleNotFoundException $e) {
@@ -81,9 +81,9 @@ final class RuleController extends AbstractController
     public function draft(#[MapRequestPayload] DraftRulePayload $payload): JsonResponse
     {
         try {
-            $output = $this->commandBus->execute(new Draft\Input($payload->name, $payload->description));
+            $output = $this->commandBus->execute(new DraftRule\Input($payload->name, $payload->description));
 
-            Assert::isInstanceOf($output, Draft\Output::class);
+            Assert::isInstanceOf($output, DraftRule\Output::class);
 
             return $this->json(RuleResponse::fromRule($output->rule), 201);
         } catch (DirectiveAlreadyExistsException $e) {
@@ -95,16 +95,16 @@ final class RuleController extends AbstractController
     public function update(string $id, #[MapRequestPayload] UpdateRulePayload $payload): JsonResponse
     {
         try {
-            $this->commandBus->execute(new Update\Input(
+            $this->commandBus->execute(new UpdateRule\Input(
                 $id,
                 $payload->name,
                 $payload->description,
                 $payload->content,
             ));
 
-            $output = $this->queryBus->fetch(new Get\Input($id));
+            $output = $this->queryBus->fetch(new GetRule\Input($id));
 
-            Assert::isInstanceOf($output, Get\Output::class);
+            Assert::isInstanceOf($output, GetRule\Output::class);
 
             return $this->json(RuleResponse::fromRule($output->rule));
         } catch (RuleNotFoundException $e) {
@@ -119,10 +119,10 @@ final class RuleController extends AbstractController
     {
         try {
             // First verify the rule exists (throws RuleNotFoundException if not found or not a Rule)
-            $this->queryBus->fetch(new Get\Input($id));
+            $this->queryBus->fetch(new GetRule\Input($id));
 
             // Then publish it
-            $this->commandBus->execute(new Publish\Input($id));
+            $this->commandBus->execute(new PublishDirective\Input($id));
 
             return new Response(null, Response::HTTP_NO_CONTENT);
         } catch (RuleNotFoundException $e) {
@@ -137,10 +137,10 @@ final class RuleController extends AbstractController
     {
         try {
             // First verify the rule exists (throws RuleNotFoundException if not found or not a Rule)
-            $this->queryBus->fetch(new Get\Input($id));
+            $this->queryBus->fetch(new GetRule\Input($id));
 
             // Then archive it
-            $this->commandBus->execute(new Archive\Input($id));
+            $this->commandBus->execute(new ArchiveDirective\Input($id));
 
             return new Response(null, Response::HTTP_NO_CONTENT);
         } catch (RuleNotFoundException $e) {
@@ -155,10 +155,10 @@ final class RuleController extends AbstractController
     {
         try {
             // First verify the rule exists (throws RuleNotFoundException if not found or not a Rule)
-            $this->queryBus->fetch(new Get\Input($id));
+            $this->queryBus->fetch(new GetRule\Input($id));
 
             // Then delete it (soft delete)
-            $this->commandBus->execute(new Delete\Input($id));
+            $this->commandBus->execute(new DeleteDirective\Input($id));
 
             return new Response(null, Response::HTTP_NO_CONTENT);
         } catch (RuleNotFoundException $e) {
