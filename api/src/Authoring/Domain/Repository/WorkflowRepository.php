@@ -7,6 +7,7 @@ namespace Dairectiv\Authoring\Domain\Repository;
 use Dairectiv\Authoring\Domain\Object\Directive\DirectiveId;
 use Dairectiv\Authoring\Domain\Object\Workflow\Exception\WorkflowNotFoundException;
 use Dairectiv\Authoring\Domain\Object\Workflow\Workflow;
+use Dairectiv\Authoring\Domain\Object\Workflow\WorkflowSearchCriteria;
 
 interface WorkflowRepository
 {
@@ -16,4 +17,11 @@ interface WorkflowRepository
      * @throws WorkflowNotFoundException
      */
     public function getWorkflowById(DirectiveId $id): Workflow;
+
+    /**
+     * @return list<Workflow>
+     */
+    public function searchByCriteria(WorkflowSearchCriteria $criteria, int $offset, int $limit): array;
+
+    public function countByCriteria(WorkflowSearchCriteria $criteria): int;
 }
