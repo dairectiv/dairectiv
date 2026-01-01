@@ -10,6 +10,7 @@ use Dairectiv\Authoring\Application\Directive\Publish;
 use Dairectiv\Authoring\Application\Rule\AddExample;
 use Dairectiv\Authoring\Application\Rule\Draft;
 use Dairectiv\Authoring\Application\Rule\Get;
+use Dairectiv\Authoring\Application\Rule\ListRules;
 use Dairectiv\Authoring\Application\Rule\RemoveExample;
 use Dairectiv\Authoring\Application\Rule\Update;
 use Dairectiv\Authoring\Application\Rule\UpdateExample;
@@ -20,12 +21,14 @@ use Dairectiv\Authoring\UserInterface\Http\Api\Payload\Rule\DraftRule\DraftRuleP
 use Dairectiv\Authoring\UserInterface\Http\Api\Payload\Rule\UpdateRule\UpdateRulePayload;
 use Dairectiv\Authoring\UserInterface\Http\Api\Payload\Rule\UpdateRuleExample\UpdateRuleExamplePayload;
 use Dairectiv\Authoring\UserInterface\Http\Api\Response\Rule\RuleResponse;
+use Dairectiv\Authoring\UserInterface\Http\Api\Response\Rule\RulesCollectionResponse;
 use Dairectiv\SharedKernel\Application\Command\CommandBus;
 use Dairectiv\SharedKernel\Application\Query\QueryBus;
 use Dairectiv\SharedKernel\Domain\Object\Assert;
 use Dairectiv\SharedKernel\Domain\Object\Exception\InvalidArgumentException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
@@ -41,6 +44,23 @@ final class RuleController extends AbstractController
         private readonly QueryBus $queryBus,
         private readonly CommandBus $commandBus,
     ) {
+    }
+
+    #[Route('', name: 'list', methods: ['GET'])]
+    public function list(Request $request): JsonResponse
+    {
+        $output = $this->queryBus->fetch(new ListRules\Input(
+            page: max(1, $request->query->getInt('page', 1)),
+            limit: min(100, max(1, $request->query->getInt('limit', 20))),
+            search: $request->query->get('search'),
+            state: $request->query->get('state'),
+            sortBy: $request->query->get('sortBy', 'createdAt'),
+            sortOrder: $request->query->get('sortOrder', 'desc'),
+        ));
+
+        Assert::isInstanceOf($output, ListRules\Output::class);
+
+        return $this->json(RulesCollectionResponse::fromOutput($output));
     }
 
     #[Route('/{id}', name: 'get', requirements: ['id' => '^[a-z0-9-]+$'], methods: ['GET'])]
