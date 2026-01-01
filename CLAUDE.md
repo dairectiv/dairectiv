@@ -735,6 +735,30 @@ When adding a new Skill:
 
 See [Claude Code Skills documentation](https://code.claude.com/docs/en/skills.md) for details.
 
+## Claude Code Subagents
+
+This project includes custom Subagents for autonomous task execution:
+
+### Available Subagents
+
+**[spec-driven-development](`.claude/agents/spec-driven-development.md`)**
+- Generic development agent following specification-driven workflow
+- Reads specifications from: Linear issues, markdown files, or user descriptions
+- Detects task type and uses appropriate skills automatically
+- Full workflow: intake → analyze → implement → migrate → QA → commit → push → PR
+- Uses all available Skills based on context
+
+To use: Ask Claude to "implement DAI-XXX" or "implement the spec in docs/feature.md"
+
+### Creating New Subagents
+
+When adding a new Subagent:
+1. Create a file in `.claude/agents/agent-name.md`
+2. Add YAML frontmatter with name, description, model, and color
+3. Define the agent's workflow and capabilities
+4. Document the Subagent in this section
+5. Commit to git so the team can use it
+
 ## Contributing to Castor Tasks
 
 When adding a new Castor task, you **must** document it in this file:
