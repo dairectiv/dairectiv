@@ -352,9 +352,11 @@ The project follows a strict one-to-one relationship between Linear issues and g
 - **Workflow**:
   1. Create or assign yourself a Linear issue
   2. Create a branch named after the issue: `git checkout -b dai-XXX`
-  3. Work on the issue in this dedicated branch
-  4. Commits reference the issue: `feat(dai-16): add feature`
-  5. Create PR when ready (one PR per issue)
+  3. **Set the Linear issue status to "In Progress"** when starting work
+  4. Work on the issue in this dedicated branch
+  5. Commits reference the issue: `feat(dai-16): add feature`
+  6. Create PR when ready (one PR per issue)
+  7. **Never manually set an issue to "Done"** - GitHub automation handles this when the PR is merged (via `Closes DAI-XXX` in PR description)
 
 - **Benefits**:
   - Clear traceability: branch → commits → PR → issue
