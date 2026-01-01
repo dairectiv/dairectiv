@@ -116,6 +116,8 @@ Before creating/updating, verify the issue includes:
 - Concrete success criteria or acceptance
 - Estimation based on complexity
 - Any dependencies or risks if applicable
+- Issue status should be "Todo"
+- Assignee should be "Thomas Boileau"
 
 ## Label Mapping
 

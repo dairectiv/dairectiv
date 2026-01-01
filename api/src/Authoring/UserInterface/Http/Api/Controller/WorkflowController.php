@@ -4,20 +4,20 @@ declare(strict_types=1);
 
 namespace Dairectiv\Authoring\UserInterface\Http\Api\Controller;
 
-use Dairectiv\Authoring\Application\Directive\Archive;
-use Dairectiv\Authoring\Application\Directive\Delete;
-use Dairectiv\Authoring\Application\Directive\Publish;
-use Dairectiv\Authoring\Application\Workflow\AddExample;
-use Dairectiv\Authoring\Application\Workflow\AddStep;
-use Dairectiv\Authoring\Application\Workflow\Draft;
-use Dairectiv\Authoring\Application\Workflow\Get;
+use Dairectiv\Authoring\Application\Directive\ArchiveDirective;
+use Dairectiv\Authoring\Application\Directive\DeleteDirective;
+use Dairectiv\Authoring\Application\Directive\PublishDirective;
+use Dairectiv\Authoring\Application\Workflow\DraftWorkflow;
+use Dairectiv\Authoring\Application\Workflow\Example\AddExample;
+use Dairectiv\Authoring\Application\Workflow\Example\RemoveExample;
+use Dairectiv\Authoring\Application\Workflow\Example\UpdateExample;
+use Dairectiv\Authoring\Application\Workflow\GetWorkflow;
 use Dairectiv\Authoring\Application\Workflow\ListWorkflows;
-use Dairectiv\Authoring\Application\Workflow\MoveStep;
-use Dairectiv\Authoring\Application\Workflow\RemoveExample;
-use Dairectiv\Authoring\Application\Workflow\RemoveStep;
-use Dairectiv\Authoring\Application\Workflow\Update;
-use Dairectiv\Authoring\Application\Workflow\UpdateExample;
-use Dairectiv\Authoring\Application\Workflow\UpdateStep;
+use Dairectiv\Authoring\Application\Workflow\Step\AddStep;
+use Dairectiv\Authoring\Application\Workflow\Step\MoveStep;
+use Dairectiv\Authoring\Application\Workflow\Step\RemoveStep;
+use Dairectiv\Authoring\Application\Workflow\Step\UpdateStep;
+use Dairectiv\Authoring\Application\Workflow\UpdateWorkflow;
 use Dairectiv\Authoring\Domain\Object\Directive\Exception\DirectiveAlreadyExistsException;
 use Dairectiv\Authoring\Domain\Object\Workflow\Exception\WorkflowNotFoundException;
 use Dairectiv\Authoring\UserInterface\Http\Api\Payload\Workflow\AddWorkflowExample\AddWorkflowExamplePayload;
@@ -74,9 +74,9 @@ final class WorkflowController extends AbstractController
     public function get(string $id): JsonResponse
     {
         try {
-            $output = $this->queryBus->fetch(new Get\Input($id));
+            $output = $this->queryBus->fetch(new GetWorkflow\Input($id));
 
-            Assert::isInstanceOf($output, Get\Output::class);
+            Assert::isInstanceOf($output, GetWorkflow\Output::class);
 
             return $this->json(WorkflowResponse::fromWorkflow($output->workflow));
         } catch (WorkflowNotFoundException $e) {
@@ -88,9 +88,9 @@ final class WorkflowController extends AbstractController
     public function draft(#[MapRequestPayload] DraftWorkflowPayload $payload): JsonResponse
     {
         try {
-            $output = $this->commandBus->execute(new Draft\Input($payload->name, $payload->description));
+            $output = $this->commandBus->execute(new DraftWorkflow\Input($payload->name, $payload->description));
 
-            Assert::isInstanceOf($output, Draft\Output::class);
+            Assert::isInstanceOf($output, DraftWorkflow\Output::class);
 
             return $this->json(WorkflowResponse::fromWorkflow($output->workflow), Response::HTTP_CREATED);
         } catch (DirectiveAlreadyExistsException $e) {
@@ -102,16 +102,16 @@ final class WorkflowController extends AbstractController
     public function update(string $id, #[MapRequestPayload] UpdateWorkflowPayload $payload): JsonResponse
     {
         try {
-            $this->commandBus->execute(new Update\Input(
+            $this->commandBus->execute(new UpdateWorkflow\Input(
                 $id,
                 $payload->name,
                 $payload->description,
                 $payload->content,
             ));
 
-            $output = $this->queryBus->fetch(new Get\Input($id));
+            $output = $this->queryBus->fetch(new GetWorkflow\Input($id));
 
-            Assert::isInstanceOf($output, Get\Output::class);
+            Assert::isInstanceOf($output, GetWorkflow\Output::class);
 
             return $this->json(WorkflowResponse::fromWorkflow($output->workflow));
         } catch (WorkflowNotFoundException $e) {
@@ -126,10 +126,10 @@ final class WorkflowController extends AbstractController
     {
         try {
             // First verify the workflow exists (throws WorkflowNotFoundException if not found or not a Workflow)
-            $this->queryBus->fetch(new Get\Input($id));
+            $this->queryBus->fetch(new GetWorkflow\Input($id));
 
             // Then publish it
-            $this->commandBus->execute(new Publish\Input($id));
+            $this->commandBus->execute(new PublishDirective\Input($id));
 
             return new Response(null, Response::HTTP_NO_CONTENT);
         } catch (WorkflowNotFoundException $e) {
@@ -144,10 +144,10 @@ final class WorkflowController extends AbstractController
     {
         try {
             // First verify the workflow exists (throws WorkflowNotFoundException if not found or not a Workflow)
-            $this->queryBus->fetch(new Get\Input($id));
+            $this->queryBus->fetch(new GetWorkflow\Input($id));
 
             // Then archive it
-            $this->commandBus->execute(new Archive\Input($id));
+            $this->commandBus->execute(new ArchiveDirective\Input($id));
 
             return new Response(null, Response::HTTP_NO_CONTENT);
         } catch (WorkflowNotFoundException $e) {
@@ -162,10 +162,10 @@ final class WorkflowController extends AbstractController
     {
         try {
             // First verify the workflow exists (throws WorkflowNotFoundException if not found or not a Workflow)
-            $this->queryBus->fetch(new Get\Input($id));
+            $this->queryBus->fetch(new GetWorkflow\Input($id));
 
             // Then delete it (soft delete)
-            $this->commandBus->execute(new Delete\Input($id));
+            $this->commandBus->execute(new DeleteDirective\Input($id));
 
             return new Response(null, Response::HTTP_NO_CONTENT);
         } catch (WorkflowNotFoundException $e) {
@@ -306,7 +306,7 @@ final class WorkflowController extends AbstractController
     ): Response {
         try {
             // Verify the workflow exists
-            $this->queryBus->fetch(new Get\Input($id));
+            $this->queryBus->fetch(new GetWorkflow\Input($id));
 
             $this->commandBus->execute(new MoveStep\Input(
                 $id,
