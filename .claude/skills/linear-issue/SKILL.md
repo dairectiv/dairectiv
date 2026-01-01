@@ -1,7 +1,7 @@
 ---
 name: linear-issue
 description: Creates structured Linear issues following team conventions. Use when the user asks to create a ticket, issue, or task in Linear, or mentions tracking work, bugs, features, improvements, chores, or spikes.
-allowed-tools: AskUserQuestion, mcp__linear__create_issue, mcp__linear__list_teams, mcp__linear__list_projects, mcp__linear__list_issue_labels, mcp__linear__get_team
+allowed-tools: AskUserQuestion, mcp__linear__create_issue, mcp__linear__update_issue, mcp__linear__get_issue, mcp__linear__list_teams, mcp__linear__list_projects, mcp__linear__list_issue_labels, mcp__linear__get_team
 ---
 
 # Linear Issue Creator
@@ -16,16 +16,54 @@ Use this Skill when the user:
 - Suggests a feature or improvement
 - Mentions creating a spike or investigation task
 - Asks to track technical debt or chores
+- Asks to refine an existing issue
+
+## Default Values
+
+Every issue created or refined via this Skill MUST have:
+- **Assignee**: "Thomas Boileau"
+- **Project**: "dairectiv"
+- **Status**: "Todo" (refined issues go to Todo, unrefined stay in Backlog)
+- **Estimation**: Required (see Estimation Guide below)
+
+## Estimation Guide
+
+Use the Fibonacci scale for estimation. Estimation reflects complexity and effort:
+
+| Points  | Description                                                                   | Examples                                            |
+|---------|-------------------------------------------------------------------------------|-----------------------------------------------------|
+| **1**   | Straightforward, no complexity. Can be done very quickly manually or with AI. | Skills, Subagents, CLAUDE.md updates, trivial fixes |
+| **2**   | Light complexity manually or moderate with AI.                                | Simple feature, small refactor                      |
+| **3**   | Moderate complexity manually, or high with AI.                                | Feature with multiple files, integration work       |
+| **5**   | High complexity, often introduces new technique. **Default for Spike**.       | New architectural pattern, complex feature          |
+| **8**   | Very large technical undertaking, even with AI.                               | Major refactoring, new bounded context              |
+
+### Estimation by Issue Type
+
+- **Spike**: Default to **5** (investigation effort is unpredictable)
+- **Documentation**: **1-3** max (1 for Skills/Subagents/CLAUDE.md, higher for extensive docs)
+- **Bugfix**: Same rules as other types (can range from 1 to 8 depending on complexity)
+- **Chore/CI/Build**: Same rules as other types
+
+## Refined vs Unrefined Issues
+
+| State         | Status  | Description                                                                         |
+|---------------|---------|-------------------------------------------------------------------------------------|
+| **Refined**   | Todo    | Issue created/updated via this Skill with full template, estimation, and assignment |
+| **Unrefined** | Backlog | Issue created quickly without proper structure (to be refined later)                |
+
+### Refinement Workflow
+
+When asked to refine an existing issue:
+1. Fetch the issue using `mcp__linear__get_issue`
+2. Update the description with the appropriate template
+3. Add/adjust the estimation
+4. Change status from Backlog → Todo
+5. Ensure assignee is "Thomas Boileau" and project is "dairectiv"
 
 ## Workflow
 
-### Step 1: Select Project
-
-Ask the user which project the issue belongs to:
-- **dairectiv**: The self-hosted application (main project)
-- **cli**: The terminal CLI tool
-
-### Step 2: Identify Issue Type
+### Step 1: Identify Issue Type
 
 Determine the appropriate issue type based on the request:
 - **Feature**: New functionality or capability
@@ -43,28 +81,40 @@ Determine the appropriate issue type based on the request:
 
 If unclear, ask the user which type fits best.
 
-### Step 3: Gather Information
+### Step 2: Gather Information
 
 Based on the issue type, collect the necessary information from the conversation or ask the user to clarify missing details.
+
+### Step 3: Determine Estimation
+
+Based on the issue type and complexity:
+1. Assess the technical complexity
+2. Consider if new techniques are introduced
+3. Apply the Fibonacci scale (1, 2, 3, 5, 8)
+4. Use defaults for specific types (Spike = 5, Documentation = 1-3)
 
 ### Step 4: Fill Template
 
 Use the appropriate template below and fill it with the gathered information. Keep it concise - provide only what's needed to understand, plan, and validate.
 
-### Step 5: Create Issue via MCP
+### Step 5: Create or Update Issue via MCP
 
-Use the Linear MCP to create the issue with:
+Use the Linear MCP to create/update the issue with:
 - **Title**: Short, action-oriented (e.g., "Add user authentication", "Fix database connection timeout")
 - **Description**: The filled template (Markdown format)
-- **Project**: `dairectiv` or `cli` (`dairectiv` by default, unless the user specifies otherwise)
+- **Project**: `dairectiv` (always)
+- **Assignee**: "Thomas Boileau" (always)
 - **Label**: Map the issue type to the correct label (see Label Mapping below)
+- **Estimate**: The determined estimation (1, 2, 3, 5, or 8)
+- **Status**: "Todo" (refined issues)
 - **Write in English**: All issue content must be in English
 
 ### Step 6: Sanity Check
 
-Before creating, verify the issue includes:
+Before creating/updating, verify the issue includes:
 - Clear goal or problem statement
 - Concrete success criteria or acceptance
+- Estimation based on complexity
 - Any dependencies or risks if applicable
 
 ## Label Mapping
@@ -191,7 +241,7 @@ Map each issue type 1-to-1 with its Linear label:
 - [Documentation is complete and reviewed]
 ```
 
-,### Refactor Template
+### Refactor Template
 
 ```markdown
 # ♻️ Refactor
@@ -329,6 +379,7 @@ Map each issue type 1-to-1 with its Linear label:
 4. **Action-oriented titles**: Start with a verb (Add, Fix, Improve, Refactor, etc.)
 5. **Include context**: Help future readers understand why this matters
 6. **Define success**: Make it clear how to verify the work is complete
+7. **Always estimate**: Every refined issue must have an estimation
 
 ## Examples
 
@@ -351,3 +402,4 @@ Map each issue type 1-to-1 with its Linear label:
 - If multiple issues are needed, create them one at a time
 - After creating an issue, provide the user with the Linear issue URL
 - If the user wants to add more details later, they can edit the issue in Linear directly
+- When refining an existing issue, always update status to "Todo"
