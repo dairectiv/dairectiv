@@ -11,9 +11,9 @@ final readonly class Input implements Command
     public function __construct(
         public string $workflowId,
         public string $exampleId,
-        public ?string $scenario = null,
-        public ?string $input = null,
-        public ?string $output = null,
+        public string $scenario,
+        public string $input,
+        public string $output,
         public ?string $explanation = null,
     ) {
     }

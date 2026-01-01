@@ -45,7 +45,7 @@ final class UpdateExampleTest extends IntegrationTestCase
         self::assertSame('Updated explanation', $persistedExample->explanation);
     }
 
-    public function testItShouldUpdateScenarioOnly(): void
+    public function testItShouldClearExplanation(): void
     {
         $workflow = self::draftWorkflowEntity();
         $example = Example::create($workflow, 'Original scenario', 'Original input', 'Original output', 'Original explanation');
@@ -55,6 +55,9 @@ final class UpdateExampleTest extends IntegrationTestCase
             (string) $workflow->id,
             (string) $example->id,
             scenario: 'Updated scenario',
+            input: 'Updated input',
+            output: 'Updated output',
+            explanation: null,
         ));
 
         self::assertDomainEventHasBeenDispatched(DirectiveUpdated::class);
@@ -64,74 +67,9 @@ final class UpdateExampleTest extends IntegrationTestCase
 
         self::assertInstanceOf(Example::class, $persistedExample);
         self::assertSame('Updated scenario', $persistedExample->scenario);
-        self::assertSame('Original input', $persistedExample->input);
-        self::assertSame('Original output', $persistedExample->output);
-        self::assertSame('Original explanation', $persistedExample->explanation);
-    }
-
-    public function testItShouldUpdateInputOnly(): void
-    {
-        $workflow = self::draftWorkflowEntity();
-        $example = Example::create($workflow, 'Original scenario', 'Original input', 'Original output');
-        $this->persistEntity($workflow);
-
-        $this->execute(new Input(
-            (string) $workflow->id,
-            (string) $example->id,
-            input: 'Updated input',
-        ));
-
-        self::assertDomainEventHasBeenDispatched(DirectiveUpdated::class);
-
-        $persistedWorkflow = $this->findEntity(Workflow::class, ['id' => $workflow->id], true);
-        $persistedExample = $persistedWorkflow->examples->first();
-
-        self::assertInstanceOf(Example::class, $persistedExample);
-        self::assertSame('Original scenario', $persistedExample->scenario);
         self::assertSame('Updated input', $persistedExample->input);
-    }
-
-    public function testItShouldUpdateOutputOnly(): void
-    {
-        $workflow = self::draftWorkflowEntity();
-        $example = Example::create($workflow, 'Original scenario', 'Original input', 'Original output');
-        $this->persistEntity($workflow);
-
-        $this->execute(new Input(
-            (string) $workflow->id,
-            (string) $example->id,
-            output: 'Updated output',
-        ));
-
-        self::assertDomainEventHasBeenDispatched(DirectiveUpdated::class);
-
-        $persistedWorkflow = $this->findEntity(Workflow::class, ['id' => $workflow->id], true);
-        $persistedExample = $persistedWorkflow->examples->first();
-
-        self::assertInstanceOf(Example::class, $persistedExample);
-        self::assertSame('Original scenario', $persistedExample->scenario);
         self::assertSame('Updated output', $persistedExample->output);
-    }
-
-    public function testItShouldUpdateExplanationOnly(): void
-    {
-        $workflow = self::draftWorkflowEntity();
-        $example = Example::create($workflow, 'Original scenario', 'Original input', 'Original output');
-        $this->persistEntity($workflow);
-
-        $this->execute(new Input(
-            (string) $workflow->id,
-            (string) $example->id,
-            explanation: 'New explanation',
-        ));
-
-        self::assertDomainEventHasBeenDispatched(DirectiveUpdated::class);
-
-        $persistedWorkflow = $this->findEntity(Workflow::class, ['id' => $workflow->id], true);
-        $persistedExample = $persistedWorkflow->examples->first();
-
-        self::assertInstanceOf(Example::class, $persistedExample);
-        self::assertSame('New explanation', $persistedExample->explanation);
+        self::assertNull($persistedExample->explanation);
     }
 
     public function testItShouldThrowExceptionWhenWorkflowNotFound(): void
@@ -142,6 +80,8 @@ final class UpdateExampleTest extends IntegrationTestCase
             'non-existent-workflow',
             'non-existent-example',
             scenario: 'Updated',
+            input: 'Updated',
+            output: 'Updated',
         ));
     }
 
@@ -159,19 +99,9 @@ final class UpdateExampleTest extends IntegrationTestCase
             (string) $workflow->id,
             $nonExistentId,
             scenario: 'Updated',
+            input: 'Updated',
+            output: 'Updated',
         ));
-    }
-
-    public function testItShouldThrowExceptionWhenNoFieldsProvided(): void
-    {
-        $workflow = self::draftWorkflowEntity();
-        $example = Example::create($workflow, 'Scenario', 'Input', 'Output');
-        $this->persistEntity($workflow);
-
-        $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('At least one field must be provided.');
-
-        $this->execute(new Input((string) $workflow->id, (string) $example->id));
     }
 
     public function testItShouldThrowExceptionWhenWorkflowIsArchived(): void
@@ -188,6 +118,8 @@ final class UpdateExampleTest extends IntegrationTestCase
             (string) $workflow->id,
             (string) $example->id,
             scenario: 'Updated',
+            input: 'Updated',
+            output: 'Updated',
         ));
     }
 }

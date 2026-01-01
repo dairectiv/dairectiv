@@ -355,11 +355,11 @@ paths:
                                 $ref: "#/components/schemas/ValidationErrorResponse"
 
     /authoring/rules/{id}/examples/{exampleId}:
-        patch:
+        put:
             tags:
                 - Rules
-            summary: Update a rule example
-            description: Partially updates an example on a rule. Only provided fields will be updated.
+            summary: Replace a rule example
+            description: Replaces an example on a rule with new values. All fields must be provided, and nullable fields can be explicitly set to null.
             operationId: updateRuleExample
             parameters:
                 - name: id
@@ -388,15 +388,15 @@ paths:
                             $ref: "#/components/schemas/UpdateRuleExamplePayload"
             responses:
                 "204":
-                    description: Example updated successfully
+                    description: Example replaced successfully
                 "400":
-                    description: Bad request (no fields provided or rule is archived)
+                    description: Bad request (example not found or rule is archived)
                     content:
                         application/json:
                             schema:
                                 $ref: "#/components/schemas/ErrorResponse"
                 "404":
-                    description: Rule or example not found
+                    description: Rule not found
                     content:
                         application/json:
                             schema:
@@ -779,11 +779,11 @@ paths:
                                 $ref: "#/components/schemas/ValidationErrorResponse"
 
     /authoring/workflows/{id}/examples/{exampleId}:
-        patch:
+        put:
             tags:
                 - Workflows
-            summary: Update a workflow example
-            description: Partially updates an example on a workflow. Only provided fields will be updated.
+            summary: Replace a workflow example
+            description: Replaces an example on a workflow with new values. All required fields (scenario, input, output) must be provided. The explanation field is optional and can be set to null.
             operationId: updateWorkflowExample
             parameters:
                 - name: id
@@ -812,19 +812,25 @@ paths:
                             $ref: "#/components/schemas/UpdateWorkflowExamplePayload"
             responses:
                 "204":
-                    description: Example updated successfully
+                    description: Example replaced successfully
                 "400":
-                    description: Bad request (no fields provided or workflow is archived)
+                    description: Bad request (example not found or workflow is archived)
                     content:
                         application/json:
                             schema:
                                 $ref: "#/components/schemas/ErrorResponse"
                 "404":
-                    description: Workflow or example not found
+                    description: Workflow not found
                     content:
                         application/json:
                             schema:
                                 $ref: "#/components/schemas/ErrorResponse"
+                "422":
+                    description: Validation error (missing required fields)
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/ValidationErrorResponse"
         delete:
             tags:
                 - Workflows
@@ -914,11 +920,11 @@ paths:
                                 $ref: "#/components/schemas/ValidationErrorResponse"
 
     /authoring/workflows/{id}/steps/{stepId}:
-        patch:
+        put:
             tags:
                 - Workflows
-            summary: Update a workflow step
-            description: Partially updates a step on a workflow. Only provided fields will be updated.
+            summary: Replace a workflow step
+            description: Replaces a step on a workflow with new values. The content field is required.
             operationId: updateWorkflowStep
             parameters:
                 - name: id
@@ -947,19 +953,25 @@ paths:
                             $ref: "#/components/schemas/UpdateWorkflowStepPayload"
             responses:
                 "204":
-                    description: Step updated successfully
+                    description: Step replaced successfully
                 "400":
-                    description: Bad request (no fields provided or workflow is archived)
+                    description: Bad request (step not found or workflow is archived)
                     content:
                         application/json:
                             schema:
                                 $ref: "#/components/schemas/ErrorResponse"
                 "404":
-                    description: Workflow or step not found
+                    description: Workflow not found
                     content:
                         application/json:
                             schema:
                                 $ref: "#/components/schemas/ErrorResponse"
+                "422":
+                    description: Validation error (missing required fields)
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/ValidationErrorResponse"
         delete:
             tags:
                 - Workflows
@@ -1485,23 +1497,31 @@ components:
 
         UpdateRuleExamplePayload:
             type: object
-            description: Payload for updating an example on a rule. All fields are optional, but at least one must be provided.
+            description: Payload for replacing an example on a rule. All fields must be provided. Nullable fields can be explicitly set to null.
+            required:
+                - good
+                - bad
+                - explanation
             properties:
                 good:
-                    type: string
-                    description: Example of correct/good usage
+                    type:
+                        - string
+                        - "null"
+                    description: Example of correct/good usage (can be set to null)
                     examples:
                         - "const userAge = 25;"
                 bad:
-                    type: string
-                    description: Example of incorrect/bad usage
+                    type:
+                        - string
+                        - "null"
+                    description: Example of incorrect/bad usage (can be set to null)
                     examples:
                         - "const x = 25;"
                 explanation:
                     type:
                         - string
                         - "null"
-                    description: Explanation of why the good example is better
+                    description: Explanation of why the good example is better (can be set to null)
                     examples:
                         - "Descriptive names improve code readability"
 
@@ -1541,28 +1561,35 @@ components:
 
         UpdateWorkflowExamplePayload:
             type: object
-            description: Payload for updating an example on a workflow. All fields are optional, but at least one must be provided.
+            description: Payload for replacing an example on a workflow. All required fields must be provided. The explanation field is optional and can be set to null.
+            required:
+                - scenario
+                - input
+                - output
             properties:
                 scenario:
                     type: string
                     description: Description of the scenario
+                    minLength: 1
                     examples:
                         - "User wants to update their profile"
                 input:
                     type: string
                     description: Input for the scenario
+                    minLength: 1
                     examples:
                         - "User provides new email address"
                 output:
                     type: string
                     description: Expected output for the scenario
+                    minLength: 1
                     examples:
                         - "Profile is updated and confirmation email is sent"
                 explanation:
                     type:
                         - string
                         - "null"
-                    description: Additional explanation of the example
+                    description: Additional explanation of the example (can be set to null)
                     examples:
                         - "This demonstrates the profile update flow"
 
@@ -1588,11 +1615,14 @@ components:
 
         UpdateWorkflowStepPayload:
             type: object
-            description: Payload for updating a step on a workflow. All fields are optional, but at least one must be provided.
+            description: Payload for replacing a step on a workflow. The content field is required.
+            required:
+                - content
             properties:
                 content:
                     type: string
                     description: The content/instructions of the step
+                    minLength: 1
                     examples:
                         - "Updated step content"
 
