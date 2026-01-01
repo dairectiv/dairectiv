@@ -652,6 +652,79 @@ To use: Ask Claude to "create an endpoint for [resource/action]" and the Skill w
 
 To use: Simply tell Claude "I commented on the PR" or "check the PR comments" and the Skill will fetch, analyze, and apply the requested fixes.
 
+**[repository](`.claude/skills/repository/`)**
+- Documents the Port & Adapters pattern for repositories
+- Interface in Domain layer, implementation in Infrastructure layer
+- Covers PHPStan RepositoryMethodRule: `get*` throws exception, `find*` returns nullable
+- Includes naming conventions and testing patterns
+
+To use: Reference when implementing new repositories or extending existing ones.
+
+**[value-object](`.claude/skills/value-object/`)**
+- Patterns for implementing Value Objects following DDD principles
+- Base classes: StringValue, UuidValue, IntValue, ObjectValue
+- Factory methods, immutability, equality by value
+- Doctrine type creation and entity mapping examples
+
+To use: Reference when creating new value objects like IDs, descriptions, or complex domain types.
+
+**[domain-event](`.claude/skills/domain-event/`)**
+- Implements domain events for cross-context communication
+- Events are immutable records of domain changes
+- Naming: events use past tense (DirectiveDrafted), listeners use Listener suffix
+- Integration with Symfony Messenger and AggregateRoot
+
+To use: Reference when adding domain events to aggregates or creating event listeners.
+
+**[doctrine-mapping](`.claude/skills/doctrine-mapping/`)**
+- Entity/aggregate mapping conventions with Doctrine ORM
+- PHP 8.4 asymmetric visibility (`public private(set)`)
+- Relationships, inheritance (Single Table), custom types
+- Uses `underscore_number_aware` naming strategy
+
+To use: Reference when mapping entities, configuring relationships, or adding custom types.
+
+**[exception-handler](`.claude/skills/exception-handler/`)**
+- Exception hierarchy: DomainException, EntityNotFoundException, InvalidArgumentException
+- HTTP status code mapping (404, 409, 422)
+- Entity-specific exceptions with factory methods (`fromId()`)
+- Testing exception scenarios
+
+To use: Reference when creating exceptions or handling error cases in controllers.
+
+**[assertions](`.claude/skills/assertions/`)**
+- Guide for webmozart/assert usage in domain validation
+- Project extends Assert to throw domain InvalidArgumentException (→ HTTP 422)
+- Custom `kebabCase()` assertion
+- Usage patterns in Value Objects and Aggregates
+
+To use: Reference when adding validation to value objects or domain methods.
+
+**[phpstan](`.claude/skills/phpstan/`)**
+- PHPStan best practices and fixing errors properly
+- CRITICAL: Never modify phpstan.dist.neon, never use @phpstan-ignore
+- Custom rules: TestNameRule, UseCaseRule, RepositoryMethodRule
+- PHPDoc patterns for complex types
+
+To use: Reference when encountering PHPStan errors or understanding project-specific rules.
+
+**[use-case](`.claude/skills/use-case/`)**
+- CQRS use case implementation patterns
+- Commands (write), Queries (read), Handlers
+- Directory structure: `{Context}/Application/{Aggregate}/{UseCase}/`
+- Integration testing with domain event assertions
+
+To use: Reference when creating new Commands, Queries, or their Handlers.
+
+**[api-testing](`.claude/skills/api-testing/`)**
+- Integration tests for HTTP API endpoints
+- Helper methods: postJson, getJson, putJson, deleteJson
+- Assertions: assertResponseReturnsJson, assertUnprocessableResponse
+- DataProvider pattern for validation testing
+- CRITICAL: All domain events must be asserted
+
+To use: Reference when writing endpoint tests, validation tests, or testing JSON responses.
+
 ### Creating New Skills
 
 When adding a new Skill:
