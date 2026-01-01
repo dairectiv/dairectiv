@@ -53,6 +53,10 @@ final readonly class RepositoryMethodRule implements Rule
             $errors = $this->validateGetMethod($node, $scope, $methodName);
         } elseif (str_starts_with($methodName, 'find')) {
             $errors = $this->validateFindMethod($node, $methodName);
+        } elseif (str_starts_with($methodName, 'count')) {
+            $errors = $this->validateCountMethod($node, $methodName);
+        } elseif (str_starts_with($methodName, 'search')) {
+            $errors = $this->validateSearchMethod($node, $methodName);
         }
 
         return $errors;
@@ -129,6 +133,48 @@ final readonly class RepositoryMethodRule implements Rule
         } elseif (!$returnType instanceof Node\NullableType) {
             $errors[] = RuleErrorBuilder::message(
                 \sprintf('Repository method "%s" must return a nullable type.', $methodName),
+            )->identifier('repository.method')->build();
+        }
+
+        return $errors;
+    }
+
+    /**
+     * @return list<IdentifierRuleError>
+     */
+    private function validateCountMethod(ClassMethod $node, string $methodName): array
+    {
+        $errors = [];
+
+        $returnType = $node->getReturnType();
+        if (null === $returnType) {
+            $errors[] = RuleErrorBuilder::message(
+                \sprintf('Repository method "%s" must have a return type.', $methodName),
+            )->identifier('repository.method')->build();
+        } elseif (!$returnType instanceof Node\Identifier || 'int' !== $returnType->toString()) {
+            $errors[] = RuleErrorBuilder::message(
+                \sprintf('Repository method "%s" must return an int.', $methodName),
+            )->identifier('repository.method')->build();
+        }
+
+        return $errors;
+    }
+
+    /**
+     * @return list<IdentifierRuleError>
+     */
+    private function validateSearchMethod(ClassMethod $node, string $methodName): array
+    {
+        $errors = [];
+
+        $returnType = $node->getReturnType();
+        if (null === $returnType) {
+            $errors[] = RuleErrorBuilder::message(
+                \sprintf('Repository method "%s" must have a return type.', $methodName),
+            )->identifier('repository.method')->build();
+        } elseif (!$returnType instanceof Node\Identifier || 'array' !== $returnType->toString()) {
+            $errors[] = RuleErrorBuilder::message(
+                \sprintf('Repository method "%s" must return an array.', $methodName),
             )->identifier('repository.method')->build();
         }
 
