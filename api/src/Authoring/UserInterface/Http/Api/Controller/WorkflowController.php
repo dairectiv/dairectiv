@@ -11,6 +11,7 @@ use Dairectiv\Authoring\Application\Workflow\AddExample;
 use Dairectiv\Authoring\Application\Workflow\AddStep;
 use Dairectiv\Authoring\Application\Workflow\Draft;
 use Dairectiv\Authoring\Application\Workflow\Get;
+use Dairectiv\Authoring\Application\Workflow\ListWorkflows;
 use Dairectiv\Authoring\Application\Workflow\MoveStep;
 use Dairectiv\Authoring\Application\Workflow\RemoveExample;
 use Dairectiv\Authoring\Application\Workflow\RemoveStep;
@@ -27,12 +28,14 @@ use Dairectiv\Authoring\UserInterface\Http\Api\Payload\Workflow\UpdateWorkflow\U
 use Dairectiv\Authoring\UserInterface\Http\Api\Payload\Workflow\UpdateWorkflowExample\UpdateWorkflowExamplePayload;
 use Dairectiv\Authoring\UserInterface\Http\Api\Payload\Workflow\UpdateWorkflowStep\UpdateWorkflowStepPayload;
 use Dairectiv\Authoring\UserInterface\Http\Api\Response\Workflow\WorkflowResponse;
+use Dairectiv\Authoring\UserInterface\Http\Api\Response\Workflow\WorkflowsCollectionResponse;
 use Dairectiv\SharedKernel\Application\Command\CommandBus;
 use Dairectiv\SharedKernel\Application\Query\QueryBus;
 use Dairectiv\SharedKernel\Domain\Object\Assert;
 use Dairectiv\SharedKernel\Domain\Object\Exception\InvalidArgumentException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
@@ -48,6 +51,23 @@ final class WorkflowController extends AbstractController
         private readonly QueryBus $queryBus,
         private readonly CommandBus $commandBus,
     ) {
+    }
+
+    #[Route('', name: 'list', methods: ['GET'])]
+    public function list(Request $request): JsonResponse
+    {
+        $output = $this->queryBus->fetch(new ListWorkflows\Input(
+            page: max(1, $request->query->getInt('page', 1)),
+            limit: min(100, max(1, $request->query->getInt('limit', 20))),
+            search: $request->query->get('search'),
+            state: $request->query->get('state'),
+            sortBy: $request->query->get('sortBy', 'createdAt'),
+            sortOrder: $request->query->get('sortOrder', 'desc'),
+        ));
+
+        Assert::isInstanceOf($output, ListWorkflows\Output::class);
+
+        return $this->json(WorkflowsCollectionResponse::fromOutput($output));
     }
 
     #[Route('/{id}', name: 'get', requirements: ['id' => '^[a-z0-9-]+$'], methods: ['GET'])]
