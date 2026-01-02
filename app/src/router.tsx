@@ -10,6 +10,7 @@ import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 
 // Feature routes
 import { rulesListRoute } from "@/authoring/rule/list";
+import { workflowsListRoute } from "@/authoring/workflow/list";
 
 // Home page (inline for now, can be moved to a feature later)
 import { HomePage } from "@/home/pages/home.page";
@@ -48,7 +49,7 @@ const indexRoute = createRoute({
 });
 
 // Build route tree
-const routeTree = rootRoute.addChildren([indexRoute, rulesListRoute]);
+const routeTree = rootRoute.addChildren([indexRoute, rulesListRoute, workflowsListRoute]);
 
 // Create and export router
 export const router = createRouter({ routeTree });
