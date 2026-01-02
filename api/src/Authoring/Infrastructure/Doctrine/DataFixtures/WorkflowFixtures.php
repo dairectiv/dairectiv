@@ -130,7 +130,7 @@ final class WorkflowFixtures extends Fixture
         $this->at('-2 weeks');
         $workflow->updateContent(
             "Emergency response workflow for production incidents.\n\n".
-            "Priority: P1 = Critical, P2 = High, P3 = Medium"
+            'Priority: P1 = Critical, P2 = High, P3 = Medium',
         );
         Step::create($workflow, 'Acknowledge the incident and assign severity');
         Step::create($workflow, 'Communicate status to stakeholders');
