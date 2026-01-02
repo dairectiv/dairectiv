@@ -11,6 +11,7 @@ import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 // Feature routes
 import { createRuleRoute } from "@/authoring/rule/create";
 import { ruleDetailRoute } from "@/authoring/rule/detail";
+import { editRuleRoute } from "@/authoring/rule/edit";
 import { rulesListRoute } from "@/authoring/rule/list";
 import { createWorkflowRoute } from "@/authoring/workflow/create";
 import { workflowDetailRoute } from "@/authoring/workflow/detail";
@@ -59,6 +60,7 @@ const routeTree = rootRoute.addChildren([
   rulesListRoute,
   ruleDetailRoute,
   createRuleRoute,
+  editRuleRoute,
   workflowsListRoute,
   workflowDetailRoute,
   createWorkflowRoute,
