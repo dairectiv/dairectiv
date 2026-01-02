@@ -13,6 +13,7 @@ import {
   ListSort,
 } from "@shared/ui/data-display";
 import { IconInbox } from "@tabler/icons-react";
+import { useNavigate } from "@tanstack/react-router";
 import { formatDistanceToNow } from "date-fns";
 import type { RulesListStateFilter } from "../hooks/use-rules-list";
 
@@ -72,6 +73,8 @@ export function RulesList({
   onStateChange,
   onSortChange,
 }: RulesListProps) {
+  const navigate = useNavigate();
+
   const handleSortChange = (sort: string) => {
     const [sortBy, sortOrder] = sort.split(":") as [
       "name" | "createdAt" | "updatedAt",
@@ -130,6 +133,12 @@ export function RulesList({
             description={rule.description}
             metadata={formatRelativeDate(rule.updatedAt)}
             badge={stateBadgeConfig[rule.state]}
+            onClick={() =>
+              navigate({
+                to: "/authoring/rules/$ruleId",
+                params: { ruleId: rule.id },
+              })
+            }
           />
         ))}
       </ListContainer>
