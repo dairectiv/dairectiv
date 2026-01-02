@@ -1,4 +1,4 @@
-name: Quality
+name: API
 
 on:
     push:
@@ -16,7 +16,7 @@ on:
             - 'api/symfony.lock'
             - '.castor/**'
             - 'castor.php'
-            - '.github/workflows/quality.yml'
+            - '.github/workflows/api.yml'
 
 jobs:
     static-analysis:

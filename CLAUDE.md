@@ -476,7 +476,7 @@ The project uses GitHub Actions for continuous integration and deployment. All w
 
 #### Available Workflows
 
-**Quality Workflow** (`quality.yml`)
+**API Workflow** (`api.yml`)
 - **Purpose**: Run static analysis, quality checks, tests, security audits and generate code coverage reports
 - **Triggers**:
   - Push to any branch, pull requests (only when PHP/config files change)
@@ -487,7 +487,7 @@ The project uses GitHub Actions for continuous integration and deployment. All w
   - `api/phpstan.dist.neon`, `api/rector.php`, `api/ecs.php`, `api/phpunit.xml.dist`
   - `api/composer.json`, `api/composer.lock`, `api/symfony.lock`
   - `.castor/**`, `castor.php` (task runner)
-  - `.github/workflows/quality.yml` (self-trigger on workflow changes)
+  - `.github/workflows/api.yml` (self-trigger on workflow changes)
 - **Jobs**: This workflow contains 3 distinct jobs
 
 **Job 1: static-analysis** (runs on all branches)
