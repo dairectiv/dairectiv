@@ -27,7 +27,6 @@ const defaultLinks: NavbarLink[] = [
     initiallyOpened: true,
     links: [
       { label: "Rules", link: "/authoring/rules" },
-      { label: "Skills", link: "/authoring/skills" },
       { label: "Workflows", link: "/authoring/workflows" },
     ],
   },
