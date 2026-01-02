@@ -1,11 +1,6 @@
 import { Card, Container, SimpleGrid, Text, ThemeIcon, Title } from "@mantine/core";
 import { AppLayout } from "@shared/ui/layout";
 import { IconBrain, IconRocket, IconTools, IconUsers } from "@tabler/icons-react";
-import { createFileRoute } from "@tanstack/react-router";
-
-export const Route = createFileRoute("/")({
-  component: HomePage,
-});
 
 const features = [
   {
@@ -34,7 +29,7 @@ const features = [
   },
 ];
 
-function HomePage() {
+export function HomePage() {
   return (
     <AppLayout>
       <Container size="lg" py="xl">
