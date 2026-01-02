@@ -1,5 +1,5 @@
 import { Card, Container, SimpleGrid, Text, ThemeIcon, Title } from "@mantine/core";
-import { AppLayout } from "@shared/ui/layouts/app-layout/app-layout";
+import { AppLayout } from "@shared/ui/layout";
 import { IconBrain, IconRocket, IconTools, IconUsers } from "@tabler/icons-react";
 import { createFileRoute } from "@tanstack/react-router";
 

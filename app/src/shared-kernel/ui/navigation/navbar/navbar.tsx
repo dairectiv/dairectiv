@@ -1,8 +1,8 @@
 import { Code, Group, ScrollArea, Text } from "@mantine/core";
 import { type Icon, IconAdjustments, IconGauge, IconNotes } from "@tabler/icons-react";
-import { LinksGroup, type LinksGroupLink } from "./links-group";
+import { LinksGroup, type LinksGroupLink } from "../links-group";
+import { UserButton, type UserButtonProps } from "../user-button";
 import classes from "./navbar.module.css";
-import { UserButton, type UserButtonProps } from "./user-button";
 
 export interface NavbarLink {
   label: string;
