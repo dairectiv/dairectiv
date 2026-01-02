@@ -205,4 +205,56 @@ describe("RuleDetail", () => {
     expect(screen.getByText("Bad")).toBeInTheDocument();
     expect(screen.getByText("Bad practice example")).toBeInTheDocument();
   });
+
+  // Archive button tests
+  describe("archive functionality", () => {
+    it("should render archive button for draft rule when onArchive is provided", () => {
+      const onArchive = vi.fn();
+      renderWithProviders(<RuleDetail {...defaultProps} onArchive={onArchive} />);
+
+      expect(screen.getByRole("button", { name: /archive/i })).toBeInTheDocument();
+    });
+
+    it("should render archive button for published rule when onArchive is provided", () => {
+      const onArchive = vi.fn();
+      renderWithProviders(
+        <RuleDetail
+          {...defaultProps}
+          rule={{ ...mockRule, state: "published" }}
+          onArchive={onArchive}
+        />,
+      );
+
+      expect(screen.getByRole("button", { name: /archive/i })).toBeInTheDocument();
+    });
+
+    it("should not render archive button for archived rule", () => {
+      const onArchive = vi.fn();
+      renderWithProviders(
+        <RuleDetail
+          {...defaultProps}
+          rule={{ ...mockRule, state: "archived" }}
+          onArchive={onArchive}
+        />,
+      );
+
+      expect(screen.queryByRole("button", { name: /archive/i })).not.toBeInTheDocument();
+    });
+
+    it("should not render archive button when onArchive is not provided", () => {
+      renderWithProviders(<RuleDetail {...defaultProps} />);
+
+      expect(screen.queryByRole("button", { name: /archive/i })).not.toBeInTheDocument();
+    });
+
+    it("should show loading state on archive button when isArchiving is true", () => {
+      const onArchive = vi.fn();
+      renderWithProviders(
+        <RuleDetail {...defaultProps} onArchive={onArchive} isArchiving={true} />,
+      );
+
+      const archiveButton = screen.getByRole("button", { name: /archive/i });
+      expect(archiveButton).toHaveAttribute("data-loading", "true");
+    });
+  });
 });

@@ -10,12 +10,21 @@ import {
   Text,
   Title,
 } from "@mantine/core";
+import { useDisclosure } from "@mantine/hooks";
 import type {
   DirectiveState,
   RuleExampleResponse,
   RuleResponse,
 } from "@shared/infrastructure/api/generated/types.gen";
-import { IconAlertCircle, IconCheck, IconEdit, IconInfoCircle, IconX } from "@tabler/icons-react";
+import { ConfirmModal } from "@shared/ui/feedback";
+import {
+  IconAlertCircle,
+  IconArchive,
+  IconCheck,
+  IconEdit,
+  IconInfoCircle,
+  IconX,
+} from "@tabler/icons-react";
 
 const stateBadgeConfig: Record<DirectiveState, { label: string; color: string }> = {
   draft: { label: "Draft", color: "yellow" },
@@ -84,9 +93,26 @@ export interface RuleDetailProps {
   isLoading: boolean;
   isError: boolean;
   error?: Error | null;
+  onArchive?: () => void;
+  isArchiving?: boolean;
 }
 
-export function RuleDetail({ rule, isLoading, isError, error }: RuleDetailProps) {
+export function RuleDetail({
+  rule,
+  isLoading,
+  isError,
+  error,
+  onArchive,
+  isArchiving = false,
+}: RuleDetailProps) {
+  const [archiveModalOpened, { open: openArchiveModal, close: closeArchiveModal }] =
+    useDisclosure(false);
+
+  const handleConfirmArchive = () => {
+    onArchive?.();
+    closeArchiveModal();
+  };
+
   if (isLoading) {
     return (
       <Center py="xl">
@@ -112,44 +138,71 @@ export function RuleDetail({ rule, isLoading, isError, error }: RuleDetailProps)
   }
 
   const badgeConfig = stateBadgeConfig[rule.state];
+  const canArchive = rule.state === "draft" || rule.state === "published";
 
   return (
-    <Stack gap="lg">
-      <Group justify="space-between" align="flex-start">
-        <Stack gap="xs">
-          <Group gap="sm">
-            <Title order={2}>{rule.name}</Title>
-            <Badge color={badgeConfig.color}>{badgeConfig.label}</Badge>
+    <>
+      <Stack gap="lg">
+        <Group justify="space-between" align="flex-start">
+          <Stack gap="xs">
+            <Group gap="sm">
+              <Title order={2}>{rule.name}</Title>
+              <Badge color={badgeConfig.color}>{badgeConfig.label}</Badge>
+            </Group>
+            <Text c="dimmed">{rule.description}</Text>
+          </Stack>
+          <Group gap="xs">
+            {rule.state === "draft" && (
+              <Button
+                component="a"
+                href={`/authoring/rules/${rule.id}/edit`}
+                leftSection={<IconEdit size={16} />}
+                variant="light"
+              >
+                Edit
+              </Button>
+            )}
+            {canArchive && onArchive && (
+              <Button
+                leftSection={<IconArchive size={16} />}
+                variant="light"
+                color="orange"
+                onClick={openArchiveModal}
+                loading={isArchiving}
+              >
+                Archive
+              </Button>
+            )}
           </Group>
-          <Text c="dimmed">{rule.description}</Text>
-        </Stack>
-        {rule.state === "draft" && (
-          <Button
-            component="a"
-            href={`/authoring/rules/${rule.id}/edit`}
-            leftSection={<IconEdit size={16} />}
-            variant="light"
-          >
-            Edit
-          </Button>
-        )}
-      </Group>
+        </Group>
 
-      {rule.content && (
+        {rule.content && (
+          <Card withBorder p="lg">
+            <Stack gap="sm">
+              <Title order={4}>Content</Title>
+              <Text style={{ whiteSpace: "pre-wrap" }}>{rule.content}</Text>
+            </Stack>
+          </Card>
+        )}
+
         <Card withBorder p="lg">
           <Stack gap="sm">
-            <Title order={4}>Content</Title>
-            <Text style={{ whiteSpace: "pre-wrap" }}>{rule.content}</Text>
+            <Title order={4}>Examples ({rule.examples.length})</Title>
+            <RuleExamples examples={rule.examples} />
           </Stack>
         </Card>
-      )}
+      </Stack>
 
-      <Card withBorder p="lg">
-        <Stack gap="sm">
-          <Title order={4}>Examples ({rule.examples.length})</Title>
-          <RuleExamples examples={rule.examples} />
-        </Stack>
-      </Card>
-    </Stack>
+      <ConfirmModal
+        opened={archiveModalOpened}
+        onClose={closeArchiveModal}
+        onConfirm={handleConfirmArchive}
+        title="Archive Rule"
+        message="Are you sure you want to archive this rule? It will no longer be visible to AI tools and cannot be edited. You can restore it later from the archived items."
+        confirmLabel="Archive"
+        confirmColor="orange"
+        isLoading={isArchiving}
+      />
+    </>
   );
 }

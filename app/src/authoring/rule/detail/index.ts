@@ -2,6 +2,7 @@
 export { RuleDetail, type RuleDetailProps } from "./components/rule-detail";
 
 // Hooks
+export { type UseArchiveRuleOptions, useArchiveRule } from "./hooks/use-archive-rule";
 export { useRuleDetail } from "./hooks/use-rule-detail";
 
 // Pages

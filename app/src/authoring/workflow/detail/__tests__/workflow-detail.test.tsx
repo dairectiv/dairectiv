@@ -237,4 +237,56 @@ describe("WorkflowDetail", () => {
     expect(steps[1]).toHaveTextContent("Step 2");
     expect(steps[2]).toHaveTextContent("Step 3");
   });
+
+  // Archive button tests
+  describe("archive functionality", () => {
+    it("should render archive button for draft workflow when onArchive is provided", () => {
+      const onArchive = vi.fn();
+      renderWithProviders(<WorkflowDetail {...defaultProps} onArchive={onArchive} />);
+
+      expect(screen.getByRole("button", { name: /archive/i })).toBeInTheDocument();
+    });
+
+    it("should render archive button for published workflow when onArchive is provided", () => {
+      const onArchive = vi.fn();
+      renderWithProviders(
+        <WorkflowDetail
+          {...defaultProps}
+          workflow={{ ...mockWorkflow, state: "published" }}
+          onArchive={onArchive}
+        />,
+      );
+
+      expect(screen.getByRole("button", { name: /archive/i })).toBeInTheDocument();
+    });
+
+    it("should not render archive button for archived workflow", () => {
+      const onArchive = vi.fn();
+      renderWithProviders(
+        <WorkflowDetail
+          {...defaultProps}
+          workflow={{ ...mockWorkflow, state: "archived" }}
+          onArchive={onArchive}
+        />,
+      );
+
+      expect(screen.queryByRole("button", { name: /archive/i })).not.toBeInTheDocument();
+    });
+
+    it("should not render archive button when onArchive is not provided", () => {
+      renderWithProviders(<WorkflowDetail {...defaultProps} />);
+
+      expect(screen.queryByRole("button", { name: /archive/i })).not.toBeInTheDocument();
+    });
+
+    it("should show loading state on archive button when isArchiving is true", () => {
+      const onArchive = vi.fn();
+      renderWithProviders(
+        <WorkflowDetail {...defaultProps} onArchive={onArchive} isArchiving={true} />,
+      );
+
+      const archiveButton = screen.getByRole("button", { name: /archive/i });
+      expect(archiveButton).toHaveAttribute("data-loading", "true");
+    });
+  });
 });
