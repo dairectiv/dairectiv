@@ -52,14 +52,27 @@ import { RulesList } from "@/authoring/rule/list/components/rules-list";
 import { useRulesList } from "@/authoring/rule/list/hooks/use-rules-list";
 ```
 
-### 2. Same-Feature Imports
+### 2. Same-Feature Imports (CRITICAL)
 
-Use barrel export for cross-folder imports within the same feature:
+**Use relative imports** for imports within the same feature to avoid circular dependencies:
 
 ```typescript
 // components/rules-list.tsx
+
+// Good - relative imports within same feature
+import type { RulesListStateFilter } from "../hooks/use-rules-list";
+import { RulesListEmpty } from "./rules-list-empty";
+import { RulesListToolbar } from "./rules-list-toolbar";
+
+// Bad - barrel export causes circular dependency
 import { RulesListEmpty, RulesListToolbar, type RulesListStateFilter } from "@/authoring/rule/list";
 ```
+
+**Why?** The barrel export (`index.ts`) includes routes, and routes import the router which triggers initialization. This causes test failures and potential runtime issues.
+
+**Rule of thumb:**
+- **Inside a feature**: Use relative imports (`./`, `../`)
+- **Outside a feature**: Use barrel export (`@/authoring/rule/list`)
 
 ### 3. External Library Imports
 
@@ -121,28 +134,46 @@ When creating a feature module:
 - [ ] Create `index.ts` in feature root
 - [ ] Export all public components, hooks, pages, routes
 - [ ] Export all public types with `type` keyword
-- [ ] Use barrel export path for cross-folder imports
-- [ ] Use path aliases (`@/`, `@shared/`) not relative paths
+- [ ] Use **relative imports** within the same feature (avoid circular deps)
+- [ ] Use **barrel exports** for cross-feature imports
+- [ ] Use path aliases (`@/`, `@shared/`) for external features
 - [ ] Run `castor app:lint -f` to fix import ordering
 
 ## Example: Rules List Feature
 
 ```
 src/authoring/rule/list/
+├── __tests__/
+│   ├── rules-list.test.tsx       # imports directly from ../components/
+│   └── use-rules-list.test.ts    # mocks modules to avoid router init
 ├── components/
-│   ├── rules-list.tsx          # imports from "@/authoring/rule/list"
-│   ├── rules-list-toolbar.tsx  # imports from "@/authoring/rule/list"
+│   ├── rules-list.tsx            # uses relative imports: ./rules-list-empty
+│   ├── rules-list-toolbar.tsx    # uses relative imports
 │   └── rules-list-empty.tsx
 ├── hooks/
 │   └── use-rules-list.ts
 ├── pages/
-│   └── rules-list.page.tsx     # imports from "@/authoring/rule/list"
+│   └── rules-list.page.tsx       # can use barrel (it's the entry point)
 ├── routes/
-│   └── rules-list.route.ts     # imports from "@/authoring/rule/list"
-└── index.ts                    # exports everything
+│   └── rules-list.route.ts
+└── index.ts                      # exports everything for external consumers
 ```
+
+## Circular Dependency Troubleshooting
+
+**Symptom**: Tests fail with `Cannot read properties of undefined (reading 'init')` from router.
+
+**Cause**: A component imports from the barrel export which includes routes. Routes import the router, triggering initialization before tests can mock it.
+
+**Solution**:
+1. Use relative imports within features
+2. In tests, import directly from component files:
+   ```typescript
+   // In __tests__/rules-list.test.tsx
+   import { RulesList } from "../components/rules-list";
+   ```
 
 ## Reference Files
 
 - `app/src/authoring/rule/list/index.ts` - Feature barrel export
-- `app/src/authoring/rule/list/components/rules-list.tsx` - Cross-folder imports
+- `app/src/authoring/rule/list/components/rules-list.tsx` - Uses relative imports
