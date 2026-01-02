@@ -316,7 +316,7 @@ jobs:
     app-test:
         name: Test / App Unit Tests
         runs-on: ubuntu-latest
-        needs: [app-static-analysis]
+        needs: [app-build]
 
         steps:
             -   name: Checkout code
@@ -376,7 +376,7 @@ jobs:
     app-build:
         name: Build / App Production Build
         runs-on: ubuntu-latest
-        needs: [app-test]
+        needs: [app-static-analysis]
 
         steps:
             -   name: Checkout code
