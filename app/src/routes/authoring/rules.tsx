@@ -1,6 +1,6 @@
 import { Center, Group, Loader, Pagination, Stack, Text, Title } from "@mantine/core";
 import { listRulesOptions } from "@shared/infrastructure/api/generated/@tanstack/react-query.gen";
-import { DirectiveListItem } from "@shared/ui/data-display";
+import { ListCard, StateBadge } from "@shared/ui/data-display";
 import { AppLayout } from "@shared/ui/layout";
 import { IconInbox } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
@@ -33,12 +33,13 @@ function RulesListPage() {
     });
   };
 
-  const handleRuleClick = (ruleId: string) => {
-    navigate({
-      to: "/authoring/rules/$ruleId",
-      params: { ruleId },
-    });
-  };
+  // TODO: Enable when rule detail page is implemented (DAI-152)
+  // const handleRuleClick = (ruleId: string) => {
+  //   navigate({
+  //     to: "/authoring/rules/$ruleId",
+  //     params: { ruleId },
+  //   });
+  // };
 
   return (
     <AppLayout>
@@ -84,12 +85,11 @@ function RulesListPage() {
           <Stack gap="md">
             <Stack gap="xs">
               {data.items.map((rule) => (
-                <DirectiveListItem
+                <ListCard
                   key={rule.id}
-                  name={rule.name}
+                  title={rule.name}
                   description={rule.description}
-                  state={rule.state}
-                  onClick={() => handleRuleClick(rule.id)}
+                  badge={<StateBadge state={rule.state} />}
                 />
               ))}
             </Stack>
