@@ -4,6 +4,7 @@ import { IconAlertCircle } from "@tabler/icons-react";
 import { useNavigate, useParams } from "@tanstack/react-router";
 import { useRuleDetail } from "../../detail/hooks/use-rule-detail";
 import { EditRuleForm } from "../components/edit-rule-form";
+import { RuleExamplesManager } from "../components/rule-examples-manager";
 import { useUpdateRule } from "../hooks/use-update-rule";
 
 export function EditRulePage() {
@@ -62,7 +63,7 @@ export function EditRulePage() {
       <Stack gap="lg" py="md">
         <Title order={2}>Edit Rule</Title>
 
-        <Card withBorder p="lg" maw={600}>
+        <Card withBorder p="lg" maw={800}>
           <EditRuleForm
             initialValues={{
               name: rule.name,
@@ -74,6 +75,10 @@ export function EditRulePage() {
             onCancel={handleCancel}
           />
         </Card>
+
+        <Stack gap="sm" maw={800}>
+          <RuleExamplesManager ruleId={rule.id} examples={rule.examples} />
+        </Stack>
       </Stack>
     </AppLayout>
   );
