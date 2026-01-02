@@ -117,18 +117,24 @@ describe("RuleExamplesManager", () => {
     const user = userEvent.setup();
     renderWithProviders(<RuleExamplesManager ruleId={ruleId} examples={mockExamples} />);
 
+    // Before clicking, the header button should be visible
+    expect(screen.getByRole("button", { name: /add example/i })).toBeInTheDocument();
+
     await user.click(screen.getByRole("button", { name: /add example/i }));
 
-    // Wait for form to open
+    // Wait for form to open and the header button to disappear
     await waitFor(() => {
       expect(screen.getByText("New Example")).toBeInTheDocument();
     });
 
-    // The add example button in the header should be hidden
-    const addButtons = screen.queryAllByRole("button", { name: /add example/i });
-    // Only the submit button should remain (which is labeled "Add Example")
-    expect(addButtons.length).toBe(1);
-    expect(addButtons[0]).toHaveTextContent("Add Example");
+    // The header add example button should be conditionally removed from DOM
+    // when form is opened (it's rendered with {!addFormOpened && ...})
+    // The submit button inside the form should be present
+    await waitFor(() => {
+      const submitButton = screen.getByRole("button", { name: /add example/i });
+      // Verify the button is the form submit button (inside the form, not header)
+      expect(submitButton).toHaveAttribute("type", "submit");
+    });
   });
 
   it("should call addExample when add form is submitted", async () => {
