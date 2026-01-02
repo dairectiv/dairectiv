@@ -5,6 +5,10 @@ export {
   type EditWorkflowFormValues,
 } from "./components/edit-workflow-form";
 export {
+  SortableWorkflowStepCard,
+  type SortableWorkflowStepCardProps,
+} from "./components/sortable-workflow-step-card";
+export {
   WorkflowExampleCard,
   type WorkflowExampleCardProps,
 } from "./components/workflow-example-card";
@@ -37,6 +41,10 @@ export {
   useAddWorkflowExample,
 } from "./hooks/use-add-workflow-example";
 export { type UseAddWorkflowStepOptions, useAddWorkflowStep } from "./hooks/use-add-workflow-step";
+export {
+  type UseMoveWorkflowStepOptions,
+  useMoveWorkflowStep,
+} from "./hooks/use-move-workflow-step";
 export { useRemoveWorkflowExample } from "./hooks/use-remove-workflow-example";
 export { useRemoveWorkflowStep } from "./hooks/use-remove-workflow-step";
 export { type UseUpdateWorkflowOptions, useUpdateWorkflow } from "./hooks/use-update-workflow";
