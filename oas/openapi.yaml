@@ -3,6 +3,9 @@ info:
     title: Dairectiv
     version: 1.0.0
     description: AI enablement hub for engineering teams - API for authoring, versioning, and governing AI guidance
+    contact:
+        name: Dairectiv Team
+        url: https://github.com/dairectiv/dairectiv
 servers:
     - url: http://127.0.0.1/api
       description: Local development server
