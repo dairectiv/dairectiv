@@ -1,14 +1,20 @@
-import { Badge, Card, Center, Group, Loader, SimpleGrid, Stack, Text, Title } from "@mantine/core";
+import { Badge, Center, Group, Loader, Pagination, Stack, Table, Text, Title } from "@mantine/core";
 import { listRulesOptions } from "@shared/infrastructure/api/generated/@tanstack/react-query.gen";
 import type { DirectiveState } from "@shared/infrastructure/api/generated/types.gen";
 import { AppLayout } from "@shared/ui/layout";
-import { IconFileText, IconInbox } from "@tabler/icons-react";
+import { IconInbox } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate, useSearch } from "@tanstack/react-router";
+import { z } from "zod";
 import classes from "./rules.module.css";
+
+const searchSchema = z.object({
+  page: z.number().min(1).optional().default(1),
+});
 
 export const Route = createFileRoute("/authoring/rules")({
   component: RulesListPage,
+  validateSearch: searchSchema,
 });
 
 const stateColors: Record<DirectiveState, string> = {
@@ -25,7 +31,7 @@ const stateLabels: Record<DirectiveState, string> = {
   deleted: "Deleted",
 };
 
-function truncateDescription(description: string, maxLength = 120): string {
+function truncateDescription(description: string, maxLength = 100): string {
   if (description.length <= maxLength) {
     return description;
   }
@@ -33,7 +39,21 @@ function truncateDescription(description: string, maxLength = 120): string {
 }
 
 function RulesListPage() {
-  const { data, isLoading, isError, error } = useQuery(listRulesOptions());
+  const navigate = useNavigate();
+  const { page } = useSearch({ from: "/authoring/rules" });
+
+  const { data, isLoading, isError, error } = useQuery(
+    listRulesOptions({
+      query: { page, limit: 10 },
+    }),
+  );
+
+  const handlePageChange = (newPage: number) => {
+    navigate({
+      to: "/authoring/rules",
+      search: { page: newPage },
+    });
+  };
 
   return (
     <AppLayout>
@@ -76,35 +96,57 @@ function RulesListPage() {
         )}
 
         {!isLoading && !isError && data && data.items.length > 0 && (
-          <SimpleGrid cols={{ base: 1, sm: 2, lg: 3 }} spacing="md">
-            {data.items.map((rule) => (
-              <Link
-                key={rule.id}
-                to="/authoring/rules/$ruleId"
-                params={{ ruleId: rule.id }}
-                className={classes.cardLink}
-              >
-                <Card shadow="sm" padding="lg" radius="md" withBorder className={classes.card}>
-                  <Stack gap="sm">
-                    <Group justify="space-between" wrap="nowrap">
-                      <Group gap="xs" wrap="nowrap" style={{ overflow: "hidden" }}>
-                        <IconFileText size={20} />
-                        <Text fw={500} truncate>
-                          {rule.name}
+          <Stack gap="md">
+            <Table.ScrollContainer minWidth={600}>
+              <Table striped highlightOnHover>
+                <Table.Thead>
+                  <Table.Tr>
+                    <Table.Th>Name</Table.Th>
+                    <Table.Th>Description</Table.Th>
+                    <Table.Th w={100}>Status</Table.Th>
+                  </Table.Tr>
+                </Table.Thead>
+                <Table.Tbody>
+                  {data.items.map((rule) => (
+                    <Table.Tr key={rule.id} className={classes.row}>
+                      <Table.Td>
+                        <Link
+                          to="/authoring/rules/$ruleId"
+                          params={{ ruleId: rule.id }}
+                          className={classes.link}
+                        >
+                          <Text fw={500}>{rule.name}</Text>
+                        </Link>
+                      </Table.Td>
+                      <Table.Td>
+                        <Text size="sm" c="dimmed">
+                          {truncateDescription(rule.description)}
                         </Text>
-                      </Group>
-                      <Badge color={stateColors[rule.state]} variant="light" size="sm">
-                        {stateLabels[rule.state]}
-                      </Badge>
-                    </Group>
-                    <Text size="sm" c="dimmed" lineClamp={3}>
-                      {truncateDescription(rule.description)}
-                    </Text>
-                  </Stack>
-                </Card>
-              </Link>
-            ))}
-          </SimpleGrid>
+                      </Table.Td>
+                      <Table.Td>
+                        <Badge color={stateColors[rule.state]} variant="light" size="sm">
+                          {stateLabels[rule.state]}
+                        </Badge>
+                      </Table.Td>
+                    </Table.Tr>
+                  ))}
+                </Table.Tbody>
+              </Table>
+            </Table.ScrollContainer>
+
+            {data.pagination.totalPages > 1 && (
+              <Group justify="space-between" align="center">
+                <Text size="sm" c="dimmed">
+                  Showing {data.items.length} of {data.pagination.total} rules
+                </Text>
+                <Pagination
+                  total={data.pagination.totalPages}
+                  value={data.pagination.page}
+                  onChange={handlePageChange}
+                />
+              </Group>
+            )}
+          </Stack>
         )}
       </Stack>
     </AppLayout>
