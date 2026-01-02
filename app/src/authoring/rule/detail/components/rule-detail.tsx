@@ -23,6 +23,7 @@ import {
   IconCheck,
   IconEdit,
   IconInfoCircle,
+  IconSend,
   IconTrash,
   IconX,
 } from "@tabler/icons-react";
@@ -94,6 +95,8 @@ export interface RuleDetailProps {
   isLoading: boolean;
   isError: boolean;
   error?: Error | null;
+  onPublish?: () => void;
+  isPublishing?: boolean;
   onArchive?: () => void;
   isArchiving?: boolean;
   onDelete?: () => void;
@@ -105,15 +108,24 @@ export function RuleDetail({
   isLoading,
   isError,
   error,
+  onPublish,
+  isPublishing = false,
   onArchive,
   isArchiving = false,
   onDelete,
   isDeleting = false,
 }: RuleDetailProps) {
+  const [publishModalOpened, { open: openPublishModal, close: closePublishModal }] =
+    useDisclosure(false);
   const [archiveModalOpened, { open: openArchiveModal, close: closeArchiveModal }] =
     useDisclosure(false);
   const [deleteModalOpened, { open: openDeleteModal, close: closeDeleteModal }] =
     useDisclosure(false);
+
+  const handleConfirmPublish = () => {
+    onPublish?.();
+    closePublishModal();
+  };
 
   const handleConfirmArchive = () => {
     onArchive?.();
@@ -165,6 +177,17 @@ export function RuleDetail({
             <Text c="dimmed">{rule.description}</Text>
           </Stack>
           <Group gap="xs">
+            {rule.state === "draft" && onPublish && (
+              <Button
+                leftSection={<IconSend size={16} />}
+                variant="light"
+                color="teal"
+                onClick={openPublishModal}
+                loading={isPublishing}
+              >
+                Publish
+              </Button>
+            )}
             {rule.state === "draft" && (
               <Button
                 component="a"
@@ -216,6 +239,17 @@ export function RuleDetail({
           </Stack>
         </Card>
       </Stack>
+
+      <ConfirmModal
+        opened={publishModalOpened}
+        onClose={closePublishModal}
+        onConfirm={handleConfirmPublish}
+        title="Publish Rule"
+        message="Publishing this rule will make it available to AI tools. Are you sure you want to proceed?"
+        confirmLabel="Publish"
+        confirmColor="teal"
+        isLoading={isPublishing}
+      />
 
       <ConfirmModal
         opened={archiveModalOpened}

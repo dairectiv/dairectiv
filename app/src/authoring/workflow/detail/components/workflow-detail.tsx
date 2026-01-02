@@ -24,6 +24,7 @@ import {
   IconArchive,
   IconEdit,
   IconInfoCircle,
+  IconSend,
   IconTrash,
 } from "@tabler/icons-react";
 
@@ -114,6 +115,8 @@ export interface WorkflowDetailProps {
   isLoading: boolean;
   isError: boolean;
   error?: Error | null;
+  onPublish?: () => void;
+  isPublishing?: boolean;
   onArchive?: () => void;
   isArchiving?: boolean;
   onDelete?: () => void;
@@ -125,15 +128,24 @@ export function WorkflowDetail({
   isLoading,
   isError,
   error,
+  onPublish,
+  isPublishing = false,
   onArchive,
   isArchiving = false,
   onDelete,
   isDeleting = false,
 }: WorkflowDetailProps) {
+  const [publishModalOpened, { open: openPublishModal, close: closePublishModal }] =
+    useDisclosure(false);
   const [archiveModalOpened, { open: openArchiveModal, close: closeArchiveModal }] =
     useDisclosure(false);
   const [deleteModalOpened, { open: openDeleteModal, close: closeDeleteModal }] =
     useDisclosure(false);
+
+  const handleConfirmPublish = () => {
+    onPublish?.();
+    closePublishModal();
+  };
 
   const handleConfirmArchive = () => {
     onArchive?.();
@@ -185,6 +197,17 @@ export function WorkflowDetail({
             <Text c="dimmed">{workflow.description}</Text>
           </Stack>
           <Group gap="xs">
+            {workflow.state === "draft" && onPublish && (
+              <Button
+                leftSection={<IconSend size={16} />}
+                variant="light"
+                color="teal"
+                onClick={openPublishModal}
+                loading={isPublishing}
+              >
+                Publish
+              </Button>
+            )}
             {workflow.state === "draft" && (
               <Button
                 component="a"
@@ -243,6 +266,17 @@ export function WorkflowDetail({
           </Stack>
         </Card>
       </Stack>
+
+      <ConfirmModal
+        opened={publishModalOpened}
+        onClose={closePublishModal}
+        onConfirm={handleConfirmPublish}
+        title="Publish Workflow"
+        message="Publishing this workflow will make it available to AI tools. Are you sure you want to proceed?"
+        confirmLabel="Publish"
+        confirmColor="teal"
+        isLoading={isPublishing}
+      />
 
       <ConfirmModal
         opened={archiveModalOpened}

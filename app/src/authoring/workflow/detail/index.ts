@@ -10,6 +10,10 @@ export {
   type UseDeleteWorkflowOptions,
   useDeleteWorkflow,
 } from "./hooks/use-delete-workflow";
+export {
+  type UsePublishWorkflowOptions,
+  usePublishWorkflow,
+} from "./hooks/use-publish-workflow";
 export { useWorkflowDetail } from "./hooks/use-workflow-detail";
 
 // Pages
