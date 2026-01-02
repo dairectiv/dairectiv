@@ -1,0 +1,14 @@
+extends:
+    - spectral:oas
+
+rules:
+    # Enforce stricter rules for our project
+    info-contact: error
+    info-description: error
+    operation-description: warn
+    operation-operationId: error
+    operation-tags: error
+
+    # Disable rules we don't need yet
+    openapi-tags-alphabetical: off
+    operation-singular-tag: off
