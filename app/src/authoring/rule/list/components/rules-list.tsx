@@ -1,33 +1,54 @@
-import { Center, Group, Loader, Pagination, Stack, Text, Title } from "@mantine/core";
+import { Center, Group, Loader, Pagination, Stack, Text } from "@mantine/core";
 import type {
   PaginationResponse,
   RuleResponse,
 } from "@shared/infrastructure/api/generated/types.gen";
 import { ListCard, StateBadge } from "@shared/ui/data-display";
-import { IconInbox } from "@tabler/icons-react";
+import type { RulesListStateFilter } from "../hooks/use-rules-list";
+import { RulesListEmpty } from "./rules-list-empty";
+import { RulesListToolbar } from "./rules-list-toolbar";
 
 export interface RulesListProps {
   rules: RuleResponse[];
   pagination?: PaginationResponse;
+  filters: {
+    search?: string;
+    state?: RulesListStateFilter;
+    sortBy?: "name" | "createdAt" | "updatedAt";
+    sortOrder?: "asc" | "desc";
+  };
   isLoading: boolean;
   isError: boolean;
   error?: Error | null;
   onPageChange: (page: number) => void;
+  onSearchChange: (search: string) => void;
+  onStateChange: (state: RulesListStateFilter | undefined) => void;
+  onSortChange: (sortBy: "name" | "createdAt" | "updatedAt", sortOrder: "asc" | "desc") => void;
 }
 
 export function RulesList({
   rules,
   pagination,
+  filters,
   isLoading,
   isError,
   error,
   onPageChange,
+  onSearchChange,
+  onStateChange,
+  onSortChange,
 }: RulesListProps) {
   return (
-    <Stack gap="lg" py="md">
-      <Group justify="space-between" align="center">
-        <Title order={2}>Rules</Title>
-      </Group>
+    <Stack gap="md">
+      <RulesListToolbar
+        search={filters.search}
+        state={filters.state}
+        sortBy={filters.sortBy}
+        sortOrder={filters.sortOrder}
+        onSearchChange={onSearchChange}
+        onStateChange={onStateChange}
+        onSortChange={onSortChange}
+      />
 
       {isLoading && (
         <Center py="xl">
@@ -48,22 +69,10 @@ export function RulesList({
         </Center>
       )}
 
-      {!isLoading && !isError && rules.length === 0 && (
-        <Center py="xl">
-          <Stack align="center" gap="sm">
-            <IconInbox size={48} color="var(--mantine-color-dimmed)" />
-            <Text c="dimmed" size="lg">
-              No rules found
-            </Text>
-            <Text c="dimmed" size="sm">
-              Create your first rule to get started
-            </Text>
-          </Stack>
-        </Center>
-      )}
+      {!isLoading && !isError && rules.length === 0 && <RulesListEmpty />}
 
       {!isLoading && !isError && rules.length > 0 && (
-        <Stack gap="md">
+        <>
           <Stack gap="xs">
             {rules.map((rule) => (
               <ListCard
@@ -87,7 +96,7 @@ export function RulesList({
               />
             </Group>
           )}
-        </Stack>
+        </>
       )}
     </Stack>
   );
