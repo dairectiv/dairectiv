@@ -41,7 +41,7 @@ function preview(): void
 
 #[AsTask(description: 'Runs frontend tests')]
 function test(
-    #[AsOption(shortcut: 'c', description: 'Generate coverage report')]
+    #[AsOption(shortcut: 'o', description: 'Generate coverage report')]
     bool $coverage = false,
 ): void {
     io()->title('Running frontend tests');

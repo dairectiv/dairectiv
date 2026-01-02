@@ -96,7 +96,7 @@ function test(
     ?string $filter = null,
     #[AsOption(shortcut: 'g', description: 'Groups (comma-separated)')]
     ?string $groups = null,
-    #[AsOption(shortcut: 'c', description: 'Generate coverage report')]
+    #[AsOption(shortcut: 'o', description: 'Generate coverage report')]
     bool $coverage = false,
 ): int {
     io()->section('Running PHPUnit...');
@@ -130,7 +130,7 @@ function test(
 function lint(
     #[AsOption(shortcut: 'f', description: 'Apply fixes where possible')]
     bool $fix = false,
-    #[AsOption(description: 'CI mode (GitHub Actions format)')]
+    #[AsOption(shortcut: 'i', description: 'CI mode (GitHub Actions format)')]
     bool $ci = false,
 ): int {
     io()->section('Running API linters...');
@@ -168,7 +168,7 @@ function lint(
 
 #[AsTask(description: 'Runs PHPStan static analysis')]
 function phpstan(
-    #[AsOption(description: 'CI mode (GitHub Actions format)')]
+    #[AsOption(shortcut: 'i', description: 'CI mode (GitHub Actions format)')]
     bool $ci = false,
 ): int {
     io()->section('Running PHPStan...');
@@ -186,7 +186,7 @@ function phpstan(
 function rector(
     #[AsOption(shortcut: 'f', description: 'Apply fixes')]
     bool $fix = false,
-    #[AsOption(description: 'CI mode (GitHub Actions format)')]
+    #[AsOption(shortcut: 'i', description: 'CI mode (GitHub Actions format)')]
     bool $ci = false,
 ): int {
     io()->section('Running Rector...');
@@ -208,7 +208,7 @@ function rector(
 function ecs(
     #[AsOption(shortcut: 'f', description: 'Apply fixes')]
     bool $fix = false,
-    #[AsOption(description: 'CI mode (GitHub Actions format)')]
+    #[AsOption(shortcut: 'i', description: 'CI mode (GitHub Actions format)')]
     bool $ci = false,
 ): int {
     io()->section('Running ECS...');
