@@ -1,18 +1,46 @@
-import { Center, Group, Loader, Pagination, Stack, Text } from "@mantine/core";
+import { Group, Stack } from "@mantine/core";
 import type {
+  DirectiveState,
   PaginationResponse,
   RuleResponse,
 } from "@shared/infrastructure/api/generated/types.gen";
-import { ListCard, StateBadge } from "@shared/ui/data-display";
+import {
+  type BadgeProps,
+  ListCard,
+  ListContainer,
+  ListFilter,
+  ListSearch,
+  ListSort,
+} from "@shared/ui/data-display";
+import { IconInbox } from "@tabler/icons-react";
 import { formatDistanceToNow } from "date-fns";
 import type { RulesListStateFilter } from "../hooks/use-rules-list";
-import { RulesListEmpty } from "./rules-list-empty";
-import { RulesListToolbar } from "./rules-list-toolbar";
 
 function formatRelativeDate(date: Date | string): string {
   const dateObj = typeof date === "string" ? new Date(date) : date;
   return formatDistanceToNow(dateObj, { addSuffix: true });
 }
+
+const stateBadgeConfig: Record<DirectiveState, BadgeProps> = {
+  draft: { label: "Draft", color: "yellow" },
+  published: { label: "Published", color: "green" },
+  archived: { label: "Archived", color: "gray" },
+  deleted: { label: "Deleted", color: "red" },
+};
+
+const stateFilterOptions = [
+  { value: "draft", label: "Draft" },
+  { value: "published", label: "Published" },
+  { value: "archived", label: "Archived" },
+];
+
+const sortOptions = [
+  { value: "updatedAt:desc", label: "Recently updated" },
+  { value: "createdAt:desc", label: "Newest first" },
+  { value: "createdAt:asc", label: "Oldest first" },
+  { value: "name:asc", label: "Name A-Z" },
+  { value: "name:desc", label: "Name Z-A" },
+];
 
 export interface RulesListProps {
   rules: RuleResponse[];
@@ -44,67 +72,67 @@ export function RulesList({
   onStateChange,
   onSortChange,
 }: RulesListProps) {
+  const handleSortChange = (sort: string) => {
+    const [sortBy, sortOrder] = sort.split(":") as [
+      "name" | "createdAt" | "updatedAt",
+      "asc" | "desc",
+    ];
+    onSortChange(sortBy, sortOrder);
+  };
+
+  const currentSort = `${filters.sortBy ?? "updatedAt"}:${filters.sortOrder ?? "desc"}`;
+
   return (
     <Stack gap="md">
-      <RulesListToolbar
-        search={filters.search}
-        state={filters.state}
-        sortBy={filters.sortBy}
-        sortOrder={filters.sortOrder}
-        onSearchChange={onSearchChange}
-        onStateChange={onStateChange}
-        onSortChange={onSortChange}
-      />
+      <Group gap="sm">
+        <ListSearch
+          value={filters.search}
+          placeholder="Search rules..."
+          onChange={onSearchChange}
+        />
+        <ListFilter
+          value={filters.state}
+          options={stateFilterOptions}
+          placeholder="Filter by state"
+          onChange={(value) => onStateChange(value as RulesListStateFilter | undefined)}
+        />
+        <ListSort value={currentSort} options={sortOptions} onChange={handleSortChange} />
+      </Group>
 
-      {isLoading && (
-        <Center py="xl">
-          <Loader size="lg" />
-        </Center>
-      )}
-
-      {isError && (
-        <Center py="xl">
-          <Stack align="center" gap="sm">
-            <Text c="red" size="lg">
-              Failed to load rules
-            </Text>
-            <Text c="dimmed" size="sm">
-              {error?.message ?? "An unexpected error occurred"}
-            </Text>
-          </Stack>
-        </Center>
-      )}
-
-      {!isLoading && !isError && rules.length === 0 && <RulesListEmpty />}
-
-      {!isLoading && !isError && rules.length > 0 && (
-        <>
-          <Stack gap="xs">
-            {rules.map((rule) => (
-              <ListCard
-                key={rule.id}
-                title={rule.name}
-                description={rule.description}
-                metadata={formatRelativeDate(rule.updatedAt)}
-                badge={<StateBadge state={rule.state} />}
-              />
-            ))}
-          </Stack>
-
-          {pagination && pagination.totalPages > 1 && (
-            <Group justify="space-between" align="center">
-              <Text size="sm" c="dimmed">
-                Showing {rules.length} of {pagination.total} rules
-              </Text>
-              <Pagination
-                total={pagination.totalPages}
-                value={pagination.page}
-                onChange={onPageChange}
-              />
-            </Group>
-          )}
-        </>
-      )}
+      <ListContainer
+        isLoading={isLoading}
+        isError={isError}
+        errorMessage="Failed to load rules"
+        errorDetails={error?.message}
+        isEmpty={rules.length === 0}
+        empty={{
+          icon: IconInbox,
+          title: "No rules found",
+          subtitle: "Create your first rule to get started",
+        }}
+        pagination={
+          pagination
+            ? {
+                page: pagination.page,
+                totalPages: pagination.totalPages,
+                total: pagination.total,
+              }
+            : undefined
+        }
+        onPageChange={onPageChange}
+        itemCount={rules.length}
+        itemLabel="rules"
+      >
+        {rules.map((rule) => (
+          <ListCard
+            key={rule.id}
+            title={rule.name}
+            description={rule.description}
+            metadata={formatRelativeDate(rule.updatedAt)}
+            badge={stateBadgeConfig[rule.state]}
+          />
+        ))}
+      </ListContainer>
     </Stack>
   );
 }
