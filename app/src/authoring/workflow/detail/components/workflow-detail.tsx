@@ -11,13 +11,15 @@ import {
   Timeline,
   Title,
 } from "@mantine/core";
+import { useDisclosure } from "@mantine/hooks";
 import type {
   DirectiveState,
   StepResponse,
   WorkflowExampleResponse,
   WorkflowResponse,
 } from "@shared/infrastructure/api/generated/types.gen";
-import { IconAlertCircle, IconEdit, IconInfoCircle } from "@tabler/icons-react";
+import { ConfirmModal } from "@shared/ui/feedback";
+import { IconAlertCircle, IconArchive, IconEdit, IconInfoCircle } from "@tabler/icons-react";
 
 const stateBadgeConfig: Record<DirectiveState, { label: string; color: string }> = {
   draft: { label: "Draft", color: "yellow" },
@@ -106,9 +108,26 @@ export interface WorkflowDetailProps {
   isLoading: boolean;
   isError: boolean;
   error?: Error | null;
+  onArchive?: () => void;
+  isArchiving?: boolean;
 }
 
-export function WorkflowDetail({ workflow, isLoading, isError, error }: WorkflowDetailProps) {
+export function WorkflowDetail({
+  workflow,
+  isLoading,
+  isError,
+  error,
+  onArchive,
+  isArchiving = false,
+}: WorkflowDetailProps) {
+  const [archiveModalOpened, { open: openArchiveModal, close: closeArchiveModal }] =
+    useDisclosure(false);
+
+  const handleConfirmArchive = () => {
+    onArchive?.();
+    closeArchiveModal();
+  };
+
   if (isLoading) {
     return (
       <Center py="xl">
@@ -134,51 +153,78 @@ export function WorkflowDetail({ workflow, isLoading, isError, error }: Workflow
   }
 
   const badgeConfig = stateBadgeConfig[workflow.state];
+  const canArchive = workflow.state === "draft" || workflow.state === "published";
 
   return (
-    <Stack gap="lg">
-      <Group justify="space-between" align="flex-start">
-        <Stack gap="xs">
-          <Group gap="sm">
-            <Title order={2}>{workflow.name}</Title>
-            <Badge color={badgeConfig.color}>{badgeConfig.label}</Badge>
+    <>
+      <Stack gap="lg">
+        <Group justify="space-between" align="flex-start">
+          <Stack gap="xs">
+            <Group gap="sm">
+              <Title order={2}>{workflow.name}</Title>
+              <Badge color={badgeConfig.color}>{badgeConfig.label}</Badge>
+            </Group>
+            <Text c="dimmed">{workflow.description}</Text>
+          </Stack>
+          <Group gap="xs">
+            {workflow.state === "draft" && (
+              <Button
+                component="a"
+                href={`/authoring/workflows/${workflow.id}/edit`}
+                leftSection={<IconEdit size={16} />}
+                variant="light"
+              >
+                Edit
+              </Button>
+            )}
+            {canArchive && onArchive && (
+              <Button
+                leftSection={<IconArchive size={16} />}
+                variant="light"
+                color="orange"
+                onClick={openArchiveModal}
+                loading={isArchiving}
+              >
+                Archive
+              </Button>
+            )}
           </Group>
-          <Text c="dimmed">{workflow.description}</Text>
-        </Stack>
-        {workflow.state === "draft" && (
-          <Button
-            component="a"
-            href={`/authoring/workflows/${workflow.id}/edit`}
-            leftSection={<IconEdit size={16} />}
-            variant="light"
-          >
-            Edit
-          </Button>
-        )}
-      </Group>
+        </Group>
 
-      {workflow.content && (
+        {workflow.content && (
+          <Card withBorder p="lg">
+            <Stack gap="sm">
+              <Title order={4}>Content</Title>
+              <Text style={{ whiteSpace: "pre-wrap" }}>{workflow.content}</Text>
+            </Stack>
+          </Card>
+        )}
+
         <Card withBorder p="lg">
           <Stack gap="sm">
-            <Title order={4}>Content</Title>
-            <Text style={{ whiteSpace: "pre-wrap" }}>{workflow.content}</Text>
+            <Title order={4}>Steps ({workflow.steps.length})</Title>
+            <WorkflowSteps steps={workflow.steps} />
           </Stack>
         </Card>
-      )}
 
-      <Card withBorder p="lg">
-        <Stack gap="sm">
-          <Title order={4}>Steps ({workflow.steps.length})</Title>
-          <WorkflowSteps steps={workflow.steps} />
-        </Stack>
-      </Card>
+        <Card withBorder p="lg">
+          <Stack gap="sm">
+            <Title order={4}>Examples ({workflow.examples.length})</Title>
+            <WorkflowExamples examples={workflow.examples} />
+          </Stack>
+        </Card>
+      </Stack>
 
-      <Card withBorder p="lg">
-        <Stack gap="sm">
-          <Title order={4}>Examples ({workflow.examples.length})</Title>
-          <WorkflowExamples examples={workflow.examples} />
-        </Stack>
-      </Card>
-    </Stack>
+      <ConfirmModal
+        opened={archiveModalOpened}
+        onClose={closeArchiveModal}
+        onConfirm={handleConfirmArchive}
+        title="Archive Workflow"
+        message="Are you sure you want to archive this workflow? It will no longer be visible to AI tools and cannot be edited. You can restore it later from the archived items."
+        confirmLabel="Archive"
+        confirmColor="orange"
+        isLoading={isArchiving}
+      />
+    </>
   );
 }

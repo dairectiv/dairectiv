@@ -2,6 +2,10 @@
 export { WorkflowDetail, type WorkflowDetailProps } from "./components/workflow-detail";
 
 // Hooks
+export {
+  type UseArchiveWorkflowOptions,
+  useArchiveWorkflow,
+} from "./hooks/use-archive-workflow";
 export { useWorkflowDetail } from "./hooks/use-workflow-detail";
 
 // Pages
