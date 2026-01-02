@@ -1,5 +1,7 @@
-import { Group, Stack, Title } from "@mantine/core";
+import { Button, Group, Stack, Title } from "@mantine/core";
 import { AppLayout } from "@shared/ui/layout";
+import { IconPlus } from "@tabler/icons-react";
+import { Link } from "@tanstack/react-router";
 import { useWorkflowsList, WorkflowsList } from "@/authoring/workflow/list";
 
 export function WorkflowsListPage() {
@@ -21,6 +23,13 @@ export function WorkflowsListPage() {
       <Stack gap="lg" py="md">
         <Group justify="space-between" align="center">
           <Title order={2}>Workflows</Title>
+          <Button
+            component={Link}
+            to="/authoring/workflows/new"
+            leftSection={<IconPlus size={16} />}
+          >
+            Create workflow
+          </Button>
         </Group>
 
         <WorkflowsList

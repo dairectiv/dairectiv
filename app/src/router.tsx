@@ -11,6 +11,7 @@ import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 // Feature routes
 import { createRuleRoute } from "@/authoring/rule/create";
 import { rulesListRoute } from "@/authoring/rule/list";
+import { createWorkflowRoute } from "@/authoring/workflow/create";
 import { workflowsListRoute } from "@/authoring/workflow/list";
 
 // Home page (inline for now, can be moved to a feature later)
@@ -55,6 +56,7 @@ const routeTree = rootRoute.addChildren([
   rulesListRoute,
   createRuleRoute,
   workflowsListRoute,
+  createWorkflowRoute,
 ]);
 
 // Create and export router
