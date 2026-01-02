@@ -52,6 +52,10 @@ jobs:
                         docker:
                           - 'compose.yaml'
                           - 'docker/**'
+                          - 'api/composer.json'
+                          - 'api/composer.lock'
+                          - 'app/package.json'
+                          - 'app/pnpm-lock.yaml'
                         api:
                           - 'api/**'
                           - '.castor/**'
