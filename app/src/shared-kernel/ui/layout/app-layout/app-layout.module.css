@@ -1,0 +1,33 @@
+.mobileHeader {
+  display: none;
+  height: 60px;
+  border-bottom: 1px solid light-dark(var(--mantine-color-gray-3), var(--mantine-color-dark-4));
+
+  @media (max-width: $mantine-breakpoint-sm) {
+    display: block;
+  }
+}
+
+.colorSchemeToggle {
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: var(--mantine-spacing-xs);
+  border-radius: var(--mantine-radius-sm);
+  color: light-dark(var(--mantine-color-gray-7), var(--mantine-color-dark-0));
+
+  @mixin hover {
+    background-color: light-dark(var(--mantine-color-gray-0), var(--mantine-color-dark-6));
+  }
+}
+
+.main {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.content {
+  flex: 1;
+  padding: var(--mantine-spacing-xl);
+}

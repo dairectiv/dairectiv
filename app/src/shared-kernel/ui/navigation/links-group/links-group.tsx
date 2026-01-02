@@ -67,7 +67,7 @@ export function LinksGroup({ icon: Icon, label, initiallyOpened, links, link }: 
               className={classes.chevron}
               stroke={1.5}
               size={16}
-              data-rotate={opened || undefined}
+              style={{ transform: opened ? "rotate(90deg)" : "none" }}
             />
           )}
         </Group>
