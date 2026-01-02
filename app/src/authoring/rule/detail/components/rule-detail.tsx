@@ -1,0 +1,155 @@
+import {
+  Alert,
+  Badge,
+  Button,
+  Card,
+  Center,
+  Group,
+  Loader,
+  Stack,
+  Text,
+  Title,
+} from "@mantine/core";
+import type {
+  DirectiveState,
+  RuleExampleResponse,
+  RuleResponse,
+} from "@shared/infrastructure/api/generated/types.gen";
+import { IconAlertCircle, IconCheck, IconEdit, IconInfoCircle, IconX } from "@tabler/icons-react";
+
+const stateBadgeConfig: Record<DirectiveState, { label: string; color: string }> = {
+  draft: { label: "Draft", color: "yellow" },
+  published: { label: "Published", color: "green" },
+  archived: { label: "Archived", color: "gray" },
+  deleted: { label: "Deleted", color: "red" },
+};
+
+interface RuleExamplesProps {
+  examples: RuleExampleResponse[];
+}
+
+function RuleExamples({ examples }: RuleExamplesProps) {
+  if (examples.length === 0) {
+    return (
+      <Alert icon={<IconInfoCircle size={16} />} color="gray">
+        No examples defined yet. Add examples to demonstrate the rule in action.
+      </Alert>
+    );
+  }
+
+  return (
+    <Stack gap="md">
+      {examples.map((example) => (
+        <Card key={example.id} withBorder p="md">
+          <Stack gap="sm">
+            {example.good && (
+              <Group gap="xs" align="flex-start">
+                <Badge
+                  size="sm"
+                  color="green"
+                  variant="light"
+                  leftSection={<IconCheck size={12} />}
+                >
+                  Good
+                </Badge>
+                <Text size="sm" style={{ flex: 1, whiteSpace: "pre-wrap" }}>
+                  {example.good}
+                </Text>
+              </Group>
+            )}
+            {example.bad && (
+              <Group gap="xs" align="flex-start">
+                <Badge size="sm" color="red" variant="light" leftSection={<IconX size={12} />}>
+                  Bad
+                </Badge>
+                <Text size="sm" style={{ flex: 1, whiteSpace: "pre-wrap" }}>
+                  {example.bad}
+                </Text>
+              </Group>
+            )}
+            {example.explanation && (
+              <Text size="xs" c="dimmed" fs="italic">
+                {example.explanation}
+              </Text>
+            )}
+          </Stack>
+        </Card>
+      ))}
+    </Stack>
+  );
+}
+
+export interface RuleDetailProps {
+  rule?: RuleResponse;
+  isLoading: boolean;
+  isError: boolean;
+  error?: Error | null;
+}
+
+export function RuleDetail({ rule, isLoading, isError, error }: RuleDetailProps) {
+  if (isLoading) {
+    return (
+      <Center py="xl">
+        <Loader size="lg" />
+      </Center>
+    );
+  }
+
+  if (isError) {
+    return (
+      <Alert icon={<IconAlertCircle size={16} />} title="Error loading rule" color="red">
+        {error?.message ?? "An unexpected error occurred"}
+      </Alert>
+    );
+  }
+
+  if (!rule) {
+    return (
+      <Alert icon={<IconAlertCircle size={16} />} title="Rule not found" color="yellow">
+        The requested rule could not be found.
+      </Alert>
+    );
+  }
+
+  const badgeConfig = stateBadgeConfig[rule.state];
+
+  return (
+    <Stack gap="lg">
+      <Group justify="space-between" align="flex-start">
+        <Stack gap="xs">
+          <Group gap="sm">
+            <Title order={2}>{rule.name}</Title>
+            <Badge color={badgeConfig.color}>{badgeConfig.label}</Badge>
+          </Group>
+          <Text c="dimmed">{rule.description}</Text>
+        </Stack>
+        {rule.state === "draft" && (
+          <Button
+            component="a"
+            href={`/authoring/rules/${rule.id}/edit`}
+            leftSection={<IconEdit size={16} />}
+            variant="light"
+          >
+            Edit
+          </Button>
+        )}
+      </Group>
+
+      {rule.content && (
+        <Card withBorder p="lg">
+          <Stack gap="sm">
+            <Title order={4}>Content</Title>
+            <Text style={{ whiteSpace: "pre-wrap" }}>{rule.content}</Text>
+          </Stack>
+        </Card>
+      )}
+
+      <Card withBorder p="lg">
+        <Stack gap="sm">
+          <Title order={4}>Examples ({rule.examples.length})</Title>
+          <RuleExamples examples={rule.examples} />
+        </Stack>
+      </Card>
+    </Stack>
+  );
+}
