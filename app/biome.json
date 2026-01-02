@@ -44,7 +44,8 @@
       "*.js",
       "*.json",
       "!src/routeTree.gen.ts",
-      "!src/shared-kernel/infrastructure/api/generated"
+      "!src/shared-kernel/infrastructure/api/generated",
+      "!**/*.css"
     ]
   }
 }
