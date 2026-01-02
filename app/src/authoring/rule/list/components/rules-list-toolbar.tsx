@@ -1,7 +1,7 @@
 import { Group, Select, TextInput } from "@mantine/core";
 import { useDebouncedCallback } from "@mantine/hooks";
 import { IconSearch } from "@tabler/icons-react";
-import type { RulesListStateFilter } from "../hooks/use-rules-list";
+import type { RulesListStateFilter } from "@/authoring/rule/list";
 
 export interface RulesListToolbarProps {
   search?: string;
