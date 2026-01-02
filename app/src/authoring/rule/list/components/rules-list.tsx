@@ -4,9 +4,15 @@ import type {
   RuleResponse,
 } from "@shared/infrastructure/api/generated/types.gen";
 import { ListCard, StateBadge } from "@shared/ui/data-display";
+import { formatDistanceToNow } from "date-fns";
 import type { RulesListStateFilter } from "../hooks/use-rules-list";
 import { RulesListEmpty } from "./rules-list-empty";
 import { RulesListToolbar } from "./rules-list-toolbar";
+
+function formatRelativeDate(date: Date | string): string {
+  const dateObj = typeof date === "string" ? new Date(date) : date;
+  return formatDistanceToNow(dateObj, { addSuffix: true });
+}
 
 export interface RulesListProps {
   rules: RuleResponse[];
@@ -79,6 +85,7 @@ export function RulesList({
                 key={rule.id}
                 title={rule.name}
                 description={rule.description}
+                metadata={formatRelativeDate(rule.updatedAt)}
                 badge={<StateBadge state={rule.state} />}
               />
             ))}
