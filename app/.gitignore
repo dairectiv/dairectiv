@@ -32,7 +32,8 @@ storybook-static
 *.sw?
 
 # Generated files
-src/routeTree.gen.ts
+# Note: routeTree.gen.ts is NOT gitignored per TanStack Router recommendation
+# See: https://github.com/TanStack/router/discussions/1218
 src/shared-kernel/infrastructure/api/generated/
 
 # Coverage

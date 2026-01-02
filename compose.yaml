@@ -69,8 +69,8 @@ services:
   app:
     container_name: dairectiv-app
     build:
-      context: ./app
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./docker/app/Dockerfile
     ports:
       - "3000:3000"
     volumes:
@@ -80,6 +80,17 @@ services:
       - VITE_API_URL=http://localhost
     depends_on:
       - api
+
+  storybook:
+    container_name: dairectiv-storybook
+    build:
+      context: .
+      dockerfile: ./docker/storybook/Dockerfile
+    ports:
+      - "6006:6006"
+    volumes:
+      - ./app:/app
+      - /app/node_modules
 
 volumes:
   postgres-data:

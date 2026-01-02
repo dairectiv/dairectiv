@@ -35,6 +35,16 @@
     }
   },
   "files": {
-    "includes": ["src/**", "tests/**", ".storybook/**", "*.ts", "*.tsx", "*.js", "*.json"]
+    "includes": [
+      "src/**",
+      "tests/**",
+      ".storybook/**",
+      "*.ts",
+      "*.tsx",
+      "*.js",
+      "*.json",
+      "!src/routeTree.gen.ts",
+      "!src/shared-kernel/infrastructure/api/generated"
+    ]
   }
 }
