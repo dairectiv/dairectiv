@@ -918,6 +918,16 @@ To use: Reference when creating new pages, lists, or CRUD features in the fronte
 
 To use: Reference when creating or refactoring feature modules, or organizing exports.
 
+**[app-testing](`.claude/skills/app-testing/`)**
+- Complete guide for frontend testing
+- Unit tests with Vitest for hooks and utilities
+- Component tests with React Testing Library
+- Visual/E2E tests with Playwright MCP
+- Storybook URL: http://127.0.0.1:6006, App URL: http://127.0.0.1:3000
+- Test commands: `castor app:test`, `castor app:test -c` (with coverage)
+
+To use: Reference when writing tests for hooks, components, or pages, or when debugging UI issues with Playwright.
+
 ### Creating New Skills
 
 When adding a new Skill:

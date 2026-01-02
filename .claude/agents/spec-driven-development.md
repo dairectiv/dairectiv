@@ -78,17 +78,34 @@ Your job is to:
 - Break down the specification into discrete subtasks
 - Detect task type(s) to determine which skills to use:
 
+**Backend Tasks:**
+
 | Detection Keywords                       | Task Type      | Skills to Use                                       |
 |------------------------------------------|----------------|-----------------------------------------------------|
 | "aggregate", "entity", "value object"    | Domain object  | `/aggregate-root`, `/value-object`, `/domain-event` |
 | "endpoint", "API", "controller", "route" | API endpoint   | `/api-endpoint`, `/api-testing`                     |
 | "command", "query", "handler", "CQRS"    | Use case       | `/use-case`                                         |
 | "repository", "persistence", "storage"   | Repository     | `/repository`, `/doctrine-mapping`                  |
+| "docker", "CI", "config"                 | Infrastructure | Custom                                              |
+
+**Frontend Tasks:**
+
+| Detection Keywords                       | Task Type        | Skills to Use                                       |
+|------------------------------------------|------------------|-----------------------------------------------------|
+| "page", "list", "form", "CRUD"           | Feature          | `/frontend-feature`, `/frontend-imports`            |
+| "component", "UI", "design system"       | Component        | `/frontend-feature`, `/frontend-imports`            |
+| "hook", "state", "query", "mutation"     | Data layer       | `/frontend-feature`                                 |
+| "visual", "storybook", "playwright"      | Visual test      | `/app-testing`                                      |
+| "vitest", "unit test", "component test"  | Frontend test    | `/app-testing`                                      |
+
+**General Tasks:**
+
+| Detection Keywords                       | Task Type      | Skills to Use                                       |
+|------------------------------------------|----------------|-----------------------------------------------------|
 | "refactor", "rename", "extract", "move"  | Refactoring    | Custom                                              |
 | "bug", "fix", "issue"                    | Bug fix        | Custom                                              |
 | "docs", "document", "README"             | Documentation  | Custom                                              |
-| "test", "TDD", "coverage"                | Test           | `/api-testing`                                      |
-| "docker", "CI", "config"                 | Infrastructure | Custom                                              |
+| "test", "TDD", "coverage"                | Test           | `/api-testing` or `/app-testing`                    |
 
 - Create a todo list with all subtasks using TodoWrite
 
@@ -117,8 +134,13 @@ Use the appropriate skills based on detected task types:
 **Quality:**
 - `/phpstan` - Static analysis best practices (NEVER modify neon or use @phpstan-ignore)
 
+**Frontend:**
+- `/frontend-feature` - Feature-first architecture, pages, lists, forms
+- `/frontend-imports` - Barrel exports, path aliases
+- `/app-testing` - Vitest, React Testing Library, Playwright MCP
+
 **Reference:**
-- Use Context7 MCP tools for documentation: Symfony, Doctrine, PHPUnit, PHP, Castor
+- Use Context7 MCP tools for documentation: Symfony, Doctrine, PHPUnit, PHP, Castor, React, TanStack
 
 ### Step 4: Database Migration (if needed)
 
@@ -128,6 +150,8 @@ If you modified Doctrine entity mappings:
 3. Reset test database: `castor database:reset --test`
 
 ### Step 5: Quality Assurance Iteration
+
+**For Backend:**
 
 Run quality checks and fix issues:
 
@@ -147,6 +171,21 @@ Other useful commands:
 - `castor test --filter TestName` - Run specific test(s)
 - `castor dependencies` - Check for outdated packages
 - `castor update` - Update Composer dependencies
+
+**For Frontend:**
+
+Run frontend quality checks:
+
+```bash
+castor app:lint -f   # Lint and fix with Biome
+castor app:test      # Run Vitest tests
+castor app:build     # Build for production (type check + bundle)
+```
+
+Visual testing with Playwright MCP:
+- Navigate to Storybook: http://127.0.0.1:6006
+- Use `browser_snapshot` to inspect component structure
+- Use `browser_take_screenshot` for visual regression
 
 **Do not proceed to commits until all checks pass.**
 
@@ -206,6 +245,8 @@ docs(dai-XXX): update documentation
 - Use CommandBus/QueryBus to dispatch, never call handlers directly
 
 ### Project Structure
+
+**Backend:**
 ```
 api/src/{BoundedContext}/
 ├── Domain/          # Entities, Value Objects, Domain Events
@@ -214,11 +255,30 @@ api/src/{BoundedContext}/
 └── UserInterface/   # HTTP Controllers
 ```
 
+**Frontend:**
+```
+app/src/{bounded-context}/{entity}/{feature}/
+├── components/      # Presentational components
+├── hooks/           # Data fetching, state logic
+├── pages/           # Page components (composition layer)
+├── routes/          # Route definitions with search params
+├── __tests__/       # Tests for all layers
+└── index.ts         # Barrel export
+```
+
 ### Testing
+
+**Backend:**
 - Write integration tests in `tests/Integration/{BoundedContext}/`
 - Use test fixtures from `tests/Fixtures/`
 - All dispatched domain events MUST be asserted
 - Test method names: `testItShould{Action}{Condition}`
+
+**Frontend:**
+- Hook tests: use `renderHook` with mocked dependencies
+- Component tests: use `render` with `MantineProvider`
+- Visual tests: use Playwright MCP with Storybook
+- Run with `castor app:test`
 
 ## Error Handling
 
