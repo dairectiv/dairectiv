@@ -5,6 +5,38 @@ import userEvent from "@testing-library/user-event";
 import type { ReactNode } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+// Mock dnd-kit
+vi.mock("@dnd-kit/core", () => ({
+  DndContext: ({ children }: { children: ReactNode }) => <>{children}</>,
+  closestCenter: vi.fn(),
+  KeyboardSensor: vi.fn(),
+  PointerSensor: vi.fn(),
+  useSensor: vi.fn(),
+  useSensors: vi.fn(() => []),
+}));
+
+vi.mock("@dnd-kit/sortable", () => ({
+  SortableContext: ({ children }: { children: ReactNode }) => <>{children}</>,
+  sortableKeyboardCoordinates: vi.fn(),
+  verticalListSortingStrategy: vi.fn(),
+  useSortable: () => ({
+    attributes: { role: "button", tabIndex: 0 },
+    listeners: {},
+    setNodeRef: vi.fn(),
+    transform: null,
+    transition: undefined,
+    isDragging: false,
+  }),
+}));
+
+vi.mock("@dnd-kit/utilities", () => ({
+  CSS: {
+    Transform: {
+      toString: () => undefined,
+    },
+  },
+}));
+
 // Mock the hooks
 vi.mock("../hooks/use-add-workflow-step", () => ({
   useAddWorkflowStep: vi.fn(),
@@ -18,8 +50,13 @@ vi.mock("../hooks/use-remove-workflow-step", () => ({
   useRemoveWorkflowStep: vi.fn(),
 }));
 
+vi.mock("../hooks/use-move-workflow-step", () => ({
+  useMoveWorkflowStep: vi.fn(),
+}));
+
 import { WorkflowStepsManager } from "../components/workflow-steps-manager";
 import { useAddWorkflowStep } from "../hooks/use-add-workflow-step";
+import { useMoveWorkflowStep } from "../hooks/use-move-workflow-step";
 import { useRemoveWorkflowStep } from "../hooks/use-remove-workflow-step";
 import { useUpdateWorkflowStep } from "../hooks/use-update-workflow-step";
 
@@ -50,6 +87,7 @@ describe("WorkflowStepsManager", () => {
   const mockAddStep = vi.fn();
   const mockUpdateStep = vi.fn();
   const mockRemoveStep = vi.fn();
+  const mockMoveStep = vi.fn();
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -68,6 +106,12 @@ describe("WorkflowStepsManager", () => {
     vi.mocked(useRemoveWorkflowStep).mockReturnValue({
       removeStep: mockRemoveStep,
       isRemoving: false,
+      isError: false,
+      error: null,
+    });
+    vi.mocked(useMoveWorkflowStep).mockReturnValue({
+      moveStep: mockMoveStep,
+      isMoving: false,
       isError: false,
       error: null,
     });
