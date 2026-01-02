@@ -4,7 +4,10 @@ import type { ReactNode } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // Import directly from component file to avoid triggering router initialization from barrel export
-import { CreateWorkflowForm, type CreateWorkflowFormProps } from "../components/create-workflow-form";
+import {
+  CreateWorkflowForm,
+  type CreateWorkflowFormProps,
+} from "../components/create-workflow-form";
 
 function renderWithProviders(ui: ReactNode) {
   return render(<MantineProvider>{ui}</MantineProvider>);
