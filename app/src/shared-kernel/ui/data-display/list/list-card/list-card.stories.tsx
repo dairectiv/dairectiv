@@ -6,26 +6,6 @@ const meta: Meta<typeof ListCard> = {
   title: "Data Display/ListCard",
   component: ListCard,
   tags: ["autodocs"],
-  argTypes: {
-    badgeColor: {
-      control: "select",
-      options: [
-        "gray",
-        "red",
-        "pink",
-        "grape",
-        "violet",
-        "indigo",
-        "blue",
-        "cyan",
-        "teal",
-        "green",
-        "lime",
-        "yellow",
-        "orange",
-      ],
-    },
-  },
 };
 
 export default meta;
@@ -44,8 +24,7 @@ export const WithBadge: Story = {
     description:
       "Always use try-catch blocks for async operations and provide meaningful error messages.",
     metadata: "3 days ago",
-    badgeLabel: "Published",
-    badgeColor: "green",
+    badge: { label: "Published", color: "green" },
   },
 };
 
@@ -53,8 +32,7 @@ export const WithoutDescription: Story = {
   args: {
     title: "Simple Item",
     metadata: "12 hours ago",
-    badgeLabel: "Active",
-    badgeColor: "blue",
+    badge: { label: "Active", color: "blue" },
   },
 };
 
@@ -64,8 +42,7 @@ export const LongDescription: Story = {
     description:
       "Write unit tests for all business logic, integration tests for API endpoints, and end-to-end tests for critical user flows. Ensure test coverage remains above 80% and all tests are maintainable and readable.",
     metadata: "2 weeks ago",
-    badgeLabel: "Draft",
-    badgeColor: "yellow",
+    badge: { label: "Draft", color: "yellow" },
   },
 };
 
@@ -74,8 +51,7 @@ export const Clickable: Story = {
     title: "Clickable Item",
     description: "Click this item to trigger an action.",
     metadata: "just now",
-    badgeLabel: "New",
-    badgeColor: "blue",
+    badge: { label: "New", color: "blue" },
     onClick: () => alert("Item clicked!"),
   },
 };
@@ -87,32 +63,28 @@ export const List: Story = {
         title="REST API Resource Naming"
         description="Use plural nouns for REST API resource endpoints."
         metadata="3 days ago"
-        badgeLabel="Published"
-        badgeColor="green"
+        badge={{ label: "Published", color: "green" }}
         onClick={() => {}}
       />
       <ListCard
         title="Error Handling Best Practices"
         description="Always use try-catch blocks for async operations."
         metadata="1 week ago"
-        badgeLabel="Published"
-        badgeColor="green"
+        badge={{ label: "Published", color: "green" }}
         onClick={() => {}}
       />
       <ListCard
         title="Database Migration Guidelines"
         description="Create reversible migrations with clear up/down methods."
         metadata="2 hours ago"
-        badgeLabel="Draft"
-        badgeColor="yellow"
+        badge={{ label: "Draft", color: "yellow" }}
         onClick={() => {}}
       />
       <ListCard
         title="Legacy Code Patterns"
         description="Deprecated patterns that should no longer be used."
         metadata="3 months ago"
-        badgeLabel="Archived"
-        badgeColor="gray"
+        badge={{ label: "Archived", color: "gray" }}
         onClick={() => {}}
       />
     </Stack>

@@ -1,5 +1,5 @@
-import { Badge, Group, type MantineColor, Paper, Stack, Text } from "@mantine/core";
-import type { ReactNode } from "react";
+import { Group, Paper, Stack, Text } from "@mantine/core";
+import { Badge, type BadgeProps } from "../../badge";
 import classes from "./list-card.module.css";
 
 export interface ListCardProps {
@@ -9,32 +9,13 @@ export interface ListCardProps {
   description?: string;
   /** Additional metadata displayed next to title (e.g., "3 days ago") */
   metadata?: string;
-  /** Simple badge label (use with badgeColor) */
-  badgeLabel?: string;
-  /** Badge color (requires badgeLabel) */
-  badgeColor?: MantineColor;
-  /** Custom badge element (overrides badgeLabel/badgeColor) */
-  badge?: ReactNode;
+  /** Badge configuration - renders a Badge component when provided */
+  badge?: BadgeProps;
   /** Click handler - makes the card interactive */
   onClick?: () => void;
 }
 
-export function ListCard({
-  title,
-  description,
-  metadata,
-  badgeLabel,
-  badgeColor = "gray",
-  badge,
-  onClick,
-}: ListCardProps) {
-  const badgeElement =
-    badge ??
-    (badgeLabel ? (
-      <Badge color={badgeColor} variant="light" size="sm">
-        {badgeLabel}
-      </Badge>
-    ) : null);
+export function ListCard({ title, description, metadata, badge, onClick }: ListCardProps) {
   return (
     <Paper
       className={classes.item}
@@ -72,7 +53,7 @@ export function ListCard({
             </Text>
           )}
         </Stack>
-        {badgeElement}
+        {badge && <Badge {...badge} />}
       </Group>
     </Paper>
   );
