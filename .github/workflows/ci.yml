@@ -28,12 +28,49 @@ env:
 
 jobs:
     # =============================================================================
+    # CHANGE DETECTION
+    # =============================================================================
+
+    changes:
+        name: Detect Changes
+        runs-on: ubuntu-latest
+        outputs:
+            docker: ${{ steps.filter.outputs.docker }}
+            api: ${{ steps.filter.outputs.api }}
+            app: ${{ steps.filter.outputs.app }}
+            oas: ${{ steps.filter.outputs.oas }}
+
+        steps:
+            -   name: Checkout code
+                uses: actions/checkout@v4
+
+            -   name: Detect file changes
+                uses: dorny/paths-filter@v3
+                id: filter
+                with:
+                    filters: |
+                        docker:
+                          - 'compose.yaml'
+                          - 'docker/**'
+                        api:
+                          - 'api/**'
+                          - '.castor/**'
+                          - 'castor.php'
+                        app:
+                          - 'app/**'
+                        oas:
+                          - 'oas/**'
+                          - '.spectral.yaml'
+
+    # =============================================================================
     # BUILD STAGE
     # =============================================================================
 
     docker:
         name: Build / Docker Images
         runs-on: ubuntu-latest
+        needs: [changes]
+        if: ${{ needs.changes.outputs.docker == 'true' }}
 
         steps:
             -   name: Checkout code
@@ -70,7 +107,11 @@ jobs:
     api-static-analysis:
         name: Test / API Static Analysis
         runs-on: ubuntu-latest
-        needs: [docker]
+        needs: [changes, docker]
+        if: |
+            always() &&
+            needs.changes.outputs.api == 'true' &&
+            (needs.docker.result == 'success' || needs.docker.result == 'skipped')
 
         steps:
             -   name: Checkout code
@@ -172,6 +213,7 @@ jobs:
         name: Test / API Unit & Integration Tests
         runs-on: ubuntu-latest
         needs: [api-static-analysis]
+        if: ${{ always() && needs.api-static-analysis.result == 'success' }}
 
         steps:
             -   name: Checkout code
@@ -228,7 +270,11 @@ jobs:
     api-security-audit:
         name: Test / API Security Audit
         runs-on: ubuntu-latest
-        needs: [docker]
+        needs: [changes, docker]
+        if: |
+            always() &&
+            needs.changes.outputs.api == 'true' &&
+            (needs.docker.result == 'success' || needs.docker.result == 'skipped')
 
         steps:
             -   name: Checkout code
@@ -279,7 +325,11 @@ jobs:
     app-static-analysis:
         name: Test / App Static Analysis
         runs-on: ubuntu-latest
-        needs: [docker]
+        needs: [changes, docker]
+        if: |
+            always() &&
+            needs.changes.outputs.app == 'true' &&
+            (needs.docker.result == 'success' || needs.docker.result == 'skipped')
 
         steps:
             -   name: Checkout code
@@ -317,6 +367,7 @@ jobs:
         name: Test / App Unit Tests
         runs-on: ubuntu-latest
         needs: [app-build]
+        if: ${{ always() && needs.app-build.result == 'success' }}
 
         steps:
             -   name: Checkout code
@@ -349,7 +400,11 @@ jobs:
     app-security-audit:
         name: Test / App Security Audit
         runs-on: ubuntu-latest
-        needs: [docker]
+        needs: [changes, docker]
+        if: |
+            always() &&
+            needs.changes.outputs.app == 'true' &&
+            (needs.docker.result == 'success' || needs.docker.result == 'skipped')
 
         steps:
             -   name: Checkout code
@@ -377,6 +432,7 @@ jobs:
         name: Build / App Production Build
         runs-on: ubuntu-latest
         needs: [app-static-analysis]
+        if: ${{ always() && needs.app-static-analysis.result == 'success' }}
 
         steps:
             -   name: Checkout code
@@ -417,6 +473,7 @@ jobs:
         name: Build / Storybook
         runs-on: ubuntu-latest
         needs: [app-static-analysis]
+        if: ${{ always() && needs.app-static-analysis.result == 'success' }}
 
         steps:
             -   name: Checkout code
@@ -460,7 +517,11 @@ jobs:
     oas-lint:
         name: Test / OpenAPI Lint
         runs-on: ubuntu-latest
-        needs: [docker]
+        needs: [changes, docker]
+        if: |
+            always() &&
+            needs.changes.outputs.oas == 'true' &&
+            (needs.docker.result == 'success' || needs.docker.result == 'skipped')
 
         steps:
             -   name: Checkout code
@@ -480,10 +541,14 @@ jobs:
 
     claude-code-review:
         name: Review / Claude Code Review
-        # Temporarily disabled
-        if: false
         runs-on: ubuntu-latest
-        needs: [api-static-analysis, app-static-analysis, api-test, app-test]
+        needs: [api-test, app-test]
+        # Temporarily disabled - uncomment to enable
+        if: false
+        # if: |
+        #     always() &&
+        #     (needs.api-test.result == 'success' || needs.api-test.result == 'skipped') &&
+        #     (needs.app-test.result == 'success' || needs.app-test.result == 'skipped')
 
         permissions:
             contents: read
