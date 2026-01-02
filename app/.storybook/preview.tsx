@@ -4,12 +4,12 @@ import "@mantine/notifications/styles.css";
 import type { Preview, ReactRenderer } from "@storybook/react";
 import type { PartialStoryFn } from "@storybook/types";
 import {
-  Outlet,
-  RouterProvider,
   createMemoryHistory,
   createRootRoute,
   createRoute,
   createRouter,
+  Outlet,
+  RouterProvider,
 } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 
