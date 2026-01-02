@@ -14,6 +14,7 @@ import { ruleDetailRoute } from "@/authoring/rule/detail";
 import { rulesListRoute } from "@/authoring/rule/list";
 import { createWorkflowRoute } from "@/authoring/workflow/create";
 import { workflowDetailRoute } from "@/authoring/workflow/detail";
+import { editWorkflowRoute } from "@/authoring/workflow/edit";
 import { workflowsListRoute } from "@/authoring/workflow/list";
 
 // Home page (inline for now, can be moved to a feature later)
@@ -61,6 +62,7 @@ const routeTree = rootRoute.addChildren([
   workflowsListRoute,
   workflowDetailRoute,
   createWorkflowRoute,
+  editWorkflowRoute,
 ]);
 
 // Create and export router
