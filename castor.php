@@ -28,11 +28,11 @@ function start(): void
 {
     io()->title('Starting fresh environment');
 
-    docker\destroy(force: true);
-    docker\build();
-    docker\up();
-    composer\install();
-    database\reset(allEnvs: true);
+    infra\destroy(force: true);
+    infra\build();
+    infra\up();
+    api\install();
+    db\reset(allEnvs: true);
 
     io()->success('Environment is ready!');
 }

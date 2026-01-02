@@ -11,37 +11,37 @@ use function Castor\context;
 use function Castor\io;
 use function Castor\run;
 
-#[AsTask(description: 'Install frontend dependencies')]
+#[AsTask(description: 'Installs frontend dependencies')]
 function install(): void
 {
     io()->title('Installing frontend dependencies');
     pnpm(['install']);
 }
 
-#[AsTask(description: 'Start frontend development server')]
+#[AsTask(description: 'Starts frontend development server')]
 function dev(): void
 {
     io()->title('Starting frontend development server');
     pnpm(['dev']);
 }
 
-#[AsTask(description: 'Build frontend for production')]
+#[AsTask(description: 'Builds frontend for production')]
 function build(): void
 {
     io()->title('Building frontend for production');
     pnpm(['build']);
 }
 
-#[AsTask(description: 'Preview production build')]
+#[AsTask(description: 'Previews production build')]
 function preview(): void
 {
     io()->title('Previewing production build');
     pnpm(['preview']);
 }
 
-#[AsTask(description: 'Run frontend tests')]
+#[AsTask(description: 'Runs frontend tests')]
 function test(
-    #[AsOption(shortcut: 'o', description: 'Generate coverage report')]
+    #[AsOption(shortcut: 'c', description: 'Generate coverage report')]
     bool $coverage = false,
 ): void {
     io()->title('Running frontend tests');
@@ -50,7 +50,7 @@ function test(
     pnpm($command);
 }
 
-#[AsTask(description: 'Run frontend linter')]
+#[AsTask(description: 'Runs frontend linter')]
 function lint(
     #[AsOption(shortcut: 'f', description: 'Fix linting errors')]
     bool $fix = false,
@@ -61,25 +61,32 @@ function lint(
     pnpm($command);
 }
 
-#[AsTask(description: 'Start Storybook development server')]
+#[AsTask(description: 'Starts Storybook development server')]
 function storybook(): void
 {
     io()->title('Starting Storybook');
     pnpm(['storybook']);
 }
 
-#[AsTask(name: 'storybook:build', description: 'Build Storybook for production')]
+#[AsTask(name: 'storybook:build', description: 'Builds Storybook for production')]
 function storybook_build(): void
 {
     io()->title('Building Storybook');
     pnpm(['build-storybook']);
 }
 
-#[AsTask(name: 'generate:api', description: 'Generate API client from OpenAPI specification')]
+#[AsTask(name: 'generate:api', description: 'Generates API client from OpenAPI specification')]
 function generate_api(): void
 {
     io()->title('Generating API client');
     pnpm(['generate:api']);
+}
+
+#[AsTask(description: 'Runs pnpm security audit')]
+function audit(): void
+{
+    io()->title('Running pnpm security audit');
+    pnpm(['audit']);
 }
 
 /**
