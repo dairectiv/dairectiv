@@ -6,6 +6,7 @@ import { LinksGroup } from "./links-group";
 const meta: Meta<typeof LinksGroup> = {
   title: "Navigation/LinksGroup",
   component: LinksGroup,
+  tags: ["autodocs"],
   parameters: {
     layout: "centered",
   },

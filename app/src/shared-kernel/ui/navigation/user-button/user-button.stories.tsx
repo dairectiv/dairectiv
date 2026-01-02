@@ -4,6 +4,7 @@ import { UserButton } from "./user-button";
 const meta: Meta<typeof UserButton> = {
   title: "Navigation/UserButton",
   component: UserButton,
+  tags: ["autodocs"],
   parameters: {
     layout: "centered",
   },
