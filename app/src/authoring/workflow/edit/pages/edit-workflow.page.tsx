@@ -4,6 +4,7 @@ import { IconAlertCircle } from "@tabler/icons-react";
 import { useNavigate, useParams } from "@tanstack/react-router";
 import { useWorkflowDetail } from "../../detail/hooks/use-workflow-detail";
 import { EditWorkflowForm } from "../components/edit-workflow-form";
+import { WorkflowExamplesManager } from "../components/workflow-examples-manager";
 import { WorkflowStepsManager } from "../components/workflow-steps-manager";
 import { useUpdateWorkflow } from "../hooks/use-update-workflow";
 
@@ -77,6 +78,8 @@ export function EditWorkflowPage() {
         </Card>
 
         <WorkflowStepsManager workflowId={workflowId} steps={workflow.steps} />
+
+        <WorkflowExamplesManager workflowId={workflowId} examples={workflow.examples} />
       </Stack>
     </AppLayout>
   );
