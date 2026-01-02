@@ -544,13 +544,13 @@ jobs:
     claude-code-review:
         name: Review / Claude Code Review
         runs-on: ubuntu-latest
-        needs: [api-test, app-test]
-        # Temporarily disabled - uncomment to enable
-        if: false
-        # if: |
-        #     always() &&
-        #     (needs.api-test.result == 'success' || needs.api-test.result == 'skipped') &&
-        #     (needs.app-test.result == 'success' || needs.app-test.result == 'skipped')
+        needs: [docker, api-static-analysis, api-test, api-security-audit, app-static-analysis, app-build, app-test, storybook-build, app-security-audit, oas-lint]
+        # Temporarily disabled - set to true to enable
+        if: |
+            false &&
+            always() &&
+            !contains(needs.*.result, 'failure') &&
+            !contains(needs.*.result, 'cancelled')
 
         permissions:
             contents: read
