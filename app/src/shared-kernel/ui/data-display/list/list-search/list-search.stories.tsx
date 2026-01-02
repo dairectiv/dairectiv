@@ -3,7 +3,7 @@ import { fn } from "@storybook/test";
 import { ListSearch } from "./list-search";
 
 const meta: Meta<typeof ListSearch> = {
-  title: "Data Display/ListSearch",
+  title: "Data Display/List/ListSearch",
   component: ListSearch,
   tags: ["autodocs"],
   args: {

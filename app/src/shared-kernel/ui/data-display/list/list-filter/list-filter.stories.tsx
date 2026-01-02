@@ -4,7 +4,7 @@ import { fn } from "@storybook/test";
 import { ListFilter } from "./list-filter";
 
 const meta: Meta<typeof ListFilter> = {
-  title: "Data Display/ListFilter",
+  title: "Data Display/List/ListFilter",
   component: ListFilter,
   tags: ["autodocs"],
   args: {

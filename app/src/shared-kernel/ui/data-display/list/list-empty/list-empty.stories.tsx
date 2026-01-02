@@ -4,7 +4,7 @@ import { IconFileOff, IconInbox, IconSearch } from "@tabler/icons-react";
 import { ListEmpty } from "./list-empty";
 
 const meta: Meta<typeof ListEmpty> = {
-  title: "Data Display/ListEmpty",
+  title: "Data Display/List/ListEmpty",
   component: ListEmpty,
   tags: ["autodocs"],
 };

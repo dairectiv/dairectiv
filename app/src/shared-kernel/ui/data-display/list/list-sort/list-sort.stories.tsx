@@ -3,7 +3,7 @@ import { fn } from "@storybook/test";
 import { ListSort } from "./list-sort";
 
 const meta: Meta<typeof ListSort> = {
-  title: "Data Display/ListSort",
+  title: "Data Display/List/ListSort",
   component: ListSort,
   tags: ["autodocs"],
   args: {
