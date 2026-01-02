@@ -4,6 +4,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Stack
 
+### Backend (API)
+
 - Docker & Docker Compose
 - PostgreSQL 16
 - PHP 8.5
@@ -15,6 +17,20 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Rector
 - Easy Coding Standard
 - Castor
+
+### Frontend (App)
+
+- pnpm (package manager)
+- Vite 6 (build tool)
+- TypeScript 5
+- React 19
+- TanStack Router (routing)
+- TanStack Query (server state)
+- Zustand (client state)
+- Mantine 8 (UI components)
+- Vitest (testing)
+- Storybook 8 (component development)
+- Biome (linting & formatting)
 
 ### Documentation
 
@@ -218,6 +234,51 @@ castor symfony:cache:clear
 castor cc -t                   # test environment
 ```
 
+### Frontend Commands
+
+Install dependencies:
+```bash
+castor app:install
+```
+
+Start development server:
+```bash
+castor app:dev
+```
+
+Build for production:
+```bash
+castor app:build
+```
+
+Preview production build:
+```bash
+castor app:preview
+```
+
+Run tests:
+```bash
+castor app:test
+castor app:test -c             # with coverage
+```
+
+Run linter:
+```bash
+castor app:lint
+castor app:lint -f             # fix errors
+```
+
+Start Storybook:
+```bash
+castor app:storybook
+castor app:storybook:build     # build for production
+```
+
+Generate API client from OpenAPI:
+```bash
+castor app:generate:api
+```
+
 ## Architecture
 
 The application follows **Domain-Driven Design (DDD)** principles with clear **Bounded Contexts** and **CQRS** patterns.
@@ -263,6 +324,46 @@ api/
 ├── var/                     # Generated files (cache, logs)
 └── vendor/                  # Composer dependencies
 ```
+
+### Frontend Directory Structure
+
+The frontend follows the same DDD principles as the API, with `feature/` replacing `application/`:
+
+```
+app/
+├── .storybook/              # Storybook configuration
+├── public/                  # Static assets
+├── src/
+│   ├── {bounded-context}/   # e.g., authoring/
+│   │   ├── domain/          # Types, schemas, business logic
+│   │   ├── feature/         # Features (hooks, pages, components)
+│   │   ├── infrastructure/  # API adapters
+│   │   └── ui/              # Context-specific UI components
+│   │
+│   ├── shared-kernel/       # Shared across bounded contexts
+│   │   ├── domain/          # Shared types, errors, schemas
+│   │   ├── infrastructure/  # API client, query client, stores
+│   │   └── ui/              # Layouts, design system components
+│   │
+│   ├── routes/              # TanStack Router route definitions
+│   ├── styles/              # Global styles
+│   └── main.tsx             # Application entry point
+│
+├── tests/                   # Test utilities and mocks
+├── biome.json               # Biome configuration
+├── openapi-ts.config.ts     # Hey-API configuration
+├── tsconfig.json            # TypeScript configuration
+└── vite.config.ts           # Vite configuration
+```
+
+### Frontend Layer Mapping
+
+| API Layer        | Frontend Layer     | Content                                          |
+|------------------|--------------------|--------------------------------------------------|
+| **Domain**       | **domain/**        | TypeScript types, Zod schemas, business logic    |
+| **Application**  | **feature/**       | Hooks (queries/mutations), pages, components     |
+| **Infrastructure** | **infrastructure/** | API clients, Zustand stores, generated code    |
+| **UserInterface** | **ui/** + **routes/** | Shared components, layouts, route definitions |
 
 ### Bounded Contexts
 
@@ -596,6 +697,36 @@ $message = "Hello $name, you have $count messages";
 $message = "Hello {$name}, you have {$count} messages";
 ```
 
+## TypeScript Coding Standards
+
+### Naming Conventions
+
+| Element       | Convention          | Example                           |
+|---------------|---------------------|-----------------------------------|
+| **Folders**   | kebab-case          | `rule-card/`, `shared-kernel/`    |
+| **Files**     | kebab-case          | `rule-card.tsx`, `use-rules.ts`   |
+| **Components**| PascalCase (in code)| `function RuleCard()`             |
+| **Hooks**     | camelCase with use  | `useRules`, `useRuleMutations`    |
+| **Types**     | PascalCase          | `Rule`, `RuleFormValues`          |
+| **Schemas**   | camelCase           | `ruleSchema`, `createRuleSchema`  |
+
+### Path Aliases
+
+Use path aliases for imports instead of relative paths:
+
+```typescript
+// Good
+import { queryClient } from "@shared/infrastructure/query-client/query-client";
+import { ApiError } from "@shared/domain/errors";
+
+// Bad
+import { queryClient } from "../../../shared-kernel/infrastructure/query-client/query-client";
+```
+
+Available aliases:
+- `@/*` -> `src/*`
+- `@shared/*` -> `src/shared-kernel/*`
+
 ## Claude Code Skills
 
 This project includes custom Skills that extend Claude's capabilities:
@@ -772,6 +903,7 @@ When adding a new Castor task, you **must** document it in this file:
 ```
 castor.php              # Global tasks and context configuration (start)
 .castor/
+├── app.php             # Frontend commands (install, dev, build, test, lint, storybook)
 ├── composer.php        # Composer dependency commands (install, update, require, remove)
 ├── database.php        # Database commands (reset, drop, create, migrate, fixtures, diff)
 ├── docker.php          # Docker infrastructure commands (build, up, stop, destroy, logs, ps)
