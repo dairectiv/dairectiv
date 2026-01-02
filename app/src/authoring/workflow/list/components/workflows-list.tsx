@@ -13,6 +13,7 @@ import {
   ListSort,
 } from "@shared/ui/data-display";
 import { IconInbox } from "@tabler/icons-react";
+import { useNavigate } from "@tanstack/react-router";
 import { formatDistanceToNow } from "date-fns";
 import type { WorkflowsListStateFilter } from "../hooks/use-workflows-list";
 
@@ -72,6 +73,8 @@ export function WorkflowsList({
   onStateChange,
   onSortChange,
 }: WorkflowsListProps) {
+  const navigate = useNavigate();
+
   const handleSortChange = (sort: string) => {
     const [sortBy, sortOrder] = sort.split(":") as [
       "name" | "createdAt" | "updatedAt",
@@ -130,6 +133,12 @@ export function WorkflowsList({
             description={workflow.description}
             metadata={formatRelativeDate(workflow.updatedAt)}
             badge={stateBadgeConfig[workflow.state]}
+            onClick={() =>
+              navigate({
+                to: "/authoring/workflows/$workflowId",
+                params: { workflowId: workflow.id },
+              })
+            }
           />
         ))}
       </ListContainer>
