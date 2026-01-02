@@ -33,6 +33,7 @@ services:
     volumes:
       - ./api:/app
       - ./docker/api/Caddyfile:/app/Caddyfile:ro
+      - /app/vendor
       - caddy-data:/data
       - caddy-config:/config
     environment:
