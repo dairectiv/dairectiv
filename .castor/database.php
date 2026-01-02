@@ -42,7 +42,9 @@ function reset(
         return 0;
     }
 
-//    fixtures($test);
+    if (!$test) {
+        fixtures($test);
+    }
 
     return 0;
 }
@@ -102,7 +104,7 @@ function fixtures(
 ): int {
     io()->section('Load fixtures...');
 
-    $command = 'bin/console foundry:load-fixtures --no-interaction -vv --no-debug';
+    $command = 'bin/console doctrine:fixtures:load --no-interaction -vv --no-debug';
 
     $command .= $test ? ' --env test' : ' --env dev';
 
