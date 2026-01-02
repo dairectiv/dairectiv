@@ -1,4 +1,4 @@
-import { AppShell, Burger, Container, Group, useMantineColorScheme } from "@mantine/core";
+import { AppShell, Burger, Group, useMantineColorScheme } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { IconMoon, IconSun } from "@tabler/icons-react";
 import { Outlet } from "@tanstack/react-router";
@@ -36,9 +36,7 @@ export function AppLayout({ children, navbarProps, onUserClick }: AppLayoutProps
       </AppShell.Navbar>
 
       <AppShell.Main className={classes.main}>
-        <Container size="xl" className={classes.content}>
-          {children || <Outlet />}
-        </Container>
+        <div className={classes.content}>{children || <Outlet />}</div>
       </AppShell.Main>
     </AppShell>
   );

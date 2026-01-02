@@ -327,7 +327,7 @@ api/
 
 ### Frontend Directory Structure
 
-The frontend follows the same DDD principles as the API, with `feature/` replacing `application/`:
+The frontend follows a **feature-first architecture** organized by bounded context and entity:
 
 ```
 app/
@@ -335,18 +335,24 @@ app/
 ├── public/                  # Static assets
 ├── src/
 │   ├── {bounded-context}/   # e.g., authoring/
-│   │   ├── domain/          # Types, schemas, business logic
-│   │   ├── feature/         # Features (hooks, pages, components)
-│   │   ├── infrastructure/  # API adapters
-│   │   └── ui/              # Context-specific UI components
+│   │   └── {entity}/        # e.g., rule/
+│   │       └── {feature}/   # e.g., list/, create/, edit/
+│   │           ├── components/   # Presentational components
+│   │           ├── hooks/        # Data fetching & state logic
+│   │           ├── pages/        # Page components (composition)
+│   │           ├── routes/       # Route definitions
+│   │           ├── __tests__/    # Tests for all layers
+│   │           └── index.ts      # Barrel export
+│   │
+│   ├── home/                # Home page feature
+│   │   └── pages/
 │   │
 │   ├── shared-kernel/       # Shared across bounded contexts
 │   │   ├── domain/          # Shared types, errors, schemas
 │   │   ├── infrastructure/  # API client, query client, stores
 │   │   └── ui/              # Layouts, design system components
 │   │
-│   ├── routes/              # TanStack Router route definitions
-│   ├── styles/              # Global styles
+│   ├── router.tsx           # Code-based router configuration
 │   └── main.tsx             # Application entry point
 │
 ├── tests/                   # Test utilities and mocks
@@ -356,14 +362,53 @@ app/
 └── vite.config.ts           # Vite configuration
 ```
 
-### Frontend Layer Mapping
+### Feature Structure Example
 
-| API Layer        | Frontend Layer     | Content                                          |
-|------------------|--------------------|--------------------------------------------------|
-| **Domain**       | **domain/**        | TypeScript types, Zod schemas, business logic    |
-| **Application**  | **feature/**       | Hooks (queries/mutations), pages, components     |
-| **Infrastructure** | **infrastructure/** | API clients, Zustand stores, generated code    |
-| **UserInterface** | **ui/** + **routes/** | Shared components, layouts, route definitions |
+```
+src/authoring/rule/list/
+├── components/
+│   ├── rules-list.tsx           # Main list component
+│   ├── rules-list-toolbar.tsx   # Search, filter, sort controls
+│   └── rules-list-empty.tsx     # Empty state
+├── hooks/
+│   └── use-rules-list.ts        # Data fetching + URL state
+├── pages/
+│   └── rules-list.page.tsx      # Composition layer
+├── routes/
+│   └── rules-list.route.ts      # Route + search params schema
+├── __tests__/
+│   └── ...
+└── index.ts                     # Barrel export (all public APIs)
+```
+
+### Frontend Routing
+
+The application uses **code-based routing** with TanStack Router:
+
+- Routes are defined in feature `routes/` folders
+- All routes are registered in `src/router.tsx`
+- Search params use Zod schemas for validation
+- URL state for filters, pagination, sorting (shareable links)
+
+### Frontend State Management
+
+| State Type | Tool | Use Case |
+|------------|------|----------|
+| **URL State** | TanStack Router | Filters, pagination, sorting |
+| **Server State** | TanStack Query | API data fetching, caching |
+| **Client State** | Zustand | UI state (modals, sidebar toggle) |
+
+### Frontend Import Pattern
+
+Use **barrel exports** for all internal imports:
+
+```typescript
+// Good - barrel export
+import { RulesList, useRulesList, type RulesListStateFilter } from "@/authoring/rule/list";
+
+// Bad - direct file path
+import { RulesList } from "@/authoring/rule/list/components/rules-list";
+```
 
 ### Bounded Contexts
 
@@ -855,6 +900,23 @@ To use: Reference when creating new Commands, Queries, or their Handlers.
 - CRITICAL: All domain events must be asserted
 
 To use: Reference when writing endpoint tests, validation tests, or testing JSON responses.
+
+**[frontend-feature](`.claude/skills/frontend-feature/`)**
+- Complete guide for implementing frontend features
+- Feature-first structure: components/, hooks/, pages/, routes/
+- Patterns for lists with pagination, filtering, sorting
+- URL state management with TanStack Router
+- Testing patterns for hooks and components
+
+To use: Reference when creating new pages, lists, or CRUD features in the frontend.
+
+**[frontend-imports](`.claude/skills/frontend-imports/`)**
+- Guide for organizing imports using barrel exports
+- Each feature has an `index.ts` exporting all public APIs
+- Use `@/` and `@shared/` path aliases
+- Cross-feature imports use barrel export path
+
+To use: Reference when creating or refactoring feature modules, or organizing exports.
 
 ### Creating New Skills
 
