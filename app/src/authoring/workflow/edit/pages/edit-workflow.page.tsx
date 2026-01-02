@@ -4,6 +4,7 @@ import { IconAlertCircle } from "@tabler/icons-react";
 import { useNavigate, useParams } from "@tanstack/react-router";
 import { useWorkflowDetail } from "../../detail/hooks/use-workflow-detail";
 import { EditWorkflowForm } from "../components/edit-workflow-form";
+import { WorkflowStepsManager } from "../components/workflow-steps-manager";
 import { useUpdateWorkflow } from "../hooks/use-update-workflow";
 
 export function EditWorkflowPage() {
@@ -74,6 +75,8 @@ export function EditWorkflowPage() {
             onCancel={handleCancel}
           />
         </Card>
+
+        <WorkflowStepsManager workflowId={workflowId} steps={workflow.steps} />
       </Stack>
     </AppLayout>
   );
