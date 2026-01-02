@@ -1,4 +1,4 @@
-import { Badge, Stack } from "@mantine/core";
+import { Stack } from "@mantine/core";
 import type { Meta, StoryObj } from "@storybook/react";
 import { ListCard } from "./list-card";
 
@@ -6,6 +6,26 @@ const meta: Meta<typeof ListCard> = {
   title: "Data Display/ListCard",
   component: ListCard,
   tags: ["autodocs"],
+  argTypes: {
+    badgeColor: {
+      control: "select",
+      options: [
+        "gray",
+        "red",
+        "pink",
+        "grape",
+        "violet",
+        "indigo",
+        "blue",
+        "cyan",
+        "teal",
+        "green",
+        "lime",
+        "yellow",
+        "orange",
+      ],
+    },
+  },
 };
 
 export default meta;
@@ -18,17 +38,14 @@ export const Default: Story = {
   },
 };
 
-export const WithMetadata: Story = {
+export const WithBadge: Story = {
   args: {
     title: "Error Handling Best Practices",
     description:
       "Always use try-catch blocks for async operations and provide meaningful error messages.",
     metadata: "3 days ago",
-    badge: (
-      <Badge color="green" variant="light" size="sm">
-        Published
-      </Badge>
-    ),
+    badgeLabel: "Published",
+    badgeColor: "green",
   },
 };
 
@@ -36,11 +53,8 @@ export const WithoutDescription: Story = {
   args: {
     title: "Simple Item",
     metadata: "12 hours ago",
-    badge: (
-      <Badge color="blue" variant="light" size="sm">
-        Active
-      </Badge>
-    ),
+    badgeLabel: "Active",
+    badgeColor: "blue",
   },
 };
 
@@ -50,11 +64,8 @@ export const LongDescription: Story = {
     description:
       "Write unit tests for all business logic, integration tests for API endpoints, and end-to-end tests for critical user flows. Ensure test coverage remains above 80% and all tests are maintainable and readable.",
     metadata: "2 weeks ago",
-    badge: (
-      <Badge color="yellow" variant="light" size="sm">
-        Draft
-      </Badge>
-    ),
+    badgeLabel: "Draft",
+    badgeColor: "yellow",
   },
 };
 
@@ -63,6 +74,8 @@ export const Clickable: Story = {
     title: "Clickable Item",
     description: "Click this item to trigger an action.",
     metadata: "just now",
+    badgeLabel: "New",
+    badgeColor: "blue",
     onClick: () => alert("Item clicked!"),
   },
 };
@@ -74,44 +87,32 @@ export const List: Story = {
         title="REST API Resource Naming"
         description="Use plural nouns for REST API resource endpoints."
         metadata="3 days ago"
-        badge={
-          <Badge color="green" variant="light" size="sm">
-            Published
-          </Badge>
-        }
+        badgeLabel="Published"
+        badgeColor="green"
         onClick={() => {}}
       />
       <ListCard
         title="Error Handling Best Practices"
         description="Always use try-catch blocks for async operations."
         metadata="1 week ago"
-        badge={
-          <Badge color="green" variant="light" size="sm">
-            Published
-          </Badge>
-        }
+        badgeLabel="Published"
+        badgeColor="green"
         onClick={() => {}}
       />
       <ListCard
         title="Database Migration Guidelines"
         description="Create reversible migrations with clear up/down methods."
         metadata="2 hours ago"
-        badge={
-          <Badge color="yellow" variant="light" size="sm">
-            Draft
-          </Badge>
-        }
+        badgeLabel="Draft"
+        badgeColor="yellow"
         onClick={() => {}}
       />
       <ListCard
         title="Legacy Code Patterns"
         description="Deprecated patterns that should no longer be used."
         metadata="3 months ago"
-        badge={
-          <Badge color="gray" variant="light" size="sm">
-            Archived
-          </Badge>
-        }
+        badgeLabel="Archived"
+        badgeColor="gray"
         onClick={() => {}}
       />
     </Stack>
