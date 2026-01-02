@@ -1,7 +1,7 @@
 import { createRoute } from "@tanstack/react-router";
 import { z } from "zod";
+import { RulesListPage } from "@/authoring/rule/list";
 import { rootRoute } from "@/router";
-import { RulesListPage } from "../pages/rules-list.page";
 
 const searchSchema = z.object({
   page: z.number().min(1).optional().default(1),

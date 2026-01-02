@@ -4,9 +4,7 @@ import type {
   RuleResponse,
 } from "@shared/infrastructure/api/generated/types.gen";
 import { ListCard, StateBadge } from "@shared/ui/data-display";
-import type { RulesListStateFilter } from "../hooks/use-rules-list";
-import { RulesListEmpty } from "./rules-list-empty";
-import { RulesListToolbar } from "./rules-list-toolbar";
+import { RulesListEmpty, type RulesListStateFilter, RulesListToolbar } from "@/authoring/rule/list";
 
 export interface RulesListProps {
   rules: RuleResponse[];

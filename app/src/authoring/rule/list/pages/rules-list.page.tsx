@@ -1,7 +1,6 @@
 import { Group, Stack, Title } from "@mantine/core";
 import { AppLayout } from "@shared/ui/layout";
-import { RulesList } from "../components/rules-list";
-import { useRulesList } from "../hooks/use-rules-list";
+import { RulesList, useRulesList } from "@/authoring/rule/list";
 
 export function RulesListPage() {
   const {
