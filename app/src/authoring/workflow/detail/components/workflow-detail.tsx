@@ -19,7 +19,13 @@ import type {
   WorkflowResponse,
 } from "@shared/infrastructure/api/generated/types.gen";
 import { ConfirmModal } from "@shared/ui/feedback";
-import { IconAlertCircle, IconArchive, IconEdit, IconInfoCircle } from "@tabler/icons-react";
+import {
+  IconAlertCircle,
+  IconArchive,
+  IconEdit,
+  IconInfoCircle,
+  IconTrash,
+} from "@tabler/icons-react";
 
 const stateBadgeConfig: Record<DirectiveState, { label: string; color: string }> = {
   draft: { label: "Draft", color: "yellow" },
@@ -110,6 +116,8 @@ export interface WorkflowDetailProps {
   error?: Error | null;
   onArchive?: () => void;
   isArchiving?: boolean;
+  onDelete?: () => void;
+  isDeleting?: boolean;
 }
 
 export function WorkflowDetail({
@@ -119,13 +127,22 @@ export function WorkflowDetail({
   error,
   onArchive,
   isArchiving = false,
+  onDelete,
+  isDeleting = false,
 }: WorkflowDetailProps) {
   const [archiveModalOpened, { open: openArchiveModal, close: closeArchiveModal }] =
+    useDisclosure(false);
+  const [deleteModalOpened, { open: openDeleteModal, close: closeDeleteModal }] =
     useDisclosure(false);
 
   const handleConfirmArchive = () => {
     onArchive?.();
     closeArchiveModal();
+  };
+
+  const handleConfirmDelete = () => {
+    onDelete?.();
+    closeDeleteModal();
   };
 
   if (isLoading) {
@@ -154,6 +171,7 @@ export function WorkflowDetail({
 
   const badgeConfig = stateBadgeConfig[workflow.state];
   const canArchive = workflow.state === "draft" || workflow.state === "published";
+  const canDelete = workflow.state !== "deleted";
 
   return (
     <>
@@ -186,6 +204,17 @@ export function WorkflowDetail({
                 loading={isArchiving}
               >
                 Archive
+              </Button>
+            )}
+            {canDelete && onDelete && (
+              <Button
+                leftSection={<IconTrash size={16} />}
+                variant="light"
+                color="red"
+                onClick={openDeleteModal}
+                loading={isDeleting}
+              >
+                Delete
               </Button>
             )}
           </Group>
@@ -224,6 +253,17 @@ export function WorkflowDetail({
         confirmLabel="Archive"
         confirmColor="orange"
         isLoading={isArchiving}
+      />
+
+      <ConfirmModal
+        opened={deleteModalOpened}
+        onClose={closeDeleteModal}
+        onConfirm={handleConfirmDelete}
+        title="Delete Workflow"
+        message={`Are you sure you want to delete "${workflow.name}"? This action cannot be undone. All data associated with this workflow will be permanently deleted.`}
+        confirmLabel="Delete"
+        confirmColor="red"
+        isLoading={isDeleting}
       />
     </>
   );

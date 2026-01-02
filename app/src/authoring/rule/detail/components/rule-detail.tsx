@@ -23,6 +23,7 @@ import {
   IconCheck,
   IconEdit,
   IconInfoCircle,
+  IconTrash,
   IconX,
 } from "@tabler/icons-react";
 
@@ -95,6 +96,8 @@ export interface RuleDetailProps {
   error?: Error | null;
   onArchive?: () => void;
   isArchiving?: boolean;
+  onDelete?: () => void;
+  isDeleting?: boolean;
 }
 
 export function RuleDetail({
@@ -104,13 +107,22 @@ export function RuleDetail({
   error,
   onArchive,
   isArchiving = false,
+  onDelete,
+  isDeleting = false,
 }: RuleDetailProps) {
   const [archiveModalOpened, { open: openArchiveModal, close: closeArchiveModal }] =
+    useDisclosure(false);
+  const [deleteModalOpened, { open: openDeleteModal, close: closeDeleteModal }] =
     useDisclosure(false);
 
   const handleConfirmArchive = () => {
     onArchive?.();
     closeArchiveModal();
+  };
+
+  const handleConfirmDelete = () => {
+    onDelete?.();
+    closeDeleteModal();
   };
 
   if (isLoading) {
@@ -139,6 +151,7 @@ export function RuleDetail({
 
   const badgeConfig = stateBadgeConfig[rule.state];
   const canArchive = rule.state === "draft" || rule.state === "published";
+  const canDelete = rule.state !== "deleted";
 
   return (
     <>
@@ -173,6 +186,17 @@ export function RuleDetail({
                 Archive
               </Button>
             )}
+            {canDelete && onDelete && (
+              <Button
+                leftSection={<IconTrash size={16} />}
+                variant="light"
+                color="red"
+                onClick={openDeleteModal}
+                loading={isDeleting}
+              >
+                Delete
+              </Button>
+            )}
           </Group>
         </Group>
 
@@ -202,6 +226,17 @@ export function RuleDetail({
         confirmLabel="Archive"
         confirmColor="orange"
         isLoading={isArchiving}
+      />
+
+      <ConfirmModal
+        opened={deleteModalOpened}
+        onClose={closeDeleteModal}
+        onConfirm={handleConfirmDelete}
+        title="Delete Rule"
+        message={`Are you sure you want to delete "${rule.name}"? This action cannot be undone. All data associated with this rule will be permanently deleted.`}
+        confirmLabel="Delete"
+        confirmColor="red"
+        isLoading={isDeleting}
       />
     </>
   );
