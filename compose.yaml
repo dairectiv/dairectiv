@@ -66,6 +66,21 @@ services:
       SWAGGER_JSON: /openapi.yml
       PORT: 8081
 
+  app:
+    container_name: dairectiv-app
+    build:
+      context: ./app
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./app:/app
+      - /app/node_modules
+    environment:
+      - VITE_API_URL=http://localhost
+    depends_on:
+      - api
+
 volumes:
   postgres-data:
   caddy-data:
