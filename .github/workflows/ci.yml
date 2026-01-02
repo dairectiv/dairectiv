@@ -58,8 +58,6 @@ jobs:
                           - 'app/pnpm-lock.yaml'
                         api:
                           - 'api/**'
-                          - '.castor/**'
-                          - 'castor.php'
                         app:
                           - 'app/**'
                         oas:
