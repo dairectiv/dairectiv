@@ -1,16 +1,15 @@
 import { Group, Paper, Stack, Text } from "@mantine/core";
-import type { DirectiveState } from "@shared/infrastructure/api/generated/types.gen";
-import { StateBadge } from "../state-badge";
-import classes from "./directive-list-item.module.css";
+import type { ReactNode } from "react";
+import classes from "./list-card.module.css";
 
-export interface DirectiveListItemProps {
-  name: string;
-  description: string;
-  state: DirectiveState;
+export interface ListCardProps {
+  title: string;
+  description?: string;
+  badge?: ReactNode;
   onClick?: () => void;
 }
 
-export function DirectiveListItem({ name, description, state, onClick }: DirectiveListItemProps) {
+export function ListCard({ title, description, badge, onClick }: ListCardProps) {
   return (
     <Paper
       className={classes.item}
@@ -32,14 +31,16 @@ export function DirectiveListItem({ name, description, state, onClick }: Directi
     >
       <Group justify="space-between" wrap="nowrap" align="flex-start">
         <Stack gap={4} style={{ flex: 1, minWidth: 0 }}>
-          <Text fw={500} size="sm" className={classes.name}>
-            {name}
+          <Text fw={500} size="sm" className={classes.title}>
+            {title}
           </Text>
-          <Text c="dimmed" size="xs" lineClamp={2} className={classes.description}>
-            {description}
-          </Text>
+          {description && (
+            <Text c="dimmed" size="xs" lineClamp={2} className={classes.description}>
+              {description}
+            </Text>
+          )}
         </Stack>
-        <StateBadge state={state} />
+        {badge}
       </Group>
     </Paper>
   );
