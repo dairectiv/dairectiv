@@ -7,11 +7,6 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 // Import directly from component file to avoid triggering router initialization from barrel export
 import { WorkflowDetail, type WorkflowDetailProps } from "../components/workflow-detail";
 
-// Mock TanStack Router Link
-vi.mock("@tanstack/react-router", () => ({
-  Link: ({ children, to }: { children: ReactNode; to: string }) => <a href={to}>{children}</a>,
-}));
-
 function renderWithProviders(ui: ReactNode) {
   return render(<MantineProvider>{ui}</MantineProvider>);
 }
