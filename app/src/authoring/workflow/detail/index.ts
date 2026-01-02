@@ -6,6 +6,10 @@ export {
   type UseArchiveWorkflowOptions,
   useArchiveWorkflow,
 } from "./hooks/use-archive-workflow";
+export {
+  type UseDeleteWorkflowOptions,
+  useDeleteWorkflow,
+} from "./hooks/use-delete-workflow";
 export { useWorkflowDetail } from "./hooks/use-workflow-detail";
 
 // Pages
