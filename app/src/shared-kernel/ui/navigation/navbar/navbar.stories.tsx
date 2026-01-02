@@ -53,7 +53,6 @@ export const WithCustomLinks: Story = {
         initiallyOpened: true,
         links: [
           { label: "Rules", link: "/authoring/rules" },
-          { label: "Skills", link: "/authoring/skills" },
           { label: "Workflows", link: "/authoring/workflows" },
           { label: "Agents", link: "/authoring/agents" },
         ],
@@ -88,7 +87,6 @@ export const ManyLinks: Story = {
         initiallyOpened: true,
         links: [
           { label: "Rules", link: "/authoring/rules" },
-          { label: "Skills", link: "/authoring/skills" },
           { label: "Workflows", link: "/authoring/workflows" },
           { label: "Agents", link: "/authoring/agents" },
           { label: "Templates", link: "/authoring/templates" },
