@@ -18,7 +18,6 @@ import type {
   WorkflowResponse,
 } from "@shared/infrastructure/api/generated/types.gen";
 import { IconAlertCircle, IconEdit, IconInfoCircle } from "@tabler/icons-react";
-import { Link } from "@tanstack/react-router";
 
 const stateBadgeConfig: Record<DirectiveState, { label: string; color: string }> = {
   draft: { label: "Draft", color: "yellow" },
@@ -148,9 +147,8 @@ export function WorkflowDetail({ workflow, isLoading, isError, error }: Workflow
         </Stack>
         {workflow.state === "draft" && (
           <Button
-            component={Link}
-            to="/authoring/workflows/$workflowId/edit"
-            params={{ workflowId: workflow.id }}
+            component="a"
+            href={`/authoring/workflows/${workflow.id}/edit`}
             leftSection={<IconEdit size={16} />}
             variant="light"
           >
