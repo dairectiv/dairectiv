@@ -66,185 +66,170 @@ Reset and start the full environment (destroy, build, up, install dependencies, 
 castor start
 ```
 
-### Docker Commands
+### Infrastructure Commands (infra:)
 
 Build the infrastructure:
 ```bash
-castor build
+castor infra:build
+castor build                   # alias
 ```
 
 Start the infrastructure:
 ```bash
-castor up
+castor infra:up
+castor up                      # alias
 ```
 
 Stop the infrastructure:
 ```bash
-castor stop
+castor infra:down
+castor down                    # alias
 ```
 
 Destroy the infrastructure (remove containers, volumes, networks):
 ```bash
-castor destroy
+castor infra:destroy
+castor destroy                 # alias
 ```
 
 View logs:
 ```bash
-castor logs
+castor infra:logs
+castor logs                    # alias
 ```
 
 List containers status:
 ```bash
-castor ps
+castor infra:ps
+castor ps                      # alias
 ```
 
-### Composer Commands
+### API Commands (api:)
 
-Install dependencies:
+Install Composer dependencies:
 ```bash
-castor install
+castor api:install
+castor install                 # alias
 ```
 
-Update dependencies:
+Update Composer dependencies:
 ```bash
-castor update
+castor api:update
+castor update                  # alias
 ```
 
-Require a dependency:
+Require a Composer dependency:
 ```bash
-castor req <package>
-castor req <package> -d  # as dev dependency
+castor api:require <package>
+castor req <package>           # alias
+castor api:require <package> -d  # as dev dependency
 ```
 
-Remove a dependency:
+Remove a Composer dependency:
 ```bash
-castor remove <package>
+castor api:remove <package>
 ```
 
-### Database Commands
-
-Reset database (drop, create, migrate, fixtures):
+Clear Symfony cache:
 ```bash
-castor database:reset
-castor database:reset -t       # test environment only
-castor database:reset -a       # all environments
-castor database:reset -f       # without fixtures
+castor api:cache:clear
+castor cc                      # alias
+castor cc -t                   # test environment
 ```
 
-Drop database:
+Run PHPUnit tests:
 ```bash
-castor database:drop
-castor database:drop -t        # test environment
+castor api:test
+castor test                    # alias
+castor api:test -d             # testdox format
+castor api:test --filter <name>  # filter tests
+castor api:test -g <groups>    # run specific groups
+castor api:test -c             # with coverage
 ```
 
-Create database:
+Run all API linters (Rector, ECS, container, YAML, schema):
 ```bash
-castor database:create
-castor database:create -t      # test environment
-```
-
-Run migrations:
-```bash
-castor database:migrate
-castor database:migrate -t     # test environment
-```
-
-Load fixtures:
-```bash
-castor database:fixtures
-castor database:fixtures -t    # test environment
-```
-
-Generate migration from entity changes:
-```bash
-castor database:diff
-castor database:diff -r        # reset all environments after
-```
-
-### Quality Assurance Commands
-
-Run all QA tasks (rector, ecs, linter, schema, phpstan, phpunit):
-```bash
-castor qa
-castor qa -f                   # apply fixes
-castor qa -d                   # check dependencies
-```
-
-Run static analysis tools in order:
-```bash
-castor sa
-castor static
-castor sa -f                   # apply fixes
+castor api:lint
+castor api:lint -f             # apply fixes
 ```
 
 Run PHPStan:
 ```bash
-castor phpstan
-castor phpstan -c              # CI mode (GitHub Actions error format)
+castor api:phpstan
+castor phpstan                 # legacy alias
+castor phpstan --ci            # CI mode (GitHub Actions format)
 ```
 
 Run Rector:
 ```bash
-castor rector
+castor api:rector
+castor rector                  # legacy alias
 castor rector -f               # apply fixes
-castor rector -c               # CI mode (GitHub Actions output format)
+castor rector --ci             # CI mode (GitHub Actions format)
 ```
 
 Run ECS (Easy Coding Standard):
 ```bash
-castor ecs
+castor api:ecs
+castor ecs                     # legacy alias
 castor ecs -f                  # apply fixes
-castor ecs -c                  # CI mode (checkstyle output format)
+castor ecs --ci                # CI mode (checkstyle format)
 ```
 
-Run PHPUnit:
+Run Composer security audit:
 ```bash
-castor test
-castor phpunit
-castor test -d                 # testdox format
-castor test -f <filter>        # filter tests
-castor test -g <groups>        # run specific groups
-castor test -o                 # with coverage
+castor api:audit
 ```
 
-Run linters (container, yaml):
+### Database Commands (db:)
+
+Reset database (drop, create, migrate, fixtures):
 ```bash
-castor lint
-castor linter
-castor lint -c                 # CI mode (GitHub Actions format)
+castor db:reset
+castor database:reset          # legacy alias
+castor db:reset -t             # test environment only
+castor db:reset -a             # all environments
+castor db:reset -f             # without fixtures
 ```
 
-Validate Doctrine schema:
+Drop database:
 ```bash
-castor schema
+castor db:drop
+castor database:drop           # legacy alias
+castor db:drop -t              # test environment
 ```
 
-Check Composer dependencies:
+Create database:
 ```bash
-castor deps
-castor dependencies
+castor db:create
+castor database:create         # legacy alias
+castor db:create -t            # test environment
 ```
 
-### Symfony Commands
-
-Clear cache:
+Run migrations:
 ```bash
-castor cc
-castor symfony:cache:clear
-castor cc -t                   # test environment
+castor db:migrate
+castor database:migrate        # legacy alias
+castor db:migrate -t           # test environment
 ```
 
-### OpenAPI Commands
-
-Lint OpenAPI specification with Spectral:
+Load fixtures:
 ```bash
-castor oas:lint
-castor oas:lint --ci           # GitHub Actions format
+castor db:fixtures
+castor database:fixtures       # legacy alias
+castor db:fixtures -t          # test environment
 ```
 
-### Frontend Commands
+Generate migration from entity changes:
+```bash
+castor db:diff
+castor database:diff           # legacy alias
+castor db:diff -r              # reset all environments after
+```
 
-Install dependencies:
+### App Commands (app:)
+
+Install frontend dependencies:
 ```bash
 castor app:install
 ```
@@ -264,13 +249,13 @@ Preview production build:
 castor app:preview
 ```
 
-Run tests:
+Run frontend tests:
 ```bash
 castor app:test
 castor app:test -c             # with coverage
 ```
 
-Run linter:
+Run frontend linter:
 ```bash
 castor app:lint
 castor app:lint -f             # fix errors
@@ -285,6 +270,40 @@ castor app:storybook:build     # build for production
 Generate API client from OpenAPI:
 ```bash
 castor app:generate:api
+```
+
+Run pnpm security audit:
+```bash
+castor app:audit
+```
+
+### Quality Assurance Commands (qa:)
+
+Run all QA tasks (API + App):
+```bash
+castor qa:all
+castor qa                      # alias
+castor qa -f                   # apply fixes
+```
+
+Run API QA tasks (lint + phpstan + test):
+```bash
+castor qa:api
+castor qa:api -f               # apply fixes
+```
+
+Run App QA tasks (lint + test):
+```bash
+castor qa:app
+castor qa:app -f               # apply fixes
+```
+
+### OpenAPI Commands (oas:)
+
+Lint OpenAPI specification with Spectral:
+```bash
+castor oas:lint
+castor oas:lint --ci           # GitHub Actions format
 ```
 
 ## Architecture
@@ -527,55 +546,60 @@ The project follows a strict one-to-one relationship between Linear issues and g
 
 The project uses GitHub Actions for continuous integration and deployment. All workflows are located in `.github/workflows/`.
 
-#### Available Workflows
+#### Unified CI Workflow (`ci.yml`)
 
-**Quality Workflow** (`quality.yml`)
-- **Purpose**: Run all quality checks for API and App (static analysis, tests, builds)
-- **Triggers**: Push to any branch
-- **Watched paths**: `api/**`, `app/**`, `oas/**`, `.castor/**`, `castor.php`
+The CI workflow is organized into stages with proper dependencies:
 
-**API Jobs:**
+```
+BUILD STAGE (parallel)
+  ├── docker          → Build Docker images, verify services
+  ├── api-deps        → Install Composer dependencies (cached)
+  ├── app-deps        → Install pnpm dependencies (cached)
+  ├── app-build       → Build app for production (needs: app-deps)
+  └── storybook-build → Build Storybook (needs: app-deps)
 
-| Job | Description |
-|-----|-------------|
-| `api-static-analysis` | Rector, ECS, linters, schema validation, PHPStan |
-| `api-test` | PHPUnit with coverage (requires PostgreSQL) |
-| `api-security` | Composer security audit |
+TEST STAGE (needs: build)
+  ├── api-static-analysis → Rector, ECS, linters, PHPStan (needs: api-deps)
+  ├── app-static-analysis → Biome lint, TypeScript check (needs: app-deps)
+  ├── api-test            → PHPUnit with coverage (needs: api-deps)
+  ├── app-test            → Vitest with coverage (needs: app-deps)
+  ├── api-deps-audit      → Composer security audit (needs: api-deps)
+  ├── app-deps-audit      → pnpm security audit (needs: app-deps)
+  └── oas-lint            → OpenAPI Spectral linting
 
-**App Jobs:**
+REVIEW STAGE (disabled, needs: test)
+  └── claude-code-review  → AI-powered code review
+```
 
-| Job | Description | Dependencies |
-|-----|-------------|--------------|
-| `app-lint` | Biome lint + TypeScript type check | - |
-| `app-test` | Vitest with coverage | - |
-| `app-build` | Production build | `app-lint`, `app-test` |
-| `app-storybook` | Storybook build | `app-lint` |
+**Triggers:**
+- Push to any branch
+- Watched paths: `api/**`, `app/**`, `oas/**`, `docker/**`, `compose.yaml`, `.castor/**`, `castor.php`, `.spectral.yaml`
 
 **Key features:**
-- All app jobs run `pnpm generate:api` to generate the API client from `oas/openapi.yaml`
-- API jobs use PHP 8.4 with Castor for consistency with local development
-- App jobs use Node.js 22 with pnpm 10
-- Caching for PHP extensions, Composer packages, pnpm modules, and static analysis results
+- **Dependency-aware**: Jobs only run if their dependencies succeed
+- **Artifact sharing**: Build stage uploads artifacts (vendor, node_modules) for test stage
+- **Concurrency control**: Cancels in-progress runs for the same branch
+- **Caching**: PHP extensions, Composer packages, pnpm modules, PHPStan/Rector/ECS results
 
-**Docker Build Workflow** (`docker.yml`)
-- **Purpose**: Verify Docker infrastructure builds successfully
-- **Triggers**: Push to any branch (Docker-related files only)
-- **What it does**: Builds images, starts stack, verifies services
-
-**Claude Code Review Workflow** (`claude-review.yml`)
-- **Purpose**: AI-powered automated code review
-- **Triggers**: Pull request events
-- **Requirements**: `ANTHROPIC_API_KEY` in repository secrets
+**Claude Code Interactive Workflow** (`claude.yml`)
+- **Purpose**: Interactive Claude Code assistance via GitHub comments
+- **Triggers**: Issue/PR comments containing `@claude`
+- **Requirements**: `CLAUDE_CODE_OAUTH_TOKEN` in repository secrets
 
 #### Branch Protection Rules
 
 For the `main` branch, configure these required status checks:
-- `API / Static Analysis`
-- `API / Test`
-- `API / Security Audit`
-- `App / Lint & Type Check`
-- `App / Test`
-- `App / Build`
+- `Build / Docker Images`
+- `Build / API Dependencies`
+- `Build / App Dependencies`
+- `Build / App Production Build`
+- `Test / API Static Analysis`
+- `Test / API Unit & Integration Tests`
+- `Test / API Security Audit`
+- `Test / App Static Analysis`
+- `Test / App Unit Tests`
+- `Test / App Security Audit`
+- `Test / OpenAPI Lint`
 
 This ensures all quality gates pass before merging to main.
 
@@ -606,14 +630,14 @@ When implementing new features, follow the DDD approach:
 - Use CommandBus/QueryBus to dispatch use cases
 
 **6. Database Migrations**
-- Generate migration: `castor database:diff`
+- Generate migration: `castor db:diff`
 - Review the migration file in `migrations/`
-- Apply: `castor database:migrate` or `castor database:reset`
+- Apply: `castor db:migrate` or `castor db:reset`
 
 **7. Testing**
 - Write integration tests in `tests/Integration/{BoundedContext}/`
 - Use test fixtures from `tests/Fixtures/`
-- Run: `castor test`
+- Run: `castor api:test`
 
 ## Issue Tracking Workflow
 
@@ -918,13 +942,25 @@ When adding a new Castor task, you **must** document it in this file:
 ```
 castor.php              # Global tasks and context configuration (start)
 .castor/
-├── app.php             # Frontend commands (install, dev, build, test, lint, storybook)
-├── composer.php        # Composer dependency commands (install, update, require, remove)
-├── database.php        # Database commands (reset, drop, create, migrate, fixtures, diff)
-├── docker.php          # Docker infrastructure commands (build, up, stop, destroy, logs, ps)
-├── quality.php         # QA commands (qa, phpstan, rector, ecs, phpunit, lint, schema, deps)
-└── symfony.php         # Symfony console commands (cache:clear)
+├── api.php             # API commands (install, update, require, remove, cache:clear, test, lint, phpstan, rector, ecs, audit)
+├── app.php             # App commands (install, dev, build, preview, test, lint, storybook, generate:api, audit)
+├── db.php              # Database commands (reset, drop, create, migrate, fixtures, diff)
+├── infra.php           # Infrastructure commands (build, up, down, destroy, logs, ps)
+└── qa.php              # QA orchestration (all, api, app) + legacy aliases (rector, ecs, phpstan) + oas:lint
 ```
+
+### Option Shortcut Conventions
+
+| Shortcut | Meaning                          |
+|----------|----------------------------------|
+| `-t`     | Test environment                 |
+| `-f`     | Fix/apply changes                |
+| `-c`     | Coverage / CI mode               |
+| `-v`     | Verbose                          |
+| `-a`     | All environments                 |
+| `-d`     | Dev dependency (for api:require) |
+| `-g`     | Groups (for api:test)            |
+| `-r`     | Reset (for db:diff)              |
 
 ### Adding a New Task
 
