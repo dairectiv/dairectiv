@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace docker;
+namespace infra;
 
 use Castor\Attribute\AsOption;
 use Castor\Attribute\AsTask;
@@ -14,7 +14,7 @@ use function Castor\run;
 
 #[AsTask(description: 'Builds the infrastructure', aliases: ['build'])]
 function build(
-    #[AsOption(description: 'The service to build (default: all services)', autocomplete: 'docker\get_service_names')]
+    #[AsOption(description: 'The service to build (default: all services)', autocomplete: 'infra\get_service_names')]
     ?string $service = null,
 ): void {
     io()->title('Building infrastructure');
@@ -30,7 +30,7 @@ function build(
 
 #[AsTask(description: 'Builds and starts the infrastructure', aliases: ['up'])]
 function up(
-    #[AsOption(description: 'The service to start (default: all services)', autocomplete: 'docker\get_service_names')]
+    #[AsOption(description: 'The service to start (default: all services)', autocomplete: 'infra\get_service_names')]
     ?string $service = null,
 ): void {
     if (!$service) {
@@ -47,16 +47,16 @@ function up(
         docker_compose($command);
     } catch (ExceptionInterface $e) {
         io()->error('An error occurred while starting the infrastructure.');
-        io()->note('Did you forget to run "castor docker:build"?');
+        io()->note('Did you forget to run "castor infra:build"?');
         io()->note('Or you forget to login to the registry?');
 
         throw $e;
     }
 }
 
-#[AsTask(description: 'Stops the infrastructure', aliases: ['stop'])]
-function stop(
-    #[AsOption(description: 'The service to stop (default: all services)', autocomplete: 'docker\get_service_names')]
+#[AsTask(description: 'Stops the infrastructure', aliases: ['down'])]
+function down(
+    #[AsOption(description: 'The service to stop (default: all services)', autocomplete: 'infra\get_service_names')]
     ?string $service = null,
 ): void {
     if (!$service) {

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace database;
+namespace db;
 
 use Castor\Attribute\AsOption;
 use Castor\Attribute\AsTask;
@@ -10,9 +10,8 @@ use Castor\Attribute\AsTask;
 use function Castor\context;
 use function Castor\exit_code;
 use function Castor\io;
-use function docker\docker_compose;
 
-#[AsTask(description: 'Resets database')]
+#[AsTask(description: 'Resets database', aliases: ['database:reset'])]
 function reset(
     #[AsOption(shortcut: 't', description: 'Use the test environment')]
     bool $test = false,
@@ -49,7 +48,7 @@ function reset(
     return 0;
 }
 
-#[AsTask(description: 'Drops database')]
+#[AsTask(description: 'Drops database', aliases: ['database:drop'])]
 function drop(
     #[AsOption(shortcut: 't', description: 'Use the test environment')]
     bool $test = false,
@@ -65,7 +64,7 @@ function drop(
     return exit_code($command, context: context()->withWorkingDirectory('api'));
 }
 
-#[AsTask(description: 'Creates database')]
+#[AsTask(description: 'Creates database', aliases: ['database:create'])]
 function create(
     #[AsOption(shortcut: 't', description: 'Use the test environment')]
     bool $test = false,
@@ -81,7 +80,7 @@ function create(
     return exit_code($command, context: context()->withWorkingDirectory('api'));
 }
 
-#[AsTask(description: 'Migrates database')]
+#[AsTask(description: 'Migrates database', aliases: ['database:migrate'])]
 function migrate(
     #[AsOption(shortcut: 't', description: 'Use the test environment')]
     bool $test = false,
@@ -97,7 +96,7 @@ function migrate(
     return exit_code($command, context: context()->withWorkingDirectory('api'));
 }
 
-#[AsTask(description: 'Loads fixtures')]
+#[AsTask(description: 'Loads fixtures', aliases: ['database:fixtures'])]
 function fixtures(
     #[AsOption(shortcut: 't', description: 'Use the test environment')]
     bool $test = false,
@@ -111,10 +110,10 @@ function fixtures(
     return exit_code($command, context: context()->withWorkingDirectory('api'));
 }
 
-#[AsTask(name: 'diff', description: 'Generate database\'s migration')]
+#[AsTask(description: 'Generates database migration', aliases: ['database:diff'])]
 function diff(
     #[AsOption(shortcut: 'r', description: 'Reset all environments')]
-    bool $reset = false,
+    bool $resetAll = false,
 ): int {
     io()->section('Generating database\'s migration...');
 
@@ -122,7 +121,7 @@ function diff(
         return 1;
     }
 
-    if ($reset) {
+    if ($resetAll) {
         return reset(allEnvs: true);
     }
 
