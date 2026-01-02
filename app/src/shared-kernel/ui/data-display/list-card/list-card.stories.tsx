@@ -18,11 +18,12 @@ export const Default: Story = {
   },
 };
 
-export const WithBadge: Story = {
+export const WithMetadata: Story = {
   args: {
     title: "Error Handling Best Practices",
     description:
       "Always use try-catch blocks for async operations and provide meaningful error messages.",
+    metadata: "3 days ago",
     badge: (
       <Badge color="green" variant="light" size="sm">
         Published
@@ -34,6 +35,7 @@ export const WithBadge: Story = {
 export const WithoutDescription: Story = {
   args: {
     title: "Simple Item",
+    metadata: "12 hours ago",
     badge: (
       <Badge color="blue" variant="light" size="sm">
         Active
@@ -47,6 +49,7 @@ export const LongDescription: Story = {
     title: "Comprehensive Testing Guidelines",
     description:
       "Write unit tests for all business logic, integration tests for API endpoints, and end-to-end tests for critical user flows. Ensure test coverage remains above 80% and all tests are maintainable and readable.",
+    metadata: "2 weeks ago",
     badge: (
       <Badge color="yellow" variant="light" size="sm">
         Draft
@@ -59,6 +62,7 @@ export const Clickable: Story = {
   args: {
     title: "Clickable Item",
     description: "Click this item to trigger an action.",
+    metadata: "just now",
     onClick: () => alert("Item clicked!"),
   },
 };
@@ -69,6 +73,7 @@ export const List: Story = {
       <ListCard
         title="REST API Resource Naming"
         description="Use plural nouns for REST API resource endpoints."
+        metadata="3 days ago"
         badge={
           <Badge color="green" variant="light" size="sm">
             Published
@@ -79,6 +84,7 @@ export const List: Story = {
       <ListCard
         title="Error Handling Best Practices"
         description="Always use try-catch blocks for async operations."
+        metadata="1 week ago"
         badge={
           <Badge color="green" variant="light" size="sm">
             Published
@@ -89,6 +95,7 @@ export const List: Story = {
       <ListCard
         title="Database Migration Guidelines"
         description="Create reversible migrations with clear up/down methods."
+        metadata="2 hours ago"
         badge={
           <Badge color="yellow" variant="light" size="sm">
             Draft
@@ -99,6 +106,7 @@ export const List: Story = {
       <ListCard
         title="Legacy Code Patterns"
         description="Deprecated patterns that should no longer be used."
+        metadata="3 months ago"
         badge={
           <Badge color="gray" variant="light" size="sm">
             Archived
