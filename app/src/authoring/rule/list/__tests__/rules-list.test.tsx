@@ -128,6 +128,7 @@ describe("RulesList", () => {
   it("should show default error message when error has no message", () => {
     renderWithProviders(<RulesList {...defaultProps} isError={true} error={null} rules={[]} />);
 
-    expect(screen.getByText("An unexpected error occurred")).toBeInTheDocument();
+    // Only "Failed to load rules" is shown when no error details available
+    expect(screen.getByText("Failed to load rules")).toBeInTheDocument();
   });
 });

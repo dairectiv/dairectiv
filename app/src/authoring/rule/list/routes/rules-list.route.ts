@@ -7,8 +7,8 @@ const searchSchema = z.object({
   page: z.number().min(1).optional().default(1),
   search: z.string().optional(),
   state: z.enum(["draft", "published", "archived"]).optional(),
-  sortBy: z.enum(["name", "createdAt", "updatedAt"]).optional(),
-  sortOrder: z.enum(["asc", "desc"]).optional(),
+  sortBy: z.enum(["name", "createdAt", "updatedAt"]).optional().default("updatedAt"),
+  sortOrder: z.enum(["asc", "desc"]).optional().default("desc"),
 });
 
 export type RulesListSearch = z.infer<typeof searchSchema>;
