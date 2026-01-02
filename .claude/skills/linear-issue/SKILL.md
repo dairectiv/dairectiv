@@ -397,6 +397,8 @@ Map each issue type 1-to-1 with its Linear label:
 - ✗ "Bug" (no context)
 - ✗ "Things to do" (not specific)
 - ✗ "Investigate" (missing what to investigate)
+- ✗ "[Rules] Display rules list" (no bracketed prefixes - use plain title instead)
+- ✗ "[API] Add endpoint" (prefixes add noise, issue labels/project already provide context)
 
 ## Notes
 
