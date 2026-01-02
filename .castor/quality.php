@@ -225,3 +225,20 @@ function schema(): int
 
     return exit_code('bin/console doctrine:schema:validate --skip-sync', context: context()->withWorkingDirectory('api'));
 }
+
+#[AsTask(name: 'lint', namespace: 'oas', description: 'Lint OpenAPI specification with Spectral')]
+function oas_lint(
+    #[AsOption(description: 'CI mode (GitHub Actions format)')]
+    bool $ci = false,
+): int
+{
+    io()->section('Running OpenAPI Spectral lint...');
+
+    $format = $ci ? '--format github-actions' : '';
+
+    return exit_code(\sprintf(
+        'docker run --rm -v %s:/tmp stoplight/spectral lint %s --ruleset /tmp/.spectral.yaml /tmp/oas/openapi.yaml',
+        getcwd(),
+        $format,
+    ));
+}
