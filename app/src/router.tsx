@@ -9,6 +9,7 @@ import { createRootRoute, createRoute, createRouter, Outlet } from "@tanstack/re
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 
 // Feature routes
+import { createRuleRoute } from "@/authoring/rule/create";
 import { rulesListRoute } from "@/authoring/rule/list";
 import { workflowsListRoute } from "@/authoring/workflow/list";
 
@@ -49,7 +50,12 @@ const indexRoute = createRoute({
 });
 
 // Build route tree
-const routeTree = rootRoute.addChildren([indexRoute, rulesListRoute, workflowsListRoute]);
+const routeTree = rootRoute.addChildren([
+  indexRoute,
+  rulesListRoute,
+  createRuleRoute,
+  workflowsListRoute,
+]);
 
 // Create and export router
 export const router = createRouter({ routeTree });
