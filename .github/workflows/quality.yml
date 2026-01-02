@@ -373,3 +373,23 @@ jobs:
                     name: storybook
                     path: app/storybook-static
                     retention-days: 7
+
+    # =============================================================================
+    # OAS Jobs
+    # =============================================================================
+
+    oas-lint:
+        name: OAS / Lint
+        runs-on: ubuntu-latest
+
+        steps:
+            -   name: Checkout code
+                uses: actions/checkout@v4
+
+            -   name: Lint OpenAPI spec with Spectral
+                run: |
+                    docker run --rm -v ${{ github.workspace }}:/tmp \
+                      stoplight/spectral lint \
+                      --format github-actions \
+                      --ruleset /tmp/.spectral.yaml \
+                      /tmp/oas/openapi.yaml
