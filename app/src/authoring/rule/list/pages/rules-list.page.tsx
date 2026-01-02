@@ -1,5 +1,7 @@
-import { Group, Stack, Title } from "@mantine/core";
+import { Button, Group, Stack, Title } from "@mantine/core";
 import { AppLayout } from "@shared/ui/layout";
+import { IconPlus } from "@tabler/icons-react";
+import { Link } from "@tanstack/react-router";
 import { RulesList, useRulesList } from "@/authoring/rule/list";
 
 export function RulesListPage() {
@@ -21,6 +23,9 @@ export function RulesListPage() {
       <Stack gap="lg" py="md">
         <Group justify="space-between" align="center">
           <Title order={2}>Rules</Title>
+          <Button component={Link} to="/authoring/rules/new" leftSection={<IconPlus size={16} />}>
+            Create rule
+          </Button>
         </Group>
 
         <RulesList
