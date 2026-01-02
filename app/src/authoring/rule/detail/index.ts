@@ -4,6 +4,7 @@ export { RuleDetail, type RuleDetailProps } from "./components/rule-detail";
 // Hooks
 export { type UseArchiveRuleOptions, useArchiveRule } from "./hooks/use-archive-rule";
 export { type UseDeleteRuleOptions, useDeleteRule } from "./hooks/use-delete-rule";
+export { type UsePublishRuleOptions, usePublishRule } from "./hooks/use-publish-rule";
 export { useRuleDetail } from "./hooks/use-rule-detail";
 
 // Pages
