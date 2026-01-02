@@ -82,7 +82,7 @@ function app(
 function legacy_rector(
     #[AsOption(shortcut: 'f', description: 'Apply fixes')]
     bool $fix = false,
-    #[AsOption(description: 'CI mode (GitHub Actions format)')]
+    #[AsOption(shortcut: 'i', description: 'CI mode (GitHub Actions format)')]
     bool $ci = false,
 ): int {
     return rector(fix: $fix, ci: $ci);
@@ -92,7 +92,7 @@ function legacy_rector(
 function legacy_ecs(
     #[AsOption(shortcut: 'f', description: 'Apply fixes')]
     bool $fix = false,
-    #[AsOption(description: 'CI mode (GitHub Actions format)')]
+    #[AsOption(shortcut: 'i', description: 'CI mode (GitHub Actions format)')]
     bool $ci = false,
 ): int {
     return ecs(fix: $fix, ci: $ci);
@@ -100,7 +100,7 @@ function legacy_ecs(
 
 #[AsTask(name: 'phpstan', namespace: '', description: 'Runs PHPStan (legacy alias)')]
 function legacy_phpstan(
-    #[AsOption(description: 'CI mode (GitHub Actions format)')]
+    #[AsOption(shortcut: 'i', description: 'CI mode (GitHub Actions format)')]
     bool $ci = false,
 ): int {
     return phpstan(ci: $ci);
@@ -112,7 +112,7 @@ function legacy_phpstan(
 
 #[AsTask(name: 'lint', namespace: 'oas', description: 'Lints OpenAPI specification with Spectral')]
 function oas_lint(
-    #[AsOption(description: 'CI mode (GitHub Actions format)')]
+    #[AsOption(shortcut: 'i', description: 'CI mode (GitHub Actions format)')]
     bool $ci = false,
 ): int {
     io()->section('Running OpenAPI Spectral lint...');

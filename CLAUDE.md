@@ -955,8 +955,8 @@ castor.php              # Global tasks and context configuration (start)
 |----------|----------------------------------|
 | `-t`     | Test environment                 |
 | `-f`     | Fix/apply changes                |
-| `-c`     | Coverage / CI mode               |
-| `-v`     | Verbose                          |
+| `-i`     | CI mode (GitHub Actions format)  |
+| `-o`     | Coverage output                  |
 | `-a`     | All environments                 |
 | `-d`     | Dev dependency (for api:require) |
 | `-g`     | Groups (for api:test)            |
