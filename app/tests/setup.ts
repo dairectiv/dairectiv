@@ -23,3 +23,6 @@ class ResizeObserver {
 }
 
 window.ResizeObserver = ResizeObserver;
+
+// Mock scrollIntoView for Mantine Combobox
+Element.prototype.scrollIntoView = vi.fn();
