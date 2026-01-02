@@ -234,6 +234,14 @@ castor symfony:cache:clear
 castor cc -t                   # test environment
 ```
 
+### OpenAPI Commands
+
+Lint OpenAPI specification with Spectral:
+```bash
+castor oas:lint
+castor oas:lint --ci           # GitHub Actions format
+```
+
 ### Frontend Commands
 
 Install dependencies:
