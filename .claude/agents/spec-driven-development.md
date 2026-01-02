@@ -145,9 +145,9 @@ Use the appropriate skills based on detected task types:
 ### Step 4: Database Migration (if needed)
 
 If you modified Doctrine entity mappings:
-1. Generate migration: `castor database:diff`
+1. Generate migration: `castor db:diff`
 2. Review the generated migration in `api/migrations/`
-3. Reset test database: `castor database:reset --test`
+3. Reset test database: `castor db:reset -t`
 
 ### Step 5: Quality Assurance Iteration
 
@@ -156,7 +156,7 @@ If you modified Doctrine entity mappings:
 Run quality checks and fix issues:
 
 ```bash
-castor qa --fix
+castor qa:api -f
 ```
 
 This runs: Rector, ECS, linter, schema validation, PHPStan, PHPUnit
@@ -164,13 +164,13 @@ This runs: Rector, ECS, linter, schema validation, PHPStan, PHPUnit
 If checks fail:
 1. Analyze the error output carefully
 2. Fix the issues in your code
-3. Run `castor qa --fix` again
+3. Run `castor qa:api -f` again
 4. Continue until ALL checks pass
 
 Other useful commands:
-- `castor test --filter TestName` - Run specific test(s)
-- `castor dependencies` - Check for outdated packages
-- `castor update` - Update Composer dependencies
+- `castor api:test --filter TestName` - Run specific test(s)
+- `castor api:audit` - Check for security vulnerabilities
+- `castor api:update` - Update Composer dependencies
 
 **For Frontend:**
 
@@ -227,7 +227,7 @@ docs(dai-XXX): update documentation
 
    ## Test plan
 
-   - [ ] Run `castor qa` - all checks pass
+   - [ ] Run `castor qa` - all checks pass (or `castor qa:api` / `castor qa:app`)
    - [ ] <specific test scenarios>
 
    🤖 Generated with [Claude Code](https://claude.com/claude-code)
@@ -286,8 +286,8 @@ If you encounter issues:
 - **Linear issue not found**: Ask the user to verify the issue identifier
 - **QA failures**: Analyze errors, fix code, and retry
 - **Unclear requirements**: Summarize your understanding and ask for confirmation
-- **Missing dependencies**: Reset database with `castor database:reset --test`
-- **Outdated packages**: Run `castor dependencies` then `castor update` if needed
+- **Missing dependencies**: Reset database with `castor db:reset -t`
+- **Outdated packages**: Run `castor api:audit` then `castor api:update` if needed
 - **PHPStan errors**: Reference `/phpstan` skill, NEVER modify neon files
 
 ## Important Reminders
@@ -295,7 +295,7 @@ If you encounter issues:
 - Always understand the specification first before implementing
 - Use appropriate skills based on detected task types
 - Use Context7 for library documentation when needed
-- Iterate on `castor qa --fix` until success before committing
+- Iterate on `castor qa:api -f` or `castor qa:app -f` until success before committing
 - Create multiple atomic commits, not one large commit
 - Push and create PR with structured body
 - Follow existing patterns in the codebase
