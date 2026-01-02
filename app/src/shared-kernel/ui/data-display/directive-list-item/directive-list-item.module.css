@@ -1,0 +1,27 @@
+.item {
+  cursor: pointer;
+  transition: background-color 150ms ease, transform 150ms ease;
+}
+
+.item:hover {
+  background-color: var(--mantine-color-gray-0);
+}
+
+@media (prefers-color-scheme: dark) {
+  .item:hover {
+    background-color: var(--mantine-color-dark-6);
+  }
+}
+
+.item:focus-visible {
+  outline: 2px solid var(--mantine-primary-color-filled);
+  outline-offset: 2px;
+}
+
+.name {
+  word-break: break-word;
+}
+
+.description {
+  word-break: break-word;
+}
