@@ -15,12 +15,14 @@ vi.mock("@tanstack/react-query", () => ({
   useMutation: (options: unknown) => mockUseMutation(options),
 }));
 
-// Mock notifications
-const mockShowNotification = vi.fn();
-vi.mock("@mantine/notifications", () => ({
-  notifications: {
-    show: (opts: unknown) => mockShowNotification(opts),
-  },
+// Mock notification helpers
+const mockShowLoadingNotification = vi.fn(() => "test-notification-id");
+const mockUpdateToSuccess = vi.fn();
+const mockUpdateToError = vi.fn();
+vi.mock("@shared/ui/feedback/notification", () => ({
+  showLoadingNotification: (opts: unknown) => mockShowLoadingNotification(opts),
+  updateToSuccess: (id: string, opts: unknown) => mockUpdateToSuccess(id, opts),
+  updateToError: (id: string, opts: unknown) => mockUpdateToError(id, opts),
 }));
 
 // Mock query client
@@ -49,8 +51,8 @@ describe("useArchiveWorkflow", () => {
     mockUseMutation.mockImplementation((options) => ({
       mutate: () => {
         mockMutate();
-        // Simulate success by default
-        options.onSuccess?.();
+        const context = options.onMutate?.();
+        options.onSuccess?.(undefined, undefined, context);
       },
       isPending: false,
       isError: false,
@@ -80,6 +82,23 @@ describe("useArchiveWorkflow", () => {
     });
   });
 
+  it("should show loading notification on mutate", async () => {
+    const { result } = renderHook(() => useArchiveWorkflow("workflow-123"));
+
+    act(() => {
+      result.current.archiveWorkflow();
+    });
+
+    await waitFor(() => {
+      expect(mockShowLoadingNotification).toHaveBeenCalledWith(
+        expect.objectContaining({
+          title: "Archiving workflow",
+          loadingMessage: "Archiving your workflow...",
+        }),
+      );
+    });
+  });
+
   it("should show success notification on success", async () => {
     const { result } = renderHook(() => useArchiveWorkflow("workflow-123"));
 
@@ -88,10 +107,10 @@ describe("useArchiveWorkflow", () => {
     });
 
     await waitFor(() => {
-      expect(mockShowNotification).toHaveBeenCalledWith(
+      expect(mockUpdateToSuccess).toHaveBeenCalledWith(
+        "test-notification-id",
         expect.objectContaining({
           title: "Workflow archived",
-          color: "green",
         }),
       );
     });
@@ -113,10 +132,11 @@ describe("useArchiveWorkflow", () => {
   it("should show not found notification for 404 status", async () => {
     mockUseMutation.mockImplementation((options) => ({
       mutate: () => {
+        const context = options.onMutate?.();
         const error = {
           response: { status: 404 },
         } as AxiosError;
-        options.onError?.(error);
+        options.onError?.(error, undefined, context);
       },
       isPending: false,
       isError: true,
@@ -130,10 +150,10 @@ describe("useArchiveWorkflow", () => {
     });
 
     await waitFor(() => {
-      expect(mockShowNotification).toHaveBeenCalledWith(
+      expect(mockUpdateToError).toHaveBeenCalledWith(
+        "test-notification-id",
         expect.objectContaining({
           title: "Workflow not found",
-          color: "red",
         }),
       );
     });
@@ -142,10 +162,11 @@ describe("useArchiveWorkflow", () => {
   it("should show conflict notification for 409 status", async () => {
     mockUseMutation.mockImplementation((options) => ({
       mutate: () => {
+        const context = options.onMutate?.();
         const error = {
           response: { status: 409 },
         } as AxiosError;
-        options.onError?.(error);
+        options.onError?.(error, undefined, context);
       },
       isPending: false,
       isError: true,
@@ -159,10 +180,10 @@ describe("useArchiveWorkflow", () => {
     });
 
     await waitFor(() => {
-      expect(mockShowNotification).toHaveBeenCalledWith(
+      expect(mockUpdateToError).toHaveBeenCalledWith(
+        "test-notification-id",
         expect.objectContaining({
           title: "Cannot archive workflow",
-          color: "red",
         }),
       );
     });
@@ -171,10 +192,11 @@ describe("useArchiveWorkflow", () => {
   it("should show generic error notification for other errors", async () => {
     mockUseMutation.mockImplementation((options) => ({
       mutate: () => {
+        const context = options.onMutate?.();
         const error = {
           response: { status: 500 },
         } as AxiosError;
-        options.onError?.(error);
+        options.onError?.(error, undefined, context);
       },
       isPending: false,
       isError: true,
@@ -188,10 +210,10 @@ describe("useArchiveWorkflow", () => {
     });
 
     await waitFor(() => {
-      expect(mockShowNotification).toHaveBeenCalledWith(
+      expect(mockUpdateToError).toHaveBeenCalledWith(
+        "test-notification-id",
         expect.objectContaining({
           title: "Error archiving workflow",
-          color: "red",
         }),
       );
     });
@@ -203,7 +225,8 @@ describe("useArchiveWorkflow", () => {
 
     mockUseMutation.mockImplementation((options) => ({
       mutate: () => {
-        options.onError?.(error);
+        const context = options.onMutate?.();
+        options.onError?.(error, undefined, context);
       },
       isPending: false,
       isError: true,

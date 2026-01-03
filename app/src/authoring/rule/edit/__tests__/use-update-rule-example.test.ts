@@ -9,12 +9,14 @@ vi.mock("@tanstack/react-query", () => ({
   useMutation: (options: unknown) => mockUseMutation(options),
 }));
 
-// Mock notifications
-const mockShowNotification = vi.fn();
-vi.mock("@mantine/notifications", () => ({
-  notifications: {
-    show: (opts: unknown) => mockShowNotification(opts),
-  },
+// Mock notification helpers
+const mockShowLoadingNotification = vi.fn(() => "test-notification-id");
+const mockUpdateToSuccess = vi.fn();
+const mockUpdateToError = vi.fn();
+vi.mock("@shared/ui/feedback/notification", () => ({
+  showLoadingNotification: (opts: unknown) => mockShowLoadingNotification(opts),
+  updateToSuccess: (id: string, opts: unknown) => mockUpdateToSuccess(id, opts),
+  updateToError: (id: string, opts: unknown) => mockUpdateToError(id, opts),
 }));
 
 // Mock query client
@@ -45,7 +47,8 @@ describe("useUpdateRuleExample", () => {
     mockUseMutation.mockImplementation((options) => ({
       mutate: (variables: unknown) => {
         mockMutate(variables);
-        options.onSuccess?.();
+        const context = options.onMutate?.();
+        options.onSuccess?.(undefined, variables, context);
       },
       isPending: false,
       isError: false,
@@ -74,6 +77,27 @@ describe("useUpdateRuleExample", () => {
     });
   });
 
+  it("should show loading notification on mutate", async () => {
+    const { result } = renderHook(() => useUpdateRuleExample(ruleId));
+
+    act(() => {
+      result.current.updateExample(exampleId, {
+        good: "Good",
+        bad: "Bad",
+        explanation: null,
+      });
+    });
+
+    await waitFor(() => {
+      expect(mockShowLoadingNotification).toHaveBeenCalledWith(
+        expect.objectContaining({
+          title: "Updating example",
+          loadingMessage: "Saving example changes...",
+        }),
+      );
+    });
+  });
+
   it("should show success notification on success", async () => {
     const { result } = renderHook(() => useUpdateRuleExample(ruleId));
 
@@ -86,10 +110,10 @@ describe("useUpdateRuleExample", () => {
     });
 
     await waitFor(() => {
-      expect(mockShowNotification).toHaveBeenCalledWith(
+      expect(mockUpdateToSuccess).toHaveBeenCalledWith(
+        "test-notification-id",
         expect.objectContaining({
           title: "Example updated",
-          color: "green",
         }),
       );
     });
@@ -115,10 +139,11 @@ describe("useUpdateRuleExample", () => {
   it("should show not found error notification for 404 status", async () => {
     mockUseMutation.mockImplementation((options) => ({
       mutate: () => {
+        const context = options.onMutate?.();
         const error = {
           response: { status: 404 },
         } as AxiosError;
-        options.onError?.(error);
+        options.onError?.(error, undefined, context);
       },
       isPending: false,
       isError: true,
@@ -132,10 +157,10 @@ describe("useUpdateRuleExample", () => {
     });
 
     await waitFor(() => {
-      expect(mockShowNotification).toHaveBeenCalledWith(
+      expect(mockUpdateToError).toHaveBeenCalledWith(
+        "test-notification-id",
         expect.objectContaining({
           title: "Rule not found",
-          color: "red",
         }),
       );
     });
@@ -144,10 +169,11 @@ describe("useUpdateRuleExample", () => {
   it("should show bad request error notification for 400 status", async () => {
     mockUseMutation.mockImplementation((options) => ({
       mutate: () => {
+        const context = options.onMutate?.();
         const error = {
           response: { status: 400 },
         } as AxiosError;
-        options.onError?.(error);
+        options.onError?.(error, undefined, context);
       },
       isPending: false,
       isError: true,
@@ -161,10 +187,10 @@ describe("useUpdateRuleExample", () => {
     });
 
     await waitFor(() => {
-      expect(mockShowNotification).toHaveBeenCalledWith(
+      expect(mockUpdateToError).toHaveBeenCalledWith(
+        "test-notification-id",
         expect.objectContaining({
           title: "Cannot update example",
-          color: "red",
         }),
       );
     });
@@ -173,10 +199,11 @@ describe("useUpdateRuleExample", () => {
   it("should show generic error notification for other errors", async () => {
     mockUseMutation.mockImplementation((options) => ({
       mutate: () => {
+        const context = options.onMutate?.();
         const error = {
           response: { status: 500 },
         } as AxiosError;
-        options.onError?.(error);
+        options.onError?.(error, undefined, context);
       },
       isPending: false,
       isError: true,
@@ -190,10 +217,10 @@ describe("useUpdateRuleExample", () => {
     });
 
     await waitFor(() => {
-      expect(mockShowNotification).toHaveBeenCalledWith(
+      expect(mockUpdateToError).toHaveBeenCalledWith(
+        "test-notification-id",
         expect.objectContaining({
           title: "Error updating example",
-          color: "red",
         }),
       );
     });
@@ -205,7 +232,8 @@ describe("useUpdateRuleExample", () => {
 
     mockUseMutation.mockImplementation((options) => ({
       mutate: () => {
-        options.onError?.(error);
+        const context = options.onMutate?.();
+        options.onError?.(error, undefined, context);
       },
       isPending: false,
       isError: true,

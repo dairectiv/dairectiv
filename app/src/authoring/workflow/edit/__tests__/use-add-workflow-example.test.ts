@@ -8,12 +8,14 @@ vi.mock("@tanstack/react-query", () => ({
   useMutation: (options: unknown) => mockUseMutation(options),
 }));
 
-// Mock notifications
-const mockShowNotification = vi.fn();
-vi.mock("@mantine/notifications", () => ({
-  notifications: {
-    show: (opts: unknown) => mockShowNotification(opts),
-  },
+// Mock notification helpers
+const mockShowLoadingNotification = vi.fn(() => "test-notification-id");
+const mockUpdateToSuccess = vi.fn();
+const mockUpdateToError = vi.fn();
+vi.mock("@shared/ui/feedback/notification", () => ({
+  showLoadingNotification: (opts: unknown) => mockShowLoadingNotification(opts),
+  updateToSuccess: (id: string, opts: unknown) => mockUpdateToSuccess(id, opts),
+  updateToError: (id: string, opts: unknown) => mockUpdateToError(id, opts),
 }));
 
 // Mock query client
@@ -40,8 +42,12 @@ describe("useAddWorkflowExample", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    mockUseMutation.mockImplementation(() => ({
-      mutate: mockMutate,
+    mockUseMutation.mockImplementation((options) => ({
+      mutate: (variables: unknown) => {
+        mockMutate(variables);
+        const context = options.onMutate?.();
+        options.onSuccess?.(undefined, variables, context);
+      },
       isPending: false,
       isError: false,
       error: null,
@@ -92,49 +98,52 @@ describe("useAddWorkflowExample", () => {
   });
 
   it("should invalidate query cache on success", async () => {
-    let successCallback: () => void;
-    mockUseMutation.mockImplementation((options) => {
-      successCallback = options.onSuccess;
-      return {
-        mutate: mockMutate,
-        isPending: false,
-        isError: false,
-        error: null,
-      };
+    const { result } = renderHook(() => useAddWorkflowExample(workflowId));
+
+    result.current.addExample({
+      scenario: "Test scenario",
+      input: "Test input",
+      output: "Test output",
     });
-
-    renderHook(() => useAddWorkflowExample(workflowId));
-
-    // Simulate success
-    successCallback!();
 
     await waitFor(() => {
       expect(queryClient.invalidateQueries).toHaveBeenCalled();
     });
   });
 
-  it("should show success notification on success", async () => {
-    let successCallback: () => void;
-    mockUseMutation.mockImplementation((options) => {
-      successCallback = options.onSuccess;
-      return {
-        mutate: mockMutate,
-        isPending: false,
-        isError: false,
-        error: null,
-      };
+  it("should show loading notification on mutate", async () => {
+    const { result } = renderHook(() => useAddWorkflowExample(workflowId));
+
+    result.current.addExample({
+      scenario: "Test scenario",
+      input: "Test input",
+      output: "Test output",
     });
 
-    renderHook(() => useAddWorkflowExample(workflowId));
+    await waitFor(() => {
+      expect(mockShowLoadingNotification).toHaveBeenCalledWith(
+        expect.objectContaining({
+          title: "Adding example",
+          loadingMessage: "Adding example to workflow...",
+        }),
+      );
+    });
+  });
 
-    // Simulate success
-    successCallback!();
+  it("should show success notification on success", async () => {
+    const { result } = renderHook(() => useAddWorkflowExample(workflowId));
+
+    result.current.addExample({
+      scenario: "Test scenario",
+      input: "Test input",
+      output: "Test output",
+    });
 
     await waitFor(() => {
-      expect(mockShowNotification).toHaveBeenCalledWith(
+      expect(mockUpdateToSuccess).toHaveBeenCalledWith(
+        "test-notification-id",
         expect.objectContaining({
           title: "Example added",
-          color: "green",
         }),
       );
     });
@@ -142,21 +151,13 @@ describe("useAddWorkflowExample", () => {
 
   it("should call user onSuccess callback on success", async () => {
     const onSuccess = vi.fn();
-    let successCallback: () => void;
-    mockUseMutation.mockImplementation((options) => {
-      successCallback = options.onSuccess;
-      return {
-        mutate: mockMutate,
-        isPending: false,
-        isError: false,
-        error: null,
-      };
+    const { result } = renderHook(() => useAddWorkflowExample(workflowId, { onSuccess }));
+
+    result.current.addExample({
+      scenario: "Test scenario",
+      input: "Test input",
+      output: "Test output",
     });
-
-    renderHook(() => useAddWorkflowExample(workflowId, { onSuccess }));
-
-    // Simulate success
-    successCallback!();
 
     await waitFor(() => {
       expect(onSuccess).toHaveBeenCalled();
@@ -164,114 +165,122 @@ describe("useAddWorkflowExample", () => {
   });
 
   it("should show error notification on 404 error", async () => {
-    let errorCallback: (error: Error & { response?: { status: number } }) => void;
-    mockUseMutation.mockImplementation((options) => {
-      errorCallback = options.onError;
-      return {
-        mutate: mockMutate,
-        isPending: false,
-        isError: false,
-        error: null,
-      };
+    mockUseMutation.mockImplementation((options) => ({
+      mutate: () => {
+        const context = options.onMutate?.();
+        const error = new Error("Not found") as Error & { response?: { status: number } };
+        error.response = { status: 404 };
+        options.onError?.(error, undefined, context);
+      },
+      isPending: false,
+      isError: false,
+      error: null,
+    }));
+
+    const { result } = renderHook(() => useAddWorkflowExample(workflowId));
+
+    result.current.addExample({
+      scenario: "Test scenario",
+      input: "Test input",
+      output: "Test output",
     });
 
-    renderHook(() => useAddWorkflowExample(workflowId));
-
-    // Simulate 404 error
-    const error = new Error("Not found") as Error & { response?: { status: number } };
-    error.response = { status: 404 };
-    errorCallback!(error);
-
     await waitFor(() => {
-      expect(mockShowNotification).toHaveBeenCalledWith(
+      expect(mockUpdateToError).toHaveBeenCalledWith(
+        "test-notification-id",
         expect.objectContaining({
           title: "Workflow not found",
-          color: "red",
         }),
       );
     });
   });
 
   it("should show error notification on 400 error", async () => {
-    let errorCallback: (error: Error & { response?: { status: number } }) => void;
-    mockUseMutation.mockImplementation((options) => {
-      errorCallback = options.onError;
-      return {
-        mutate: mockMutate,
-        isPending: false,
-        isError: false,
-        error: null,
-      };
+    mockUseMutation.mockImplementation((options) => ({
+      mutate: () => {
+        const context = options.onMutate?.();
+        const error = new Error("Bad request") as Error & { response?: { status: number } };
+        error.response = { status: 400 };
+        options.onError?.(error, undefined, context);
+      },
+      isPending: false,
+      isError: false,
+      error: null,
+    }));
+
+    const { result } = renderHook(() => useAddWorkflowExample(workflowId));
+
+    result.current.addExample({
+      scenario: "Test scenario",
+      input: "Test input",
+      output: "Test output",
     });
 
-    renderHook(() => useAddWorkflowExample(workflowId));
-
-    // Simulate 400 error
-    const error = new Error("Bad request") as Error & { response?: { status: number } };
-    error.response = { status: 400 };
-    errorCallback!(error);
-
     await waitFor(() => {
-      expect(mockShowNotification).toHaveBeenCalledWith(
+      expect(mockUpdateToError).toHaveBeenCalledWith(
+        "test-notification-id",
         expect.objectContaining({
           title: "Cannot add example",
-          color: "red",
         }),
       );
     });
   });
 
   it("should show error notification on 422 error", async () => {
-    let errorCallback: (error: Error & { response?: { status: number } }) => void;
-    mockUseMutation.mockImplementation((options) => {
-      errorCallback = options.onError;
-      return {
-        mutate: mockMutate,
-        isPending: false,
-        isError: false,
-        error: null,
-      };
+    mockUseMutation.mockImplementation((options) => ({
+      mutate: () => {
+        const context = options.onMutate?.();
+        const error = new Error("Validation error") as Error & { response?: { status: number } };
+        error.response = { status: 422 };
+        options.onError?.(error, undefined, context);
+      },
+      isPending: false,
+      isError: false,
+      error: null,
+    }));
+
+    const { result } = renderHook(() => useAddWorkflowExample(workflowId));
+
+    result.current.addExample({
+      scenario: "Test scenario",
+      input: "Test input",
+      output: "Test output",
     });
 
-    renderHook(() => useAddWorkflowExample(workflowId));
-
-    // Simulate 422 error
-    const error = new Error("Validation error") as Error & { response?: { status: number } };
-    error.response = { status: 422 };
-    errorCallback!(error);
-
     await waitFor(() => {
-      expect(mockShowNotification).toHaveBeenCalledWith(
+      expect(mockUpdateToError).toHaveBeenCalledWith(
+        "test-notification-id",
         expect.objectContaining({
           title: "Validation error",
-          color: "red",
         }),
       );
     });
   });
 
   it("should show generic error notification on unknown error", async () => {
-    let errorCallback: (error: Error) => void;
-    mockUseMutation.mockImplementation((options) => {
-      errorCallback = options.onError;
-      return {
-        mutate: mockMutate,
-        isPending: false,
-        isError: false,
-        error: null,
-      };
+    mockUseMutation.mockImplementation((options) => ({
+      mutate: () => {
+        const context = options.onMutate?.();
+        options.onError?.(new Error("Unknown error"), undefined, context);
+      },
+      isPending: false,
+      isError: false,
+      error: null,
+    }));
+
+    const { result } = renderHook(() => useAddWorkflowExample(workflowId));
+
+    result.current.addExample({
+      scenario: "Test scenario",
+      input: "Test input",
+      output: "Test output",
     });
 
-    renderHook(() => useAddWorkflowExample(workflowId));
-
-    // Simulate unknown error
-    errorCallback!(new Error("Unknown error"));
-
     await waitFor(() => {
-      expect(mockShowNotification).toHaveBeenCalledWith(
+      expect(mockUpdateToError).toHaveBeenCalledWith(
+        "test-notification-id",
         expect.objectContaining({
           title: "Error adding example",
-          color: "red",
         }),
       );
     });

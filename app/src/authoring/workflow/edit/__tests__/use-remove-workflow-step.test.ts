@@ -8,12 +8,14 @@ vi.mock("@tanstack/react-query", () => ({
   useMutation: (options: unknown) => mockUseMutation(options),
 }));
 
-// Mock notifications
-const mockShowNotification = vi.fn();
-vi.mock("@mantine/notifications", () => ({
-  notifications: {
-    show: (opts: unknown) => mockShowNotification(opts),
-  },
+// Mock notification helpers
+const mockShowLoadingNotification = vi.fn(() => "test-notification-id");
+const mockUpdateToSuccess = vi.fn();
+const mockUpdateToError = vi.fn();
+vi.mock("@shared/ui/feedback/notification", () => ({
+  showLoadingNotification: (opts: unknown) => mockShowLoadingNotification(opts),
+  updateToSuccess: (id: string, opts: unknown) => mockUpdateToSuccess(id, opts),
+  updateToError: (id: string, opts: unknown) => mockUpdateToError(id, opts),
 }));
 
 // Mock query client
@@ -41,8 +43,12 @@ describe("useRemoveWorkflowStep", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    mockUseMutation.mockImplementation(() => ({
-      mutate: mockMutate,
+    mockUseMutation.mockImplementation((options) => ({
+      mutate: (variables: unknown) => {
+        mockMutate(variables);
+        const context = options.onMutate?.();
+        options.onSuccess?.(undefined, variables, context);
+      },
       isPending: false,
       isError: false,
       error: null,
@@ -77,105 +83,92 @@ describe("useRemoveWorkflowStep", () => {
   });
 
   it("should invalidate query cache on success", async () => {
-    let successCallback: () => void;
-    mockUseMutation.mockImplementation((options) => {
-      successCallback = options.onSuccess;
-      return {
-        mutate: mockMutate,
-        isPending: false,
-        isError: false,
-        error: null,
-      };
-    });
+    const { result } = renderHook(() => useRemoveWorkflowStep(workflowId));
 
-    renderHook(() => useRemoveWorkflowStep(workflowId));
-
-    // Simulate success
-    successCallback!();
+    result.current.removeStep(stepId);
 
     await waitFor(() => {
       expect(queryClient.invalidateQueries).toHaveBeenCalled();
     });
   });
 
-  it("should show success notification on success", async () => {
-    let successCallback: () => void;
-    mockUseMutation.mockImplementation((options) => {
-      successCallback = options.onSuccess;
-      return {
-        mutate: mockMutate,
-        isPending: false,
-        isError: false,
-        error: null,
-      };
-    });
+  it("should show loading notification on mutate", async () => {
+    const { result } = renderHook(() => useRemoveWorkflowStep(workflowId));
 
-    renderHook(() => useRemoveWorkflowStep(workflowId));
-
-    // Simulate success
-    successCallback!();
+    result.current.removeStep(stepId);
 
     await waitFor(() => {
-      expect(mockShowNotification).toHaveBeenCalledWith(
+      expect(mockShowLoadingNotification).toHaveBeenCalledWith(
+        expect.objectContaining({
+          title: "Removing step",
+          loadingMessage: "Removing step from workflow...",
+        }),
+      );
+    });
+  });
+
+  it("should show success notification on success", async () => {
+    const { result } = renderHook(() => useRemoveWorkflowStep(workflowId));
+
+    result.current.removeStep(stepId);
+
+    await waitFor(() => {
+      expect(mockUpdateToSuccess).toHaveBeenCalledWith(
+        "test-notification-id",
         expect.objectContaining({
           title: "Step removed",
-          color: "green",
         }),
       );
     });
   });
 
   it("should show error notification on 404 error", async () => {
-    let errorCallback: (error: Error & { response?: { status: number } }) => void;
-    mockUseMutation.mockImplementation((options) => {
-      errorCallback = options.onError;
-      return {
-        mutate: mockMutate,
-        isPending: false,
-        isError: false,
-        error: null,
-      };
-    });
+    mockUseMutation.mockImplementation((options) => ({
+      mutate: () => {
+        const context = options.onMutate?.();
+        const error = new Error("Not found") as Error & { response?: { status: number } };
+        error.response = { status: 404 };
+        options.onError?.(error, undefined, context);
+      },
+      isPending: false,
+      isError: false,
+      error: null,
+    }));
 
-    renderHook(() => useRemoveWorkflowStep(workflowId));
+    const { result } = renderHook(() => useRemoveWorkflowStep(workflowId));
 
-    // Simulate 404 error
-    const error = new Error("Not found") as Error & { response?: { status: number } };
-    error.response = { status: 404 };
-    errorCallback!(error);
+    result.current.removeStep(stepId);
 
     await waitFor(() => {
-      expect(mockShowNotification).toHaveBeenCalledWith(
+      expect(mockUpdateToError).toHaveBeenCalledWith(
+        "test-notification-id",
         expect.objectContaining({
-          message: "The workflow or step does not exist.",
-          color: "red",
+          title: "Not found",
         }),
       );
     });
   });
 
   it("should show generic error notification on unknown error", async () => {
-    let errorCallback: (error: Error) => void;
-    mockUseMutation.mockImplementation((options) => {
-      errorCallback = options.onError;
-      return {
-        mutate: mockMutate,
-        isPending: false,
-        isError: false,
-        error: null,
-      };
-    });
+    mockUseMutation.mockImplementation((options) => ({
+      mutate: () => {
+        const context = options.onMutate?.();
+        options.onError?.(new Error("Unknown error"), undefined, context);
+      },
+      isPending: false,
+      isError: false,
+      error: null,
+    }));
 
-    renderHook(() => useRemoveWorkflowStep(workflowId));
+    const { result } = renderHook(() => useRemoveWorkflowStep(workflowId));
 
-    // Simulate unknown error
-    errorCallback!(new Error("Unknown error"));
+    result.current.removeStep(stepId);
 
     await waitFor(() => {
-      expect(mockShowNotification).toHaveBeenCalledWith(
+      expect(mockUpdateToError).toHaveBeenCalledWith(
+        "test-notification-id",
         expect.objectContaining({
-          message: "An error occurred while removing the step.",
-          color: "red",
+          title: "Error removing step",
         }),
       );
     });
