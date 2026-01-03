@@ -15,12 +15,14 @@ vi.mock("@tanstack/react-query", () => ({
   useMutation: (options: unknown) => mockUseMutation(options),
 }));
 
-// Mock notifications
-const mockShowNotification = vi.fn();
-vi.mock("@mantine/notifications", () => ({
-  notifications: {
-    show: (opts: unknown) => mockShowNotification(opts),
-  },
+// Mock notification helpers
+const mockShowLoadingNotification = vi.fn(() => "test-notification-id");
+const mockUpdateToSuccess = vi.fn();
+const mockUpdateToError = vi.fn();
+vi.mock("@shared/ui/feedback/notification", () => ({
+  showLoadingNotification: (opts: unknown) => mockShowLoadingNotification(opts),
+  updateToSuccess: (id: string, opts: unknown) => mockUpdateToSuccess(id, opts),
+  updateToError: (id: string, opts: unknown) => mockUpdateToError(id, opts),
 }));
 
 // Mock query client
@@ -51,8 +53,8 @@ describe("useUpdateWorkflow", () => {
     mockUseMutation.mockImplementation((options) => ({
       mutate: (variables: unknown) => {
         mockMutate(variables);
-        // Simulate success by default
-        options.onSuccess?.();
+        const context = options.onMutate?.();
+        options.onSuccess?.(undefined, variables, context);
       },
       isPending: false,
       isError: false,
@@ -94,6 +96,26 @@ describe("useUpdateWorkflow", () => {
     });
   });
 
+  it("should show loading notification on mutate", async () => {
+    const { result } = renderHook(() => useUpdateWorkflow(workflowId));
+
+    act(() => {
+      result.current.updateWorkflow({
+        name: "Updated Workflow",
+        description: "Updated Description",
+      });
+    });
+
+    await waitFor(() => {
+      expect(mockShowLoadingNotification).toHaveBeenCalledWith(
+        expect.objectContaining({
+          title: "Updating workflow",
+          loadingMessage: "Saving your changes...",
+        }),
+      );
+    });
+  });
+
   it("should show success notification on success", async () => {
     const { result } = renderHook(() => useUpdateWorkflow(workflowId));
 
@@ -105,10 +127,10 @@ describe("useUpdateWorkflow", () => {
     });
 
     await waitFor(() => {
-      expect(mockShowNotification).toHaveBeenCalledWith(
+      expect(mockUpdateToSuccess).toHaveBeenCalledWith(
+        "test-notification-id",
         expect.objectContaining({
           title: "Workflow updated",
-          color: "green",
         }),
       );
     });
@@ -133,10 +155,11 @@ describe("useUpdateWorkflow", () => {
   it("should show not found error notification for 404 status", async () => {
     mockUseMutation.mockImplementation((options) => ({
       mutate: () => {
+        const context = options.onMutate?.();
         const error = {
           response: { status: 404 },
         } as AxiosError;
-        options.onError?.(error);
+        options.onError?.(error, undefined, context);
       },
       isPending: false,
       isError: true,
@@ -150,10 +173,10 @@ describe("useUpdateWorkflow", () => {
     });
 
     await waitFor(() => {
-      expect(mockShowNotification).toHaveBeenCalledWith(
+      expect(mockUpdateToError).toHaveBeenCalledWith(
+        "test-notification-id",
         expect.objectContaining({
           title: "Workflow not found",
-          color: "red",
         }),
       );
     });
@@ -162,10 +185,11 @@ describe("useUpdateWorkflow", () => {
   it("should show conflict error notification for 409 status", async () => {
     mockUseMutation.mockImplementation((options) => ({
       mutate: () => {
+        const context = options.onMutate?.();
         const error = {
           response: { status: 409 },
         } as AxiosError;
-        options.onError?.(error);
+        options.onError?.(error, undefined, context);
       },
       isPending: false,
       isError: true,
@@ -179,10 +203,10 @@ describe("useUpdateWorkflow", () => {
     });
 
     await waitFor(() => {
-      expect(mockShowNotification).toHaveBeenCalledWith(
+      expect(mockUpdateToError).toHaveBeenCalledWith(
+        "test-notification-id",
         expect.objectContaining({
           title: "Workflow already exists",
-          color: "red",
         }),
       );
     });
@@ -191,10 +215,11 @@ describe("useUpdateWorkflow", () => {
   it("should show validation error notification for 422 status", async () => {
     mockUseMutation.mockImplementation((options) => ({
       mutate: () => {
+        const context = options.onMutate?.();
         const error = {
           response: { status: 422 },
         } as AxiosError;
-        options.onError?.(error);
+        options.onError?.(error, undefined, context);
       },
       isPending: false,
       isError: true,
@@ -208,10 +233,10 @@ describe("useUpdateWorkflow", () => {
     });
 
     await waitFor(() => {
-      expect(mockShowNotification).toHaveBeenCalledWith(
+      expect(mockUpdateToError).toHaveBeenCalledWith(
+        "test-notification-id",
         expect.objectContaining({
           title: "Validation error",
-          color: "red",
         }),
       );
     });
@@ -220,10 +245,11 @@ describe("useUpdateWorkflow", () => {
   it("should show generic error notification for other errors", async () => {
     mockUseMutation.mockImplementation((options) => ({
       mutate: () => {
+        const context = options.onMutate?.();
         const error = {
           response: { status: 500 },
         } as AxiosError;
-        options.onError?.(error);
+        options.onError?.(error, undefined, context);
       },
       isPending: false,
       isError: true,
@@ -237,10 +263,10 @@ describe("useUpdateWorkflow", () => {
     });
 
     await waitFor(() => {
-      expect(mockShowNotification).toHaveBeenCalledWith(
+      expect(mockUpdateToError).toHaveBeenCalledWith(
+        "test-notification-id",
         expect.objectContaining({
           title: "Error updating workflow",
-          color: "red",
         }),
       );
     });
@@ -252,7 +278,8 @@ describe("useUpdateWorkflow", () => {
 
     mockUseMutation.mockImplementation((options) => ({
       mutate: () => {
-        options.onError?.(error);
+        const context = options.onMutate?.();
+        options.onError?.(error, undefined, context);
       },
       isPending: false,
       isError: true,

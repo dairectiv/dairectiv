@@ -9,12 +9,14 @@ vi.mock("@tanstack/react-query", () => ({
   useMutation: (options: unknown) => mockUseMutation(options),
 }));
 
-// Mock notifications
-const mockShowNotification = vi.fn();
-vi.mock("@mantine/notifications", () => ({
-  notifications: {
-    show: (opts: unknown) => mockShowNotification(opts),
-  },
+// Mock notification helpers
+const mockShowLoadingNotification = vi.fn(() => "test-notification-id");
+const mockUpdateToSuccess = vi.fn();
+const mockUpdateToError = vi.fn();
+vi.mock("@shared/ui/feedback/notification", () => ({
+  showLoadingNotification: (opts: unknown) => mockShowLoadingNotification(opts),
+  updateToSuccess: (id: string, opts: unknown) => mockUpdateToSuccess(id, opts),
+  updateToError: (id: string, opts: unknown) => mockUpdateToError(id, opts),
 }));
 
 // Mock query client
@@ -43,8 +45,8 @@ describe("usePublishWorkflow", () => {
     mockUseMutation.mockImplementation((options) => ({
       mutate: () => {
         mockMutate();
-        // Simulate success by default
-        options.onSuccess?.();
+        const context = options.onMutate?.();
+        options.onSuccess?.(undefined, undefined, context);
       },
       isPending: false,
       isError: false,
@@ -62,6 +64,23 @@ describe("usePublishWorkflow", () => {
     expect(mockMutate).toHaveBeenCalled();
   });
 
+  it("should show loading notification on mutate", async () => {
+    const { result } = renderHook(() => usePublishWorkflow("workflow-123"));
+
+    act(() => {
+      result.current.publishWorkflow();
+    });
+
+    await waitFor(() => {
+      expect(mockShowLoadingNotification).toHaveBeenCalledWith(
+        expect.objectContaining({
+          title: "Publishing workflow",
+          loadingMessage: "Publishing your workflow...",
+        }),
+      );
+    });
+  });
+
   it("should show success notification on success", async () => {
     const { result } = renderHook(() => usePublishWorkflow("workflow-123"));
 
@@ -70,10 +89,10 @@ describe("usePublishWorkflow", () => {
     });
 
     await waitFor(() => {
-      expect(mockShowNotification).toHaveBeenCalledWith(
+      expect(mockUpdateToSuccess).toHaveBeenCalledWith(
+        "test-notification-id",
         expect.objectContaining({
           title: "Workflow published",
-          color: "green",
         }),
       );
     });
@@ -95,10 +114,11 @@ describe("usePublishWorkflow", () => {
   it("should show not found notification for 404 status", async () => {
     mockUseMutation.mockImplementation((options) => ({
       mutate: () => {
+        const context = options.onMutate?.();
         const error = {
           response: { status: 404 },
         } as AxiosError;
-        options.onError?.(error);
+        options.onError?.(error, undefined, context);
       },
       isPending: false,
       isError: true,
@@ -112,10 +132,10 @@ describe("usePublishWorkflow", () => {
     });
 
     await waitFor(() => {
-      expect(mockShowNotification).toHaveBeenCalledWith(
+      expect(mockUpdateToError).toHaveBeenCalledWith(
+        "test-notification-id",
         expect.objectContaining({
           title: "Workflow not found",
-          color: "red",
         }),
       );
     });
@@ -124,10 +144,11 @@ describe("usePublishWorkflow", () => {
   it("should show conflict notification for 409 status", async () => {
     mockUseMutation.mockImplementation((options) => ({
       mutate: () => {
+        const context = options.onMutate?.();
         const error = {
           response: { status: 409 },
         } as AxiosError;
-        options.onError?.(error);
+        options.onError?.(error, undefined, context);
       },
       isPending: false,
       isError: true,
@@ -141,10 +162,10 @@ describe("usePublishWorkflow", () => {
     });
 
     await waitFor(() => {
-      expect(mockShowNotification).toHaveBeenCalledWith(
+      expect(mockUpdateToError).toHaveBeenCalledWith(
+        "test-notification-id",
         expect.objectContaining({
           title: "Cannot publish workflow",
-          color: "red",
         }),
       );
     });
@@ -153,10 +174,11 @@ describe("usePublishWorkflow", () => {
   it("should show generic error notification for other errors", async () => {
     mockUseMutation.mockImplementation((options) => ({
       mutate: () => {
+        const context = options.onMutate?.();
         const error = {
           response: { status: 500 },
         } as AxiosError;
-        options.onError?.(error);
+        options.onError?.(error, undefined, context);
       },
       isPending: false,
       isError: true,
@@ -170,10 +192,10 @@ describe("usePublishWorkflow", () => {
     });
 
     await waitFor(() => {
-      expect(mockShowNotification).toHaveBeenCalledWith(
+      expect(mockUpdateToError).toHaveBeenCalledWith(
+        "test-notification-id",
         expect.objectContaining({
           title: "Error publishing workflow",
-          color: "red",
         }),
       );
     });
@@ -185,7 +207,8 @@ describe("usePublishWorkflow", () => {
 
     mockUseMutation.mockImplementation((options) => ({
       mutate: () => {
-        options.onError?.(error);
+        const context = options.onMutate?.();
+        options.onError?.(error, undefined, context);
       },
       isPending: false,
       isError: true,

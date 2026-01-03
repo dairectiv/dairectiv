@@ -8,12 +8,14 @@ vi.mock("@tanstack/react-query", () => ({
   useMutation: (options: unknown) => mockUseMutation(options),
 }));
 
-// Mock notifications
-const mockShowNotification = vi.fn();
-vi.mock("@mantine/notifications", () => ({
-  notifications: {
-    show: (opts: unknown) => mockShowNotification(opts),
-  },
+// Mock notification helpers
+const mockShowLoadingNotification = vi.fn(() => "test-notification-id");
+const mockUpdateToSuccess = vi.fn();
+const mockUpdateToError = vi.fn();
+vi.mock("@shared/ui/feedback/notification", () => ({
+  showLoadingNotification: (opts: unknown) => mockShowLoadingNotification(opts),
+  updateToSuccess: (id: string, opts: unknown) => mockUpdateToSuccess(id, opts),
+  updateToError: (id: string, opts: unknown) => mockUpdateToError(id, opts),
 }));
 
 // Mock query client
@@ -40,8 +42,12 @@ describe("useAddWorkflowStep", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    mockUseMutation.mockImplementation(() => ({
-      mutate: mockMutate,
+    mockUseMutation.mockImplementation((options) => ({
+      mutate: (variables: unknown) => {
+        mockMutate(variables);
+        const context = options.onMutate?.();
+        options.onSuccess?.(undefined, variables, context);
+      },
       isPending: false,
       isError: false,
       error: null,
@@ -84,49 +90,40 @@ describe("useAddWorkflowStep", () => {
   });
 
   it("should invalidate query cache on success", async () => {
-    let successCallback: () => void;
-    mockUseMutation.mockImplementation((options) => {
-      successCallback = options.onSuccess;
-      return {
-        mutate: mockMutate,
-        isPending: false,
-        isError: false,
-        error: null,
-      };
-    });
+    const { result } = renderHook(() => useAddWorkflowStep(workflowId));
 
-    renderHook(() => useAddWorkflowStep(workflowId));
-
-    // Simulate success
-    successCallback!();
+    result.current.addStep({ content: "Step content" });
 
     await waitFor(() => {
       expect(queryClient.invalidateQueries).toHaveBeenCalled();
     });
   });
 
-  it("should show success notification on success", async () => {
-    let successCallback: () => void;
-    mockUseMutation.mockImplementation((options) => {
-      successCallback = options.onSuccess;
-      return {
-        mutate: mockMutate,
-        isPending: false,
-        isError: false,
-        error: null,
-      };
-    });
+  it("should show loading notification on mutate", async () => {
+    const { result } = renderHook(() => useAddWorkflowStep(workflowId));
 
-    renderHook(() => useAddWorkflowStep(workflowId));
-
-    // Simulate success
-    successCallback!();
+    result.current.addStep({ content: "Step content" });
 
     await waitFor(() => {
-      expect(mockShowNotification).toHaveBeenCalledWith(
+      expect(mockShowLoadingNotification).toHaveBeenCalledWith(
+        expect.objectContaining({
+          title: "Adding step",
+          loadingMessage: "Adding step to workflow...",
+        }),
+      );
+    });
+  });
+
+  it("should show success notification on success", async () => {
+    const { result } = renderHook(() => useAddWorkflowStep(workflowId));
+
+    result.current.addStep({ content: "Step content" });
+
+    await waitFor(() => {
+      expect(mockUpdateToSuccess).toHaveBeenCalledWith(
+        "test-notification-id",
         expect.objectContaining({
           title: "Step added",
-          color: "green",
         }),
       );
     });
@@ -134,21 +131,9 @@ describe("useAddWorkflowStep", () => {
 
   it("should call user onSuccess callback on success", async () => {
     const onSuccess = vi.fn();
-    let successCallback: () => void;
-    mockUseMutation.mockImplementation((options) => {
-      successCallback = options.onSuccess;
-      return {
-        mutate: mockMutate,
-        isPending: false,
-        isError: false,
-        error: null,
-      };
-    });
+    const { result } = renderHook(() => useAddWorkflowStep(workflowId, { onSuccess }));
 
-    renderHook(() => useAddWorkflowStep(workflowId, { onSuccess }));
-
-    // Simulate success
-    successCallback!();
+    result.current.addStep({ content: "Step content" });
 
     await waitFor(() => {
       expect(onSuccess).toHaveBeenCalled();
@@ -156,114 +141,106 @@ describe("useAddWorkflowStep", () => {
   });
 
   it("should show error notification on 404 error", async () => {
-    let errorCallback: (error: Error & { response?: { status: number } }) => void;
-    mockUseMutation.mockImplementation((options) => {
-      errorCallback = options.onError;
-      return {
-        mutate: mockMutate,
-        isPending: false,
-        isError: false,
-        error: null,
-      };
-    });
+    mockUseMutation.mockImplementation((options) => ({
+      mutate: () => {
+        const context = options.onMutate?.();
+        const error = new Error("Not found") as Error & { response?: { status: number } };
+        error.response = { status: 404 };
+        options.onError?.(error, undefined, context);
+      },
+      isPending: false,
+      isError: false,
+      error: null,
+    }));
 
-    renderHook(() => useAddWorkflowStep(workflowId));
+    const { result } = renderHook(() => useAddWorkflowStep(workflowId));
 
-    // Simulate 404 error
-    const error = new Error("Not found") as Error & { response?: { status: number } };
-    error.response = { status: 404 };
-    errorCallback!(error);
+    result.current.addStep({ content: "Step content" });
 
     await waitFor(() => {
-      expect(mockShowNotification).toHaveBeenCalledWith(
+      expect(mockUpdateToError).toHaveBeenCalledWith(
+        "test-notification-id",
         expect.objectContaining({
-          message: "The workflow does not exist.",
-          color: "red",
+          title: "Workflow not found",
         }),
       );
     });
   });
 
   it("should show error notification on 400 error", async () => {
-    let errorCallback: (error: Error & { response?: { status: number } }) => void;
-    mockUseMutation.mockImplementation((options) => {
-      errorCallback = options.onError;
-      return {
-        mutate: mockMutate,
-        isPending: false,
-        isError: false,
-        error: null,
-      };
-    });
+    mockUseMutation.mockImplementation((options) => ({
+      mutate: () => {
+        const context = options.onMutate?.();
+        const error = new Error("Bad request") as Error & { response?: { status: number } };
+        error.response = { status: 400 };
+        options.onError?.(error, undefined, context);
+      },
+      isPending: false,
+      isError: false,
+      error: null,
+    }));
 
-    renderHook(() => useAddWorkflowStep(workflowId));
+    const { result } = renderHook(() => useAddWorkflowStep(workflowId));
 
-    // Simulate 400 error
-    const error = new Error("Bad request") as Error & { response?: { status: number } };
-    error.response = { status: 400 };
-    errorCallback!(error);
+    result.current.addStep({ content: "Step content" });
 
     await waitFor(() => {
-      expect(mockShowNotification).toHaveBeenCalledWith(
+      expect(mockUpdateToError).toHaveBeenCalledWith(
+        "test-notification-id",
         expect.objectContaining({
-          message: "The workflow is archived and cannot be modified.",
-          color: "red",
+          title: "Cannot add step",
         }),
       );
     });
   });
 
   it("should show error notification on 422 error", async () => {
-    let errorCallback: (error: Error & { response?: { status: number } }) => void;
-    mockUseMutation.mockImplementation((options) => {
-      errorCallback = options.onError;
-      return {
-        mutate: mockMutate,
-        isPending: false,
-        isError: false,
-        error: null,
-      };
-    });
+    mockUseMutation.mockImplementation((options) => ({
+      mutate: () => {
+        const context = options.onMutate?.();
+        const error = new Error("Validation error") as Error & { response?: { status: number } };
+        error.response = { status: 422 };
+        options.onError?.(error, undefined, context);
+      },
+      isPending: false,
+      isError: false,
+      error: null,
+    }));
 
-    renderHook(() => useAddWorkflowStep(workflowId));
+    const { result } = renderHook(() => useAddWorkflowStep(workflowId));
 
-    // Simulate 422 error
-    const error = new Error("Validation error") as Error & { response?: { status: number } };
-    error.response = { status: 422 };
-    errorCallback!(error);
+    result.current.addStep({ content: "Step content" });
 
     await waitFor(() => {
-      expect(mockShowNotification).toHaveBeenCalledWith(
+      expect(mockUpdateToError).toHaveBeenCalledWith(
+        "test-notification-id",
         expect.objectContaining({
-          message: "Validation error. Please check the step content.",
-          color: "red",
+          title: "Validation error",
         }),
       );
     });
   });
 
   it("should show generic error notification on unknown error", async () => {
-    let errorCallback: (error: Error) => void;
-    mockUseMutation.mockImplementation((options) => {
-      errorCallback = options.onError;
-      return {
-        mutate: mockMutate,
-        isPending: false,
-        isError: false,
-        error: null,
-      };
-    });
+    mockUseMutation.mockImplementation((options) => ({
+      mutate: () => {
+        const context = options.onMutate?.();
+        options.onError?.(new Error("Unknown error"), undefined, context);
+      },
+      isPending: false,
+      isError: false,
+      error: null,
+    }));
 
-    renderHook(() => useAddWorkflowStep(workflowId));
+    const { result } = renderHook(() => useAddWorkflowStep(workflowId));
 
-    // Simulate unknown error
-    errorCallback!(new Error("Unknown error"));
+    result.current.addStep({ content: "Step content" });
 
     await waitFor(() => {
-      expect(mockShowNotification).toHaveBeenCalledWith(
+      expect(mockUpdateToError).toHaveBeenCalledWith(
+        "test-notification-id",
         expect.objectContaining({
-          message: "An error occurred while adding the step.",
-          color: "red",
+          title: "Error adding step",
         }),
       );
     });

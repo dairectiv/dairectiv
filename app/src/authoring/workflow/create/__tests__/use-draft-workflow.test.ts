@@ -15,12 +15,14 @@ vi.mock("@tanstack/react-query", () => ({
   useMutation: (options: unknown) => mockUseMutation(options),
 }));
 
-// Mock notifications
-const mockShowNotification = vi.fn();
-vi.mock("@mantine/notifications", () => ({
-  notifications: {
-    show: (opts: unknown) => mockShowNotification(opts),
-  },
+// Mock notification helpers
+const mockShowLoadingNotification = vi.fn(() => "test-notification-id");
+const mockUpdateToSuccess = vi.fn();
+const mockUpdateToError = vi.fn();
+vi.mock("@shared/ui/feedback/notification", () => ({
+  showLoadingNotification: (opts: unknown) => mockShowLoadingNotification(opts),
+  updateToSuccess: (id: string, opts: unknown) => mockUpdateToSuccess(id, opts),
+  updateToError: (id: string, opts: unknown) => mockUpdateToError(id, opts),
 }));
 
 // Mock query client
@@ -48,8 +50,8 @@ describe("useDraftWorkflow", () => {
     mockUseMutation.mockImplementation((options) => ({
       mutate: (variables: unknown) => {
         mockMutate(variables);
-        // Simulate success by default
-        options.onSuccess?.();
+        const context = options.onMutate?.();
+        options.onSuccess?.(undefined, variables, context);
       },
       isPending: false,
       isError: false,
@@ -82,6 +84,23 @@ describe("useDraftWorkflow", () => {
     });
   });
 
+  it("should show loading notification on mutate", async () => {
+    const { result } = renderHook(() => useDraftWorkflow());
+
+    act(() => {
+      result.current.draftWorkflow({ name: "Test Workflow", description: "Test Description" });
+    });
+
+    await waitFor(() => {
+      expect(mockShowLoadingNotification).toHaveBeenCalledWith(
+        expect.objectContaining({
+          title: "Creating workflow",
+          loadingMessage: "Creating your workflow...",
+        }),
+      );
+    });
+  });
+
   it("should show success notification on success", async () => {
     const { result } = renderHook(() => useDraftWorkflow());
 
@@ -90,10 +109,10 @@ describe("useDraftWorkflow", () => {
     });
 
     await waitFor(() => {
-      expect(mockShowNotification).toHaveBeenCalledWith(
+      expect(mockUpdateToSuccess).toHaveBeenCalledWith(
+        "test-notification-id",
         expect.objectContaining({
           title: "Workflow created",
-          color: "green",
         }),
       );
     });
@@ -115,10 +134,11 @@ describe("useDraftWorkflow", () => {
   it("should show conflict error notification for 409 status", async () => {
     mockUseMutation.mockImplementation((options) => ({
       mutate: () => {
+        const context = options.onMutate?.();
         const error = {
           response: { status: 409 },
         } as AxiosError;
-        options.onError?.(error);
+        options.onError?.(error, undefined, context);
       },
       isPending: false,
       isError: true,
@@ -132,10 +152,10 @@ describe("useDraftWorkflow", () => {
     });
 
     await waitFor(() => {
-      expect(mockShowNotification).toHaveBeenCalledWith(
+      expect(mockUpdateToError).toHaveBeenCalledWith(
+        "test-notification-id",
         expect.objectContaining({
           title: "Workflow already exists",
-          color: "red",
         }),
       );
     });
@@ -144,10 +164,11 @@ describe("useDraftWorkflow", () => {
   it("should show validation error notification for 422 status", async () => {
     mockUseMutation.mockImplementation((options) => ({
       mutate: () => {
+        const context = options.onMutate?.();
         const error = {
           response: { status: 422 },
         } as AxiosError;
-        options.onError?.(error);
+        options.onError?.(error, undefined, context);
       },
       isPending: false,
       isError: true,
@@ -161,10 +182,10 @@ describe("useDraftWorkflow", () => {
     });
 
     await waitFor(() => {
-      expect(mockShowNotification).toHaveBeenCalledWith(
+      expect(mockUpdateToError).toHaveBeenCalledWith(
+        "test-notification-id",
         expect.objectContaining({
           title: "Validation error",
-          color: "red",
         }),
       );
     });
@@ -173,10 +194,11 @@ describe("useDraftWorkflow", () => {
   it("should show generic error notification for other errors", async () => {
     mockUseMutation.mockImplementation((options) => ({
       mutate: () => {
+        const context = options.onMutate?.();
         const error = {
           response: { status: 500 },
         } as AxiosError;
-        options.onError?.(error);
+        options.onError?.(error, undefined, context);
       },
       isPending: false,
       isError: true,
@@ -190,10 +212,10 @@ describe("useDraftWorkflow", () => {
     });
 
     await waitFor(() => {
-      expect(mockShowNotification).toHaveBeenCalledWith(
+      expect(mockUpdateToError).toHaveBeenCalledWith(
+        "test-notification-id",
         expect.objectContaining({
           title: "Error creating workflow",
-          color: "red",
         }),
       );
     });
@@ -205,7 +227,8 @@ describe("useDraftWorkflow", () => {
 
     mockUseMutation.mockImplementation((options) => ({
       mutate: () => {
-        options.onError?.(error);
+        const context = options.onMutate?.();
+        options.onError?.(error, undefined, context);
       },
       isPending: false,
       isError: true,
