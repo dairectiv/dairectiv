@@ -1,10 +1,14 @@
-import { notifications } from "@mantine/notifications";
 import {
   getWorkflowQueryKey,
   listWorkflowsQueryKey,
 } from "@shared/infrastructure/api/generated/@tanstack/react-query.gen";
 import { archiveWorkflow as archiveWorkflowApi } from "@shared/infrastructure/api/generated/sdk.gen";
 import { queryClient } from "@shared/infrastructure/query-client/query-client";
+import {
+  showLoadingNotification,
+  updateToError,
+  updateToSuccess,
+} from "@shared/ui/feedback/notification";
 import { useMutation } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import type { AxiosError } from "axios";
@@ -14,6 +18,10 @@ export interface UseArchiveWorkflowOptions {
   onError?: (error: AxiosError) => void;
 }
 
+interface MutationContext {
+  notificationId: string;
+}
+
 export function useArchiveWorkflow(workflowId: string, options?: UseArchiveWorkflowOptions) {
   const navigate = useNavigate();
 
@@ -21,17 +29,24 @@ export function useArchiveWorkflow(workflowId: string, options?: UseArchiveWorkf
     mutationFn: async () => {
       await archiveWorkflowApi({ path: { id: workflowId }, throwOnError: true });
     },
-    onSuccess: () => {
+    onMutate: (): MutationContext => {
+      const notificationId = showLoadingNotification({
+        title: "Archiving workflow",
+        message: "Workflow archived successfully",
+        loadingMessage: "Archiving your workflow...",
+      });
+      return { notificationId };
+    },
+    onSuccess: (_data, _variables, context) => {
+      updateToSuccess(context.notificationId, {
+        title: "Workflow archived",
+        message: "The workflow has been archived successfully.",
+      });
+
       // Invalidate both the list and detail queries
       queryClient.invalidateQueries({ queryKey: listWorkflowsQueryKey() });
       queryClient.invalidateQueries({
         queryKey: getWorkflowQueryKey({ path: { id: workflowId } }),
-      });
-
-      notifications.show({
-        title: "Workflow archived",
-        message: "The workflow has been archived successfully.",
-        color: "green",
       });
 
       // Navigate back to workflows list
@@ -39,26 +54,23 @@ export function useArchiveWorkflow(workflowId: string, options?: UseArchiveWorkf
 
       options?.onSuccess?.();
     },
-    onError: (error: AxiosError) => {
+    onError: (error: AxiosError, _variables, context) => {
       const status = error.response?.status;
 
       if (status === 404) {
-        notifications.show({
+        updateToError(context?.notificationId ?? "", {
           title: "Workflow not found",
           message: "The workflow could not be found. It may have been deleted.",
-          color: "red",
         });
       } else if (status === 409) {
-        notifications.show({
+        updateToError(context?.notificationId ?? "", {
           title: "Cannot archive workflow",
           message: "The workflow is already archived.",
-          color: "red",
         });
       } else {
-        notifications.show({
+        updateToError(context?.notificationId ?? "", {
           title: "Error archiving workflow",
           message: "An unexpected error occurred. Please try again.",
-          color: "red",
         });
       }
 

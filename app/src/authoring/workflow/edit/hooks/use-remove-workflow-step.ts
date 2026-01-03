@@ -1,8 +1,16 @@
-import { notifications } from "@mantine/notifications";
 import { removeWorkflowStep as removeWorkflowStepApi } from "@shared/infrastructure/api/generated";
 import { getWorkflowQueryKey } from "@shared/infrastructure/api/generated/@tanstack/react-query.gen";
 import { queryClient } from "@shared/infrastructure/query-client/query-client";
+import {
+  showLoadingNotification,
+  updateToError,
+  updateToSuccess,
+} from "@shared/ui/feedback/notification";
 import { useMutation } from "@tanstack/react-query";
+
+interface MutationContext {
+  notificationId: string;
+}
 
 export function useRemoveWorkflowStep(workflowId: string) {
   const mutation = useMutation({
@@ -12,29 +20,38 @@ export function useRemoveWorkflowStep(workflowId: string) {
       });
       return response.data;
     },
-    onSuccess: () => {
+    onMutate: (): MutationContext => {
+      const notificationId = showLoadingNotification({
+        title: "Removing step",
+        message: "Step removed successfully",
+        loadingMessage: "Removing step from workflow...",
+      });
+      return { notificationId };
+    },
+    onSuccess: (_data, _variables, context) => {
+      updateToSuccess(context.notificationId, {
+        title: "Step removed",
+        message: "The step has been removed successfully.",
+      });
+
       queryClient.invalidateQueries({
         queryKey: getWorkflowQueryKey({ path: { id: workflowId } }),
       });
-      notifications.show({
-        title: "Step removed",
-        message: "The step has been removed successfully.",
-        color: "green",
-      });
     },
-    onError: (error: Error & { response?: { status: number } }) => {
+    onError: (error: Error & { response?: { status: number } }, _variables, context) => {
       const status = error.response?.status;
-      let message = "An error occurred while removing the step.";
 
       if (status === 404) {
-        message = "The workflow or step does not exist.";
+        updateToError(context?.notificationId ?? "", {
+          title: "Not found",
+          message: "The workflow or step does not exist.",
+        });
+      } else {
+        updateToError(context?.notificationId ?? "", {
+          title: "Error removing step",
+          message: "An error occurred while removing the step.",
+        });
       }
-
-      notifications.show({
-        title: "Error",
-        message,
-        color: "red",
-      });
     },
   });
 
