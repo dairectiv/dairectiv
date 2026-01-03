@@ -33,7 +33,7 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <MantineProvider theme={theme} defaultColorScheme="auto">
-        <Notifications position="top-right" />
+        <Notifications position="bottom-right" autoClose={5000} />
         <Outlet />
         <ReactQueryDevtools initialIsOpen={false} />
         <TanStackRouterDevtools position="bottom-right" />
