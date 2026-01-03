@@ -1,8 +1,8 @@
-import { notifications } from "@mantine/notifications";
 import { getWorkflowQueryKey } from "@shared/infrastructure/api/generated/@tanstack/react-query.gen";
 import { moveWorkflowStep as moveWorkflowStepApi } from "@shared/infrastructure/api/generated/sdk.gen";
 import type { MoveWorkflowStepPayload } from "@shared/infrastructure/api/generated/types.gen";
 import { queryClient } from "@shared/infrastructure/query-client/query-client";
+import { showError } from "@shared/ui/feedback/notification";
 import { useMutation } from "@tanstack/react-query";
 import type { AxiosError } from "axios";
 
@@ -38,22 +38,19 @@ export function useMoveWorkflowStep(workflowId: string, options?: UseMoveWorkflo
       const status = error.response?.status;
 
       if (status === 404) {
-        notifications.show({
+        showError({
           title: "Not found",
           message: "The workflow or step does not exist.",
-          color: "red",
         });
       } else if (status === 400) {
-        notifications.show({
+        showError({
           title: "Cannot move step",
           message: "The workflow is archived or the step configuration is invalid.",
-          color: "red",
         });
       } else {
-        notifications.show({
+        showError({
           title: "Error moving step",
           message: "An unexpected error occurred. Please try again.",
-          color: "red",
         });
       }
 

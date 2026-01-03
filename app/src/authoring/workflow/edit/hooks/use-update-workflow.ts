@@ -1,4 +1,3 @@
-import { notifications } from "@mantine/notifications";
 import {
   getWorkflowQueryKey,
   listWorkflowsQueryKey,
@@ -6,6 +5,11 @@ import {
 import { updateWorkflow as updateWorkflowApi } from "@shared/infrastructure/api/generated/sdk.gen";
 import type { UpdateWorkflowPayload } from "@shared/infrastructure/api/generated/types.gen";
 import { queryClient } from "@shared/infrastructure/query-client/query-client";
+import {
+  showLoadingNotification,
+  updateToError,
+  updateToSuccess,
+} from "@shared/ui/feedback/notification";
 import { useMutation } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import type { AxiosError } from "axios";
@@ -13,6 +17,10 @@ import type { AxiosError } from "axios";
 export interface UseUpdateWorkflowOptions {
   onSuccess?: () => void;
   onError?: (error: AxiosError) => void;
+}
+
+interface MutationContext {
+  notificationId: string;
 }
 
 export function useUpdateWorkflow(workflowId: string, options?: UseUpdateWorkflowOptions) {
@@ -27,17 +35,24 @@ export function useUpdateWorkflow(workflowId: string, options?: UseUpdateWorkflo
       });
       return data;
     },
-    onSuccess: () => {
+    onMutate: (): MutationContext => {
+      const notificationId = showLoadingNotification({
+        title: "Updating workflow",
+        message: "Workflow updated successfully",
+        loadingMessage: "Saving your changes...",
+      });
+      return { notificationId };
+    },
+    onSuccess: (_data, _variables, context) => {
+      updateToSuccess(context.notificationId, {
+        title: "Workflow updated",
+        message: "Your workflow has been updated successfully.",
+      });
+
       // Invalidate both the workflows list and the specific workflow detail
       queryClient.invalidateQueries({ queryKey: listWorkflowsQueryKey() });
       queryClient.invalidateQueries({
         queryKey: getWorkflowQueryKey({ path: { id: workflowId } }),
-      });
-
-      notifications.show({
-        title: "Workflow updated",
-        message: "Your workflow has been updated successfully.",
-        color: "green",
       });
 
       // Navigate to workflow detail page
@@ -45,32 +60,28 @@ export function useUpdateWorkflow(workflowId: string, options?: UseUpdateWorkflo
 
       options?.onSuccess?.();
     },
-    onError: (error: AxiosError) => {
+    onError: (error: AxiosError, _variables, context) => {
       const status = error.response?.status;
 
       if (status === 404) {
-        notifications.show({
+        updateToError(context?.notificationId ?? "", {
           title: "Workflow not found",
           message: "The workflow you are trying to update does not exist.",
-          color: "red",
         });
       } else if (status === 409) {
-        notifications.show({
+        updateToError(context?.notificationId ?? "", {
           title: "Workflow already exists",
           message: "A workflow with this name already exists. Please choose a different name.",
-          color: "red",
         });
       } else if (status === 422) {
-        notifications.show({
+        updateToError(context?.notificationId ?? "", {
           title: "Validation error",
           message: "Please check the form fields and try again.",
-          color: "red",
         });
       } else {
-        notifications.show({
+        updateToError(context?.notificationId ?? "", {
           title: "Error updating workflow",
           message: "An unexpected error occurred. Please try again.",
-          color: "red",
         });
       }
 

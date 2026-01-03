@@ -1,13 +1,21 @@
-import { notifications } from "@mantine/notifications";
 import { getRuleQueryKey } from "@shared/infrastructure/api/generated/@tanstack/react-query.gen";
 import { removeRuleExample as removeRuleExampleApi } from "@shared/infrastructure/api/generated/sdk.gen";
 import { queryClient } from "@shared/infrastructure/query-client/query-client";
+import {
+  showLoadingNotification,
+  updateToError,
+  updateToSuccess,
+} from "@shared/ui/feedback/notification";
 import { useMutation } from "@tanstack/react-query";
 import type { AxiosError } from "axios";
 
 export interface UseRemoveRuleExampleOptions {
   onSuccess?: () => void;
   onError?: (error: AxiosError) => void;
+}
+
+interface MutationContext {
+  notificationId: string;
 }
 
 export function useRemoveRuleExample(ruleId: string, options?: UseRemoveRuleExampleOptions) {
@@ -19,33 +27,38 @@ export function useRemoveRuleExample(ruleId: string, options?: UseRemoveRuleExam
       });
       return data;
     },
-    onSuccess: () => {
+    onMutate: (): MutationContext => {
+      const notificationId = showLoadingNotification({
+        title: "Removing example",
+        message: "Example removed successfully",
+        loadingMessage: "Removing example from rule...",
+      });
+      return { notificationId };
+    },
+    onSuccess: (_data, _variables, context) => {
+      updateToSuccess(context.notificationId, {
+        title: "Example removed",
+        message: "The example has been removed from the rule.",
+      });
+
       queryClient.invalidateQueries({
         queryKey: getRuleQueryKey({ path: { id: ruleId } }),
       });
 
-      notifications.show({
-        title: "Example removed",
-        message: "The example has been removed from the rule.",
-        color: "green",
-      });
-
       options?.onSuccess?.();
     },
-    onError: (error: AxiosError) => {
+    onError: (error: AxiosError, _variables, context) => {
       const status = error.response?.status;
 
       if (status === 404) {
-        notifications.show({
+        updateToError(context?.notificationId ?? "", {
           title: "Not found",
           message: "The rule or example was not found.",
-          color: "red",
         });
       } else {
-        notifications.show({
+        updateToError(context?.notificationId ?? "", {
           title: "Error removing example",
           message: "An unexpected error occurred. Please try again.",
-          color: "red",
         });
       }
 
