@@ -739,6 +739,95 @@ Available aliases:
 - `@/*` -> `src/*`
 - `@shared/*` -> `src/shared-kernel/*`
 
+### Notification System
+
+The application uses a centralized notification system for user feedback. All notifications should be created using the helper functions from `@shared/ui/feedback/notification`.
+
+**When to use notifications:**
+- Form submissions (create, update, delete operations)
+- API operations with user-visible side effects
+- Error feedback from API calls
+- Success confirmations for user actions
+
+**Available helpers:**
+
+| Function | Use Case |
+|----------|----------|
+| `showSuccess({ title, message })` | Direct success notification |
+| `showError({ title, message })` | Direct error notification |
+| `showInfo({ title, message })` | Informational notification |
+| `showWarning({ title, message })` | Warning notification |
+| `showLoadingNotification({ title, message, loadingMessage })` | Loading state that transforms to success/error |
+| `updateToSuccess(id, { title, message })` | Update loading notification to success |
+| `updateToError(id, { title, message })` | Update loading notification to error |
+| `hideNotification(id)` | Hide specific notification |
+| `hideAllNotifications()` | Hide all notifications |
+
+**Pattern for mutations with loading state:**
+
+Use the loading→success/error pattern for all API mutations to provide smooth user feedback:
+
+```typescript
+import {
+  showLoadingNotification,
+  updateToError,
+  updateToSuccess,
+} from "@shared/ui/feedback/notification";
+
+interface MutationContext {
+  notificationId: string;
+}
+
+const mutation = useMutation({
+  mutationFn: async (payload) => {
+    // API call
+  },
+  onMutate: (): MutationContext => {
+    const notificationId = showLoadingNotification({
+      title: "Creating rule",
+      message: "Rule created successfully",
+      loadingMessage: "Creating your rule...",
+    });
+    return { notificationId };
+  },
+  onSuccess: (_data, _variables, context) => {
+    updateToSuccess(context.notificationId, {
+      title: "Rule created",
+      message: "Your rule has been created successfully.",
+    });
+    // Invalidate queries, navigate, etc.
+  },
+  onError: (error: AxiosError, _variables, context) => {
+    const status = error.response?.status;
+
+    if (status === 404) {
+      updateToError(context?.notificationId ?? "", {
+        title: "Not found",
+        message: "The resource does not exist.",
+      });
+    } else {
+      updateToError(context?.notificationId ?? "", {
+        title: "Error",
+        message: "An unexpected error occurred.",
+      });
+    }
+  },
+});
+```
+
+**Exception: Instant operations**
+
+For operations that don't need a loading state (e.g., drag-and-drop reordering), use direct `showError()` for errors only:
+
+```typescript
+onError: (error) => {
+  showError({
+    title: "Error",
+    message: "Failed to move item.",
+  });
+};
+```
+
 ## Claude Code Skills
 
 This project includes custom Skills that extend Claude's capabilities:
