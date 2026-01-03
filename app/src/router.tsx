@@ -1,8 +1,8 @@
 import { createTheme, MantineProvider } from "@mantine/core";
 import "@mantine/core/styles.css";
-import { Notifications } from "@mantine/notifications";
 import "@mantine/notifications/styles.css";
 import { queryClient } from "@shared/infrastructure/query-client/query-client";
+import { NotificationContainer } from "@shared/ui/feedback/notification";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { createRootRoute, createRoute, createRouter, Outlet } from "@tanstack/react-router";
@@ -33,7 +33,7 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <MantineProvider theme={theme} defaultColorScheme="auto">
-        <Notifications position="bottom-right" autoClose={5000} />
+        <NotificationContainer />
         <Outlet />
         <ReactQueryDevtools initialIsOpen={false} />
         <TanStackRouterDevtools position="bottom-right" />

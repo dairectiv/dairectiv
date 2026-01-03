@@ -145,6 +145,7 @@ function NotificationDemo() {
 const meta: Meta<typeof NotificationDemo> = {
   title: "Feedback/Notification/Demo",
   component: NotificationDemo,
+  tags: ["autodocs"],
   parameters: {
     layout: "fullscreen",
   },
