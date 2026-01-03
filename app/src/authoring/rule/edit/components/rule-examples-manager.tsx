@@ -6,6 +6,7 @@ import type {
   UpdateRuleExamplePayload,
 } from "@shared/infrastructure/api/generated/types.gen";
 import { IconInfoCircle, IconPlus } from "@tabler/icons-react";
+import { useState } from "react";
 import { useAddRuleExample } from "../hooks/use-add-rule-example";
 import { useRemoveRuleExample } from "../hooks/use-remove-rule-example";
 import { useUpdateRuleExample } from "../hooks/use-update-rule-example";
@@ -19,10 +20,12 @@ export interface RuleExamplesManagerProps {
 
 export function RuleExamplesManager({ ruleId, examples }: RuleExamplesManagerProps) {
   const [addFormOpened, { open: openAddForm, close: closeAddForm }] = useDisclosure(false);
+  const [formKey, setFormKey] = useState(0);
 
   const { addExample, isAdding } = useAddRuleExample(ruleId, {
     onSuccess: () => {
       closeAddForm();
+      setFormKey((k) => k + 1);
     },
   });
 
@@ -68,6 +71,7 @@ export function RuleExamplesManager({ ruleId, examples }: RuleExamplesManagerPro
             <Stack gap="sm">
               <Title order={5}>New Example</Title>
               <RuleExampleForm
+                key={formKey}
                 onSubmit={handleAddExample}
                 onCancel={closeAddForm}
                 isLoading={isAdding}

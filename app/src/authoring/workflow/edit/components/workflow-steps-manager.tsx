@@ -20,6 +20,7 @@ import type {
   UpdateWorkflowStepPayload,
 } from "@shared/infrastructure/api/generated/types.gen";
 import { IconInfoCircle, IconPlus } from "@tabler/icons-react";
+import { useState } from "react";
 import { useAddWorkflowStep } from "../hooks/use-add-workflow-step";
 import { useMoveWorkflowStep } from "../hooks/use-move-workflow-step";
 import { useRemoveWorkflowStep } from "../hooks/use-remove-workflow-step";
@@ -34,10 +35,12 @@ export interface WorkflowStepsManagerProps {
 
 export function WorkflowStepsManager({ workflowId, steps }: WorkflowStepsManagerProps) {
   const [addFormOpened, { open: openAddForm, close: closeAddForm }] = useDisclosure(false);
+  const [formKey, setFormKey] = useState(0);
 
   const { addStep, isAdding } = useAddWorkflowStep(workflowId, {
     onSuccess: () => {
       closeAddForm();
+      setFormKey((k) => k + 1);
     },
   });
 
@@ -135,6 +138,7 @@ export function WorkflowStepsManager({ workflowId, steps }: WorkflowStepsManager
             <Stack gap="sm">
               <Title order={5}>New Step</Title>
               <WorkflowStepForm
+                key={formKey}
                 onSubmit={handleAddStep}
                 onCancel={closeAddForm}
                 isLoading={isAdding}
