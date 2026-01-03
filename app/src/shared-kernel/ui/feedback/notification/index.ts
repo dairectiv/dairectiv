@@ -1,4 +1,3 @@
-export { ConfirmModal, type ConfirmModalProps } from "./confirm-modal";
 export {
   hideAllNotifications,
   hideNotification,
@@ -11,4 +10,4 @@ export {
   showWarning,
   updateToError,
   updateToSuccess,
-} from "./notification";
+} from "./notification-helpers";
