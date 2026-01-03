@@ -2,6 +2,7 @@ import { Alert, Button, Card, Collapse, Stack, Text, Title } from "@mantine/core
 import { useDisclosure } from "@mantine/hooks";
 import type { WorkflowExampleResponse } from "@shared/infrastructure/api/generated/types.gen";
 import { IconInfoCircle, IconPlus } from "@tabler/icons-react";
+import { useState } from "react";
 import { useAddWorkflowExample } from "../hooks/use-add-workflow-example";
 import { useRemoveWorkflowExample } from "../hooks/use-remove-workflow-example";
 import { useUpdateWorkflowExample } from "../hooks/use-update-workflow-example";
@@ -15,9 +16,13 @@ export interface WorkflowExamplesManagerProps {
 
 export function WorkflowExamplesManager({ workflowId, examples }: WorkflowExamplesManagerProps) {
   const [addFormOpened, { open: openAddForm, close: closeAddForm }] = useDisclosure(false);
+  const [formKey, setFormKey] = useState(0);
 
   const { addExample, isAdding } = useAddWorkflowExample(workflowId, {
-    onSuccess: () => closeAddForm(),
+    onSuccess: () => {
+      closeAddForm();
+      setFormKey((k) => k + 1);
+    },
   });
 
   const { updateExample, isUpdating } = useUpdateWorkflowExample(workflowId);
@@ -72,6 +77,7 @@ export function WorkflowExamplesManager({ workflowId, examples }: WorkflowExampl
           <Stack gap="md">
             <Text fw={500}>New Example</Text>
             <WorkflowExampleForm
+              key={formKey}
               onSubmit={handleAddExample}
               onCancel={closeAddForm}
               isLoading={isAdding}

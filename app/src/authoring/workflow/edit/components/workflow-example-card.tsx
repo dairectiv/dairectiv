@@ -1,6 +1,7 @@
-import { ActionIcon, Badge, Button, Card, Group, Modal, Stack, Text } from "@mantine/core";
+import { ActionIcon, Badge, Card, Group, Stack, Text } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import type { WorkflowExampleResponse } from "@shared/infrastructure/api/generated/types.gen";
+import { ConfirmModal } from "@shared/ui/feedback";
 import { IconEdit, IconTrash } from "@tabler/icons-react";
 import { useState } from "react";
 import { WorkflowExampleForm, type WorkflowExampleFormValues } from "./workflow-example-form";
@@ -125,19 +126,16 @@ export function WorkflowExampleCard({
         </Stack>
       </Card>
 
-      <Modal opened={deleteModalOpened} onClose={closeDeleteModal} title="Delete Example" centered>
-        <Stack gap="md">
-          <Text>Are you sure you want to delete this example? This action cannot be undone.</Text>
-          <Group justify="flex-end" gap="sm">
-            <Button variant="subtle" onClick={closeDeleteModal}>
-              Cancel
-            </Button>
-            <Button color="red" onClick={handleDelete} loading={isRemoving}>
-              Delete
-            </Button>
-          </Group>
-        </Stack>
-      </Modal>
+      <ConfirmModal
+        opened={deleteModalOpened}
+        onClose={closeDeleteModal}
+        onConfirm={handleDelete}
+        title="Delete Example"
+        message="Are you sure you want to delete this example? This action cannot be undone."
+        confirmLabel="Delete"
+        confirmColor="red"
+        isLoading={isRemoving}
+      />
     </>
   );
 }
