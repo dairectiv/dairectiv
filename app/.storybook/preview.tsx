@@ -1,5 +1,6 @@
 import { createTheme, MantineProvider } from "@mantine/core";
 import "@mantine/core/styles.css";
+import { Notifications } from "@mantine/notifications";
 import "@mantine/notifications/styles.css";
 import type { Preview, ReactRenderer } from "@storybook/react";
 import type { PartialStoryFn } from "@storybook/types";
@@ -24,6 +25,7 @@ function AppDecorator(Story: PartialStoryFn<ReactRenderer>): ReactNode {
   const rootRoute = createRootRoute({
     component: () => (
       <MantineProvider theme={theme}>
+        <Notifications position="bottom-right" />
         <Outlet />
       </MantineProvider>
     ),
